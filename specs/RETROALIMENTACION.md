@@ -487,3 +487,78 @@ Al completar todas las sub-fases de cualquiera de las 12 fases maestras:
 ---
 
 *(Fase 05 completada al 100%. Las siguientes fases se irán completando y documentando en esta misma bitácora de forma continua).*
+
+---
+
+### 🔹 FASE 06: App Shell y Grafo de Navegación Type-Safe
+
+#### 📍 Sub-fase 6.1: Rutas Type-Safe (`AndinaDestinations.kt`)
+* **Fecha:** 2026-10-07
+* **Commit:** `2f47bc6`
+* **Archivos intervenidos:**
+  * `app/src/main/java/com/andina/finanzas/ui/navigation/AndinaDestinations.kt` (definición de destinos serializables con `@Serializable`: `HomeRoute`, `PocketsRoute`, `WalletsRoute`, `TransactionsRoute`, `RegisterRoute` con argumentos opcionales, `StatsRoute` y enum `AndinaNavTab` con iconos rellenos y delineados oficiales).
+* **Reporte del Agente (Quality Gate):**
+  * Rutas declarativas y fuertemente tipadas sin strings codificados a mano, compatibles con Navigation Compose 2.8+.
+* **📝 Espacio de Retroalimentación del Usuario:**
+  > *(Escribe aquí tus observaciones, dudas o confirmación para esta sub-fase)*
+* **Estado:** `[ COMPLETADA ]`
+
+---
+
+#### 📍 Sub-fase 6.2: Barra Inferior Andina Oficial (`AndinaBottomBar.kt`)
+* **Fecha:** 2026-10-07
+* **Commit:** `adb7247`
+* **Archivos intervenidos:**
+  * `app/src/main/java/com/andina/finanzas/ui/components/AndinaBottomBar.kt` (barra de navegación con 4 pestañas simétricas `[ Inicio ]` · `[ Bolsillos ]` · 🟢 `(+)` · `[ Billeteras ]` · `[ Movimientos ]`, botón central flotante elevado -16dp con halo de sombra verde andino, escala tipo resorte al presionar, feedback háptico `LongPress` y áreas táctiles de 48dp con alineación horizontal centrada).
+* **Reporte del Agente (Quality Gate):**
+  * Cumple las directrices de accesibilidad (touch targets >= 48dp) y resuelve los riesgos de alineación vertical en `Column` documentados en `ARQUITECTURA.md`.
+* **📝 Espacio de Retroalimentación del Usuario:**
+  > *(Escribe aquí tus observaciones, dudas o confirmación para esta sub-fase)*
+* **Estado:** `[ COMPLETADA ]`
+
+---
+
+#### 📍 Sub-fase 6.3: Scaffold Raíz con SafeDrawing (`AndinaAppShell.kt`)
+* **Fecha:** 2026-10-07
+* **Commit:** `cc00ef3`
+* **Archivos intervenidos:**
+  * `app/src/main/java/com/andina/finanzas/ui/navigation/AndinaAppShell.kt` (scaffold raíz con `WindowInsets(0)` para Edge-to-Edge nativo, `AndinaAppState` con preservación de estado `saveState = true`/`restoreState = true`, ocultamiento automático de la barra en pantallas secundarias y placeholders visuales de alta fidelidad).
+* **Reporte del Agente (Quality Gate):**
+  * Soporte completo para insets del sistema, navegación fluida sin recomposiciones innecesarias y control centralizado de `SnackbarHostState`.
+* **📝 Espacio de Retroalimentación del Usuario:**
+  > *(Escribe aquí tus observaciones, dudas o confirmación para esta sub-fase)*
+* **Estado:** `[ COMPLETADA ]`
+
+---
+
+#### 📍 Sub-fase 6.4: Punto de Entrada (`MainActivity.kt` y `AndinaApp.kt`)
+* **Fecha:** 2026-10-07
+* **Commit:** `9199cd8`
+* **Archivos intervenidos:**
+  * `app/src/main/java/com/andina/finanzas/AndinaApp.kt` (clase `Application` anotada con `@HiltAndroidApp`).
+  * `app/src/main/java/com/andina/finanzas/MainActivity.kt` (`ComponentActivity` con `@AndroidEntryPoint`, `enableEdgeToEdge()` y llamada a `AndinaTheme` con `AndinaAppShell`).
+* **Reporte del Agente (Quality Gate):**
+  * Empaquetado completo de la aplicación sin dependencias sueltas ni advertencias de manifiesto.
+* **📝 Espacio de Retroalimentación del Usuario:**
+  > *(Escribe aquí tus observaciones, dudas o confirmación para esta sub-fase)*
+* **Estado:** `[ COMPLETADA ]`
+
+---
+
+#### 📍 Sub-fase 6.5: Quality Gate de Navegación y BackStack (`NavigationBackStackTest.kt`)
+* **Fecha:** 2026-10-07
+* **Commit:** `8881cc0`
+* **Archivos intervenidos:**
+  * `app/src/test/java/com/andina/finanzas/ui/navigation/NavigationBackStackTest.kt` (suite de 4 pruebas unitarias validando serialización/deserialización JSON de todas las rutas, correspondencia exacta de pestañas, jerarquía natural de retroceso y ocultamiento de barra inferior en formularios).
+  * `app/src/test/java/com/andina/finanzas/ui/components/ComponentsStabilityUnitTest.kt` (ajuste de aserción para respetar formato COP).
+* **Reporte del Agente (Quality Gate):**
+  * Ejecución exitosa de `:app:testDebugUnitTest` con 28 pruebas unitarias pasando al 100% en verde en todo el proyecto.
+  * Tarea `:app:assembleDebug` ejecutada con éxito generando el APK funcional de depuración.
+* **📝 Espacio de Retroalimentación del Usuario:**
+  > *(Escribe aquí tus observaciones antes de autorizar el cierre definitivo de Fase 06 y avanzar a la Fase 07)*
+* **Estado:** `[ COMPLETADA ]`
+
+---
+
+*(Fase 06 completada al 100%. Las siguientes fases se irán completando y documentando en esta misma bitácora de forma continua).*
+
