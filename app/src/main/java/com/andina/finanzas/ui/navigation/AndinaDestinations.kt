@@ -43,6 +43,12 @@ data object WalletsRoute : AndinaDestination
 data object TransactionsRoute : AndinaDestination
 
 /**
+ * Pantalla de Detalle y Edición de Movimiento Contable (Fase 10).
+ */
+@Serializable
+data class TransactionDetailRoute(val transactionId: Long) : AndinaDestination
+
+/**
  * Flujo de Registro Rápido: Modal / Pantalla protagonista con Muggy y teclado numérico propio.
  */
 @Serializable

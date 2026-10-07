@@ -9,6 +9,9 @@ import com.andina.finanzas.domain.model.Transaction
 import com.andina.finanzas.domain.model.Wallet
 import kotlinx.coroutines.flow.Flow
 
+import androidx.paging.PagingData
+import com.andina.finanzas.domain.model.TransactionType
+
 /**
  * Contrato central del repositorio de finanzas del dominio.
  * Desacopla la lógica de negocio y casos de uso de la persistencia directa en Room.
@@ -25,8 +28,19 @@ interface FinanceRepository {
 
     // --- Transacciones ---
     fun observeRecentTransactions(limit: Int = 5): Flow<List<Transaction>>
+    fun getTransactionsPaged(
+        query: String = "",
+        type: TransactionType? = null,
+        walletId: Long? = null,
+        categoryId: Long? = null,
+        onlyAntExpense: Boolean = false,
+        fromMillis: Long? = null,
+        toMillis: Long? = null
+    ): Flow<PagingData<Transaction>>
     suspend fun getTransactionById(id: Long): Transaction?
     suspend fun registerTransaction(transaction: Transaction): Long
+    suspend fun updateTransaction(transaction: Transaction)
+    suspend fun restoreTransaction(transaction: Transaction): Long
     suspend fun deleteTransaction(id: Long)
 
     // --- Bolsillos y Metas de Ahorro ---

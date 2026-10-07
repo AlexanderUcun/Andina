@@ -19,6 +19,10 @@ import com.andina.finanzas.domain.repository.FinanceRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingData
+import androidx.paging.map
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -122,6 +126,48 @@ class FinanceRepositoryImpl @Inject constructor(
         } else {
             transactionDao.insertTransaction(transaction.toEntity())
         }
+    }
+
+    override fun getTransactionsPaged(
+        query: String,
+        type: TransactionType?,
+        walletId: Long?,
+        categoryId: Long?,
+        onlyAntExpense: Boolean,
+        fromMillis: Long?,
+        toMillis: Long?
+    ): Flow<PagingData<Transaction>> {
+        return Pager(
+            config = PagingConfig(
+                pageSize = 20,
+                prefetchDistance = 10,
+                enablePlaceholders = false
+            )
+        ) {
+            transactionDao.pagingSource(
+                query = query,
+                type = type?.name,
+                walletId = walletId,
+                categoryId = categoryId,
+                onlyAntExpense = onlyAntExpense,
+                fromMillis = fromMillis,
+                toMillis = toMillis
+            )
+        }.flow.map { pagingData ->
+            val wallets = walletDao.getActiveWallets().associateBy { it.id }
+            val categories = categoryDao.getActiveCategories().associateBy { it.id }
+            pagingData.map { entity ->
+                entity.toDomain(wallets, categories)
+            }
+        }
+    }
+
+    override suspend fun updateTransaction(transaction: Transaction) {
+        transactionDao.updateTransaction(transaction.toEntity())
+    }
+
+    override suspend fun restoreTransaction(transaction: Transaction): Long {
+        return transactionDao.insertTransaction(transaction.toEntity())
     }
 
     override suspend fun deleteTransaction(id: Long) {

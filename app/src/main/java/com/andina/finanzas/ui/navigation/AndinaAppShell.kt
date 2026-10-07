@@ -58,6 +58,9 @@ import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.toRoute
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarResult
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
@@ -139,11 +142,38 @@ class AndinaAppState(
     }
 
     /**
+     * Navega a la pantalla de detalle de un movimiento individual.
+     */
+    fun navigateToTransactionDetail(transactionId: Long) {
+        navController.navigate(TransactionDetailRoute(transactionId))
+    }
+
+    /**
      * Muestra un mensaje flotante accesible en la UI.
      */
     fun showSnackbar(message: String) {
         coroutineScope.launch {
             snackbarHostState.showSnackbar(message)
+        }
+    }
+
+    /**
+     * Muestra un mensaje flotante con botón de acción (ej. Deshacer).
+     */
+    fun showSnackbarWithAction(
+        message: String,
+        actionLabel: String = "Deshacer",
+        onAction: () -> Unit
+    ) {
+        coroutineScope.launch {
+            val result = snackbarHostState.showSnackbar(
+                message = message,
+                actionLabel = actionLabel,
+                duration = SnackbarDuration.Short
+            )
+            if (result == SnackbarResult.ActionPerformed) {
+                onAction()
+            }
         }
     }
 }
@@ -246,15 +276,24 @@ fun AndinaAppShell(
                 )
             }
 
-            // Pestaña 4: Movimientos
+            // Pestaña 4: Movimientos (Libro Mayor & Auditoría Financiera)
             composable<TransactionsRoute> {
-                ShellPlaceholderScreen(
-                    title = "Libro Mayor de Movimientos",
-                    subtitle = "Historial inmutable de ingresos, gastos y detección de compras hormiga",
-                    icon = Icons.AutoMirrored.Filled.ReceiptLong,
-                    accentColor = Color(0xFF434840),
-                    actionText = "Filtrar por Hormiga",
-                    onAction = { appState.showSnackbar("Filtro de movimientos disponible en Fase 11") }
+                com.andina.finanzas.ui.transactions.TransactionsScreen(
+                    onNavigateToDetail = { id -> appState.navigateToTransactionDetail(id) },
+                    onShowSnackbar = { msg -> appState.showSnackbar(msg) },
+                    onShowSnackbarWithAction = { msg, action, onAction ->
+                        appState.showSnackbarWithAction(msg, action, onAction)
+                    }
+                )
+            }
+
+            // Pantalla de Detalle y Edición de Movimiento Contable
+            composable<TransactionDetailRoute> { backStackEntry ->
+                val route = backStackEntry.toRoute<TransactionDetailRoute>()
+                com.andina.finanzas.ui.transactions.detail.TransactionDetailScreen(
+                    transactionId = route.transactionId,
+                    onNavigateBack = { appState.navigateUp() },
+                    onShowSnackbar = { msg -> appState.showSnackbar(msg) }
                 )
             }
 

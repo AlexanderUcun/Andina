@@ -86,12 +86,19 @@ interface TransactionDao {
           AND (:type IS NULL OR type = :type)
           AND (:walletId IS NULL OR walletId = :walletId OR toWalletId = :walletId)
           AND (:categoryId IS NULL OR categoryId = :categoryId)
+          AND (:onlyAntExpense = 0 OR isAntExpense = 1)
+          AND (:fromMillis IS NULL OR occurredAt >= :fromMillis)
+          AND (:toMillis IS NULL OR occurredAt <= :toMillis)
         ORDER BY occurredAt DESC
     """)
     fun pagingSource(
-        query: String,
-        type: String?,
-        walletId: Long?,
-        categoryId: Long?
+        query: String = "",
+        type: String? = null,
+        walletId: Long? = null,
+        categoryId: Long? = null,
+        onlyAntExpense: Boolean = false,
+        fromMillis: Long? = null,
+        toMillis: Long? = null
     ): PagingSource<Int, TransactionEntity>
 }
+
