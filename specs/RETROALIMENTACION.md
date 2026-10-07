@@ -41,7 +41,7 @@ Al completar todas las sub-fases de cualquiera de las 12 fases maestras:
 |---|---|:---:|:---:|:---:|
 | **01** | Cimientos del Entorno y Gradle Limpio | ✅ Completada | 4 / 4 | ⏳ |
 | **02** | Design System Base (Andean Mist & Moss) | ✅ Completada | 4 / 4 | ⏳ |
-| **03** | Motor de Persistencia Room y Libro Mayor | ⏳ Pendiente | 0 / 6 | ⏳ |
+| **03** | Motor de Persistencia Room y Libro Mayor | 🔄 En Progreso | 1 / 6 | ⏳ |
 | **04** | Capa de Dominio y Casos de Uso Contables | ⏳ Pendiente | 0 / 5 | ⏳ |
 | **05** | Componentes UI Reutilizables y Ecosistema | ⏳ Pendiente | 0 / 6 | ⏳ |
 | **06** | App Shell, Navigation y Barra Inferior | ⏳ Pendiente | 0 / 5 | ⏳ |
@@ -195,7 +195,25 @@ Al completar todas las sub-fases de cualquiera de las 12 fases maestras:
 
 ---
 
-*(Las siguientes fases se irán completando y documentando en esta misma bitácora de forma continua).*
+### 🔹 FASE 03: Motor de Persistencia Room y Libro Mayor Contable
+
+#### 📍 Sub-fase 3.1: Entidades Maestras (WalletEntity & CategoryEntity)
+* **Fecha:** 2026-10-07
+* **Commit:** `Pendiente de commit`
+* **Archivos intervenidos:**
+  * `app/src/main/java/com/andina/finanzas/data/local/entity/WalletEntity.kt` (entidad `@Entity(tableName = "wallets")` con catálogo predeterminado de billeteras colombianas: Nequi, Daviplata, Bancolombia, Efectivo)
+  * `app/src/main/java/com/andina/finanzas/data/local/entity/CategoryEntity.kt` (entidad `@Entity(tableName = "categories")` con catálogo de gastos e ingresos, íconos y flag `isAntCandidate` para gastos hormiga)
+* **Reporte del Agente (Quality Gate):**
+  * Entidades maestras creadas con tipos de datos inmutables y montos en `Long` (pesos COP).
+  * Catálogo por defecto embebido como constantes tipadas.
+  * Tareas `:app:kspDebugKotlin` y `:app:compileDebugKotlin` ejecutadas con éxito (`BUILD SUCCESSFUL in 36s`).
+* **📝 Espacio de Retroalimentación del Usuario:**
+  > *(Escribe aquí tus observaciones, dudas o confirmación para esta sub-fase)*
+* **Estado:** `[ COMPLETADA ]`
+
+---
+
+*(Las siguientes sub-fases de Fase 03 se irán completando y documentando en esta misma bitácora de forma continua).*
 
 
 
