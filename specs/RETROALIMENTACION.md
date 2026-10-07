@@ -40,7 +40,7 @@ Al completar todas las sub-fases de cualquiera de las 12 fases maestras:
 | Fase | Título | Estado | Sub-fases Completadas | Aprobación Usuario |
 |---|---|:---:|:---:|:---:|
 | **01** | Cimientos del Entorno y Gradle Limpio | ✅ Completada | 4 / 4 | ⏳ |
-| **02** | Design System Base (Andean Mist & Moss) | 🟡 En Progreso | 1 / 4 | ⏳ |
+| **02** | Design System Base (Andean Mist & Moss) | 🟡 En Progreso | 2 / 4 | ⏳ |
 | **03** | Motor de Persistencia Room y Libro Mayor | ⏳ Pendiente | 0 / 6 | ⏳ |
 | **04** | Capa de Dominio y Casos de Uso Contables | ⏳ Pendiente | 0 / 5 | ⏳ |
 | **05** | Componentes UI Reutilizables y Ecosistema | ⏳ Pendiente | 0 / 6 | ⏳ |
@@ -147,6 +147,22 @@ Al completar todas las sub-fases de cualquiera de las 12 fases maestras:
   > *(Escribe aquí tus observaciones, dudas o confirmación para esta sub-fase)*
 * **Estado:** `[ COMPLETADA ]`
 
+#### 📍 Sub-fase 2.2: Tokens de Color Andino y Formas (Color.kt & Shape.kt)
+* **Fecha:** 2026-10-07
+* **Commit:** `9738e4b`
+* **Archivos intervenidos:**
+  * `app/src/main/java/com/andina/finanzas/ui/theme/Color.kt` (paleta *Andean Mist & Moss*, identidades de billeteras colombianas Nequi/Daviplata/Bancolombia/Efectivo, gradientes y modo nocturno)
+  * `app/src/main/java/com/andina/finanzas/ui/theme/Shape.kt` (radios 8dp, 12dp, 18dp, 24dp, pills y sheets M3)
+* **Reporte del Agente (Quality Gate):**
+  * Tokens de color semánticos definidos con nombres limpios y soporte para modo claro/oscuro.
+  * Identidad gráfica de billeteras colombianas aislada en `WalletBrandColors`.
+  * Formas de Material 3 mapeadas a la cuadrícula de diseño andino.
+  * Tarea de compilación Gradle `:app:compileDebugKotlin` ejecutada con éxito (`BUILD SUCCESSFUL in 32s`).
+* **📝 Espacio de Retroalimentación del Usuario:**
+  > *(Escribe aquí tus observaciones, dudas o confirmación para esta sub-fase)*
+* **Estado:** `[ COMPLETADA ]`
+
 ---
 
 *(Las siguientes sub-fases se irán completando y documentando en esta misma bitácora de forma continua).*
+
