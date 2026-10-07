@@ -41,7 +41,7 @@ Al completar todas las sub-fases de cualquiera de las 12 fases maestras:
 |---|---|:---:|:---:|:---:|
 | **01** | Cimientos del Entorno y Gradle Limpio | ✅ Completada | 4 / 4 | ⏳ |
 | **02** | Design System Base (Andean Mist & Moss) | ✅ Completada | 4 / 4 | ⏳ |
-| **03** | Motor de Persistencia Room y Libro Mayor | 🔄 En Progreso | 2 / 6 | ⏳ |
+| **03** | Motor de Persistencia Room y Libro Mayor | 🔄 En Progreso | 3 / 6 | ⏳ |
 | **04** | Capa de Dominio y Casos de Uso Contables | ⏳ Pendiente | 0 / 5 | ⏳ |
 | **05** | Componentes UI Reutilizables y Ecosistema | ⏳ Pendiente | 0 / 6 | ⏳ |
 | **06** | App Shell, Navigation y Barra Inferior | ⏳ Pendiente | 0 / 5 | ⏳ |
@@ -215,7 +215,7 @@ Al completar todas las sub-fases de cualquiera de las 12 fases maestras:
 
 #### 📍 Sub-fase 3.2: Entidades Transaccionales (TransactionEntity, PocketEntity & PocketMovementEntity)
 * **Fecha:** 2026-10-07
-* **Commit:** `Pendiente de commit`
+* **Commit:** `ba6f221`
 * **Archivos intervenidos:**
   * `app/src/main/java/com/andina/finanzas/data/local/entity/TransactionEntity.kt` (movimientos financieros con montos `Long` enteros en pesos COP, tipos `GASTO`, `INGRESO`, `TRANSFERENCIA`, índices en `occurredAt`, `walletId`, `toWalletId`, `categoryId`, y flag `isAntExpense`)
   * `app/src/main/java/com/andina/finanzas/data/local/entity/PocketEntity.kt` (metas de ahorro programado y bolsillos con meta en pesos `goal: Long`, deadline e icono)
@@ -223,6 +223,21 @@ Al completar todas las sub-fases de cualquiera de las 12 fases maestras:
 * **Reporte del Agente (Quality Gate):**
   * Esquema relacional desacoplado con índices de alto rendimiento para consultas inmediatas.
   * Tareas `:app:kspDebugKotlin` y `:app:compileDebugKotlin` ejecutadas con éxito (`BUILD SUCCESSFUL in 33s`).
+* **📝 Espacio de Retroalimentación del Usuario:**
+  > *(Escribe aquí tus observaciones, dudas o confirmación para esta sub-fase)*
+* **Estado:** `[ COMPLETADA ]`
+
+---
+
+#### 📍 Sub-fase 3.3: Libro Mayor - Ledger View (WalletBalanceView & PocketBalanceView)
+* **Fecha:** 2026-10-07
+* **Commit:** `Pendiente de commit`
+* **Archivos intervenidos:**
+  * `app/src/main/java/com/andina/finanzas/data/local/view/WalletBalanceView.kt` (`@DatabaseView("wallet_balances")` para el cálculo reactivo del saldo disponible: inicial + ingresos - gastos - transferencias salientes + transferencias entrantes - aportes a bolsillos)
+  * `app/src/main/java/com/andina/finanzas/data/local/view/PocketBalanceView.kt` (`@DatabaseView("pocket_balances")` para el cálculo de saldo de bolsillos sumando aportes de `pocket_movements`)
+* **Reporte del Agente (Quality Gate):**
+  * Solución contable de raíz al síntoma de desincronización de saldos. Room observa las tablas base y reemite los flujos automáticamente tras cualquier inserción.
+  * Tareas `:app:kspDebugKotlin` y `:app:compileDebugKotlin` ejecutadas con éxito (`BUILD SUCCESSFUL in 29s`).
 * **📝 Espacio de Retroalimentación del Usuario:**
   > *(Escribe aquí tus observaciones, dudas o confirmación para esta sub-fase)*
 * **Estado:** `[ COMPLETADA ]`
