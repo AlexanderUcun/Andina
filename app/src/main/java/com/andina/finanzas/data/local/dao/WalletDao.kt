@@ -28,6 +28,12 @@ interface WalletDao {
     @Query("SELECT * FROM wallets WHERE archived = 0 ORDER BY sortOrder ASC, id ASC")
     suspend fun getActiveWallets(): List<WalletEntity>
 
+    @Query("SELECT * FROM wallets ORDER BY sortOrder ASC, id ASC")
+    suspend fun getAllWallets(): List<WalletEntity>
+
+    @Query("DELETE FROM wallets")
+    suspend fun deleteAllWallets()
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertWallet(wallet: WalletEntity): Long
 

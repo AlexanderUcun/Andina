@@ -38,10 +38,22 @@ interface PocketDao {
     @Query("UPDATE pockets SET archived = 1 WHERE id = :id")
     suspend fun archivePocket(id: Long)
 
+    @Query("SELECT * FROM pockets ORDER BY sortOrder ASC, id ASC")
+    suspend fun getAllPockets(): List<PocketEntity>
+
+    @Query("DELETE FROM pockets")
+    suspend fun deleteAllPockets()
+
     // --- Movimientos a Bolsillos (Aportes y Retiros) ---
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertMovement(movement: PocketMovementEntity): Long
+
+    @Query("SELECT * FROM pocket_movements ORDER BY occurredAt DESC")
+    suspend fun getAllPocketMovements(): List<PocketMovementEntity>
+
+    @Query("DELETE FROM pocket_movements")
+    suspend fun deleteAllMovements()
 
     @Query("SELECT * FROM pocket_movements WHERE pocketId = :pocketId ORDER BY occurredAt DESC")
     fun observeMovementsForPocket(pocketId: Long): Flow<List<PocketMovementEntity>>

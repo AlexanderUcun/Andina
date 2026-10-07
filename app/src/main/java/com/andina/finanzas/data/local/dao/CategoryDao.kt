@@ -21,6 +21,12 @@ interface CategoryDao {
     @Query("SELECT * FROM categories WHERE archived = 0 ORDER BY sortOrder ASC, id ASC")
     suspend fun getActiveCategories(): List<CategoryEntity>
 
+    @Query("SELECT * FROM categories ORDER BY sortOrder ASC, id ASC")
+    suspend fun getAllCategories(): List<CategoryEntity>
+
+    @Query("DELETE FROM categories")
+    suspend fun deleteAllCategories()
+
     @Query("SELECT * FROM categories WHERE id = :id LIMIT 1")
     suspend fun getCategoryById(id: Long): CategoryEntity?
 

@@ -57,6 +57,12 @@ interface TransactionDao {
     @Query("DELETE FROM transactions WHERE id = :id")
     suspend fun deleteTransactionById(id: Long)
 
+    @Query("SELECT * FROM transactions ORDER BY occurredAt DESC")
+    suspend fun getAllTransactions(): List<TransactionEntity>
+
+    @Query("DELETE FROM transactions")
+    suspend fun deleteAllTransactions()
+
     // --- Consultas contables de agregación ---
 
     @Query("""

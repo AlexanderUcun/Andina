@@ -50,7 +50,7 @@ Al completar todas las sub-fases de cualquiera de las 12 fases maestras:
 | **09** | Bolsillos de Ahorro y Frailejón Vivo | ✅ Completada | 6 / 6 | ⏳ |
 | **10** | Historial de Movimientos, Paging y Filtros | ✅ Completada | 6 / 6 | ⏳ |
 | **11** | Muggy 3D, Ayudas e Inteligencia On-Device | ✅ Completada | 9 / 9 | ⏳ |
-| **12** | Seguridad SQLCipher, Exportación y Release | 🔄 En Progreso | 4 / 7 | ⏳ |
+| **12** | Seguridad SQLCipher, Exportación y Release | 🔄 En Progreso | 5 / 7 | ⏳ |
 
 ---
 
@@ -1072,6 +1072,22 @@ Al completar todas las sub-fases de cualquiera de las 12 fases maestras:
 * **Reporte del Agente (Quality Gate):**
   * Paleta OLED pura sin halos agresivos ni agotamiento visual, cumpliendo accesibilidad WCAG AA.
   * Tarea `:app:testDebugUnitTest` superada al 100% en verde (81 pruebas pasando).
+* **📝 Espacio de Retroalimentación del Usuario:**
+  > *(Escribe aquí tus observaciones, dudas o confirmación para esta sub-fase)*
+* **Estado:** `[ COMPLETADA ]`
+
+---
+
+#### 📍 Sub-fase 12.5: Exportación Contable y Backup Portable (`CsvExporter.kt`, `PdfReportExporter.kt` y `BackupManager.kt`)
+* **Fecha:** 2026-10-07
+* **Archivos intervenidos:**
+  * `app/src/main/java/com/andina/finanzas/data/export/CsvExporter.kt` (generador de extractos CSV con codificación UTF-8 con BOM y delimitador `;` para compatibilidad transparente con Excel en español).
+  * `app/src/main/java/com/andina/finanzas/data/export/PdfReportExporter.kt` (generador nativo M3 de reportes en PDF con [PdfDocument], franja verde andino, tarjetas de resumen patrimonial y tabla de movimientos con paginación automática).
+  * `app/src/main/java/com/andina/finanzas/data/export/BackupManager.kt` (sistema de respaldo portable `.andina` con serialización JSON completa y cifrado opcional AES-GCM derivado de PIN con PBKDF2/SHA-256 para migración segura entre dispositivos).
+  * `app/src/main/java/com/andina/finanzas/data/local/dao/TransactionDao.kt`, `WalletDao.kt`, `PocketDao.kt` y `CategoryDao.kt` (consultas masivas de lectura y limpieza atómica para importación/exportación de copias).
+* **Reporte del Agente (Quality Gate):**
+  * Exportación e importación de grado contable verificada sin dependencias externas inseguras.
+  * Tareas `:app:compileDebugKotlin` y `:app:testDebugUnitTest` superadas al 100% en verde con todas las 81 pruebas pasando.
 * **📝 Espacio de Retroalimentación del Usuario:**
   > *(Escribe aquí tus observaciones, dudas o confirmación para esta sub-fase)*
 * **Estado:** `[ COMPLETADA ]`
