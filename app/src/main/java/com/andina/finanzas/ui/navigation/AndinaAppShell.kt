@@ -229,13 +229,8 @@ fun AndinaAppShell(
 
             // Pestaña 2: Bolsillos de Ahorro
             composable<PocketsRoute> {
-                ShellPlaceholderScreen(
-                    title = "Bolsillos de Ahorro",
-                    subtitle = "Tus metas florecen como frailejones con cada aporte protegido",
-                    icon = Icons.Default.Savings,
-                    accentColor = Color(0xFF435C3C),
-                    actionText = "Simular Aporte",
-                    onAction = { appState.showSnackbar("Aporte a bolsillos disponible en Fase 09") }
+                com.andina.finanzas.ui.pockets.PocketsScreen(
+                    onShowSnackbar = { msg -> appState.showSnackbar(msg) }
                 )
             }
 

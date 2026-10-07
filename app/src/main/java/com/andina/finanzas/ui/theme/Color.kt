@@ -84,6 +84,12 @@ val AndeanRegisterActionGreen = Color(0xFF4A6B47) // Botón Guardar Gasto
 val AndeanKeypadKeyBackground = Color(0xFFF3E8D3) // Teclas tono arena cálido
 val AndeanDragHandle = Color(0xFFCCCCCC)
 
+// Aliases semánticos andinos
+val AndinaMossGreen = Color(0xFF435C3C)
+val AndinaDeepForest = Color(0xFF2C4427)
+val AndinaAmber = Color(0xFFC58934)
+val AndinaErrorRed = Color(0xFFBA1A1A)
+
 // ============================================================================
 // 🌄 GRADIENTES ANDINOS DE PANTALLA
 // ============================================================================
