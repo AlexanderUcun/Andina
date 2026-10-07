@@ -74,6 +74,7 @@ fun HomeScreen(
     onNavigateToSettings: () -> Unit = {},
     onNavigateToBudgets: () -> Unit = {},
     onNavigateToNotifications: () -> Unit = {},
+    onNavigateToConsultorio: () -> Unit = {},
     onShowSnackbar: (String) -> Unit = {}
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -92,7 +93,7 @@ fun HomeScreen(
                 is HomeEffect.NavigateToRegister -> onNavigateToRegister()
                 is HomeEffect.NavigateToSettings -> onNavigateToSettings()
                 is HomeEffect.NavigateToBudgets -> onNavigateToBudgets()
-                is HomeEffect.NavigateToAntExpenses -> onShowSnackbar("Panel de gastos hormiga")
+                is HomeEffect.NavigateToAntExpenses -> onNavigateToConsultorio()
                 is HomeEffect.NavigateToNotifications -> onNavigateToNotifications()
                 is HomeEffect.ShowSnackbar -> onShowSnackbar(effect.message)
             }
@@ -194,7 +195,7 @@ fun HomeScreen(
                         AndeanEditorialBanner(
                             insightText = state.andinoInsight!!,
                             onDismiss = { viewModel.onAction(HomeAction.DismissInsight) },
-                            onClick = { onShowSnackbar("Consultorio financiero de Muggy") }
+                            onClick = onNavigateToConsultorio
                         )
                         Spacer(modifier = Modifier.height(18.dp))
                     }

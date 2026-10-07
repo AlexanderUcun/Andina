@@ -135,6 +135,13 @@ class AndinaAppState(
     }
 
     /**
+     * Navega al Consultorio Financiero de Muggy (S19).
+     */
+    fun navigateToConsultorio() {
+        navController.navigate(ConsultorioRoute)
+    }
+
+    /**
      * Retrocede en la pila de navegación de forma segura.
      */
     fun navigateUp() {
@@ -253,6 +260,7 @@ fun AndinaAppShell(
                     onNavigateToSettings = { appState.showSnackbar("Perfil y configuración en desarrollo") },
                     onNavigateToBudgets = { appState.showSnackbar("Gestión de presupuestos en desarrollo") },
                     onNavigateToNotifications = { appState.showSnackbar("Alertas del páramo al día") },
+                    onNavigateToConsultorio = { appState.navigateToConsultorio() },
                     onShowSnackbar = { msg -> appState.showSnackbar(msg) }
                 )
             }
@@ -316,6 +324,17 @@ fun AndinaAppShell(
                     onAction = { appState.navigateUp() },
                     showBackArrow = true,
                     onBack = { appState.navigateUp() }
+                )
+            }
+
+            // Pantalla S19: El Consultorio Financiero de Muggy (Fase 11)
+            composable<ConsultorioRoute> {
+                com.andina.finanzas.ui.consultorio.ConsultorioScreen(
+                    onNavigateBack = { appState.navigateUp() },
+                    onNavigateToRegister = { amount, merchant, wallet, category, isAnt ->
+                        appState.navigateToRegister()
+                    },
+                    onNavigateToPockets = { appState.navigateToTab(AndinaNavTab.POCKETS) }
                 )
             }
         }

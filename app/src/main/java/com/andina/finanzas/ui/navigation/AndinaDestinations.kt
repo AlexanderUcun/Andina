@@ -65,6 +65,12 @@ data class RegisterRoute(
 data object StatsRoute : AndinaDestination
 
 /**
+ * S19: El Consultorio Financiero de Muggy (Andina Intelligence Core On-Device).
+ */
+@Serializable
+data object ConsultorioRoute : AndinaDestination
+
+/**
  * Definición estructurada de las 4 pestañas de navegación inferior de Andina.
  *
  * Distribución simétrica aprobada:
