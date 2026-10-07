@@ -41,7 +41,7 @@ Al completar todas las sub-fases de cualquiera de las 12 fases maestras:
 |---|---|:---:|:---:|:---:|
 | **01** | Cimientos del Entorno y Gradle Limpio | ✅ Completada | 4 / 4 | ⏳ |
 | **02** | Design System Base (Andean Mist & Moss) | ✅ Completada | 4 / 4 | ⏳ |
-| **03** | Motor de Persistencia Room y Libro Mayor | 🔄 En Progreso | 1 / 6 | ⏳ |
+| **03** | Motor de Persistencia Room y Libro Mayor | 🔄 En Progreso | 2 / 6 | ⏳ |
 | **04** | Capa de Dominio y Casos de Uso Contables | ⏳ Pendiente | 0 / 5 | ⏳ |
 | **05** | Componentes UI Reutilizables y Ecosistema | ⏳ Pendiente | 0 / 6 | ⏳ |
 | **06** | App Shell, Navigation y Barra Inferior | ⏳ Pendiente | 0 / 5 | ⏳ |
@@ -199,7 +199,7 @@ Al completar todas las sub-fases de cualquiera de las 12 fases maestras:
 
 #### 📍 Sub-fase 3.1: Entidades Maestras (WalletEntity & CategoryEntity)
 * **Fecha:** 2026-10-07
-* **Commit:** `Pendiente de commit`
+* **Commit:** `34c8f11`
 * **Archivos intervenidos:**
   * `app/src/main/java/com/andina/finanzas/data/local/entity/WalletEntity.kt` (entidad `@Entity(tableName = "wallets")` con catálogo predeterminado de billeteras colombianas: Nequi, Daviplata, Bancolombia, Efectivo)
   * `app/src/main/java/com/andina/finanzas/data/local/entity/CategoryEntity.kt` (entidad `@Entity(tableName = "categories")` con catálogo de gastos e ingresos, íconos y flag `isAntCandidate` para gastos hormiga)
@@ -207,6 +207,22 @@ Al completar todas las sub-fases de cualquiera de las 12 fases maestras:
   * Entidades maestras creadas con tipos de datos inmutables y montos en `Long` (pesos COP).
   * Catálogo por defecto embebido como constantes tipadas.
   * Tareas `:app:kspDebugKotlin` y `:app:compileDebugKotlin` ejecutadas con éxito (`BUILD SUCCESSFUL in 36s`).
+* **📝 Espacio de Retroalimentación del Usuario:**
+  > *(Escribe aquí tus observaciones, dudas o confirmación para esta sub-fase)*
+* **Estado:** `[ COMPLETADA ]`
+
+---
+
+#### 📍 Sub-fase 3.2: Entidades Transaccionales (TransactionEntity, PocketEntity & PocketMovementEntity)
+* **Fecha:** 2026-10-07
+* **Commit:** `Pendiente de commit`
+* **Archivos intervenidos:**
+  * `app/src/main/java/com/andina/finanzas/data/local/entity/TransactionEntity.kt` (movimientos financieros con montos `Long` enteros en pesos COP, tipos `GASTO`, `INGRESO`, `TRANSFERENCIA`, índices en `occurredAt`, `walletId`, `toWalletId`, `categoryId`, y flag `isAntExpense`)
+  * `app/src/main/java/com/andina/finanzas/data/local/entity/PocketEntity.kt` (metas de ahorro programado y bolsillos con meta en pesos `goal: Long`, deadline e icono)
+  * `app/src/main/java/com/andina/finanzas/data/local/entity/PocketMovementEntity.kt` (aportes y retiros atómicos entre billeteras y bolsillos con índices compuestos)
+* **Reporte del Agente (Quality Gate):**
+  * Esquema relacional desacoplado con índices de alto rendimiento para consultas inmediatas.
+  * Tareas `:app:kspDebugKotlin` y `:app:compileDebugKotlin` ejecutadas con éxito (`BUILD SUCCESSFUL in 33s`).
 * **📝 Espacio de Retroalimentación del Usuario:**
   > *(Escribe aquí tus observaciones, dudas o confirmación para esta sub-fase)*
 * **Estado:** `[ COMPLETADA ]`
