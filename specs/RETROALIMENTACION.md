@@ -43,7 +43,7 @@ Al completar todas las sub-fases de cualquiera de las 12 fases maestras:
 | **02** | Design System Base (Andean Mist & Moss) | ✅ Completada | 4 / 4 | ⏳ |
 | **03** | Motor de Persistencia Room y Libro Mayor | ✅ Completada | 6 / 6 | ⏳ |
 | **04** | Capa de Dominio y Casos de Uso Contables | ✅ Completada | 6 / 6 | ⏳ |
-| **05** | Componentes UI Reutilizables y Ecosistema | ⏳ Pendiente | 0 / 6 | ⏳ |
+| **05** | Componentes UI Reutilizables y Ecosistema | ✅ Completada | 6 / 6 | ⏳ |
 | **06** | App Shell, Navigation y Barra Inferior | ⏳ Pendiente | 0 / 5 | ⏳ |
 | **07** | Modal de Registro Rápido con Muggy Asomado | ⏳ Pendiente | 0 / 5 | ⏳ |
 | **08** | Pantalla de Inicio (Hero Saldo y Carrusel) | ⏳ Pendiente | 0 / 6 | ⏳ |
@@ -407,8 +407,83 @@ Al completar todas las sub-fases de cualquiera de las 12 fases maestras:
 
 ---
 
-*(Fase 04 completada al 100%. Las siguientes fases se irán completando y documentando en esta misma bitácora de forma continua).*
+### 🔹 FASE 05: Componentes UI Reutilizables de Stitch y Ecosistema
 
+#### 📍 Sub-fase 5.1: Vidrio Esmerilado (`FrostedGlassCard.kt`)
+* **Fecha:** 2026-10-07
+* **Archivos intervenidos:**
+  * `app/src/main/java/com/andina/finanzas/ui/components/FrostedGlassCard.kt` (tarjeta insignia con efecto de vidrio translúcido al 76% de opacidad, borde perimetral ultrafino de 1.dp al 85% de opacidad, sombra difusa de 2.dp, soporte adaptable claro/oscuro y degradación limpia en todas las versiones de Android).
+* **Reporte del Agente (Quality Gate):**
+  * Cumple fielmente la filosofía "Lujo Silencioso" y "Andean Mist & Moss".
+  * Soporta clics opcionales con indicación accesible de rol `Button`.
+* **📝 Espacio de Retroalimentación del Usuario:**
+  > *(Escribe aquí tus observaciones, dudas o confirmación para esta sub-fase)*
+* **Estado:** `[ COMPLETADA ]`
 
+---
 
+#### 📍 Sub-fase 5.2: Botones Hápticos Accesibles (`AndinaButton.kt`)
+* **Fecha:** 2026-10-07
+* **Archivos intervenidos:**
+  * `app/src/main/java/com/andina/finanzas/ui/components/AndinaButton.kt` (botón con área táctil mínima >= 48dp, protección anti-doble tap con debouncing de 500 ms, estado reactivo de carga asíncrona `isSaving` con indicador circular suave y pulso háptico `LongPress` en cada pulsación válida. Variantes: `Primary`, `RegisterAction`, `AntExpense`, `Secondary`, `Outlined`).
+* **Reporte del Agente (Quality Gate):**
+  * Blindaje estricto contra pulsaciones duplicadas y botones no responsivos documentados en `LECCIONES_Y_BLINDAJE.md`.
+* **📝 Espacio de Retroalimentación del Usuario:**
+  > *(Escribe aquí tus observaciones, dudas o confirmación para esta sub-fase)*
+* **Estado:** `[ COMPLETADA ]`
 
+---
+
+#### 📍 Sub-fase 5.3: Tarjetas de Billeteras y Transacciones (`QuickWalletCard.kt` y `TransactionItem.kt`)
+* **Fecha:** 2026-10-07
+* **Archivos intervenidos:**
+  * `app/src/main/java/com/andina/finanzas/ui/components/QuickWalletCard.kt` (tarjeta de carrusel horizontal de 180dp x 115dp con distintivo de marca para Nequi, Daviplata, Bancolombia y Efectivo, y saldo reactivo en números tabulares `tnum`).
+  * `app/src/main/java/com/andina/finanzas/ui/components/TransactionItem.kt` (fila de movimiento con icono circular de 40dp diferenciado para gastos, ingresos y transferencias, badge caramelo distintivo "Hormiga", subtítulo con fecha legible y monto exacto con signo explícito).
+* **Reporte del Agente (Quality Gate):**
+  * Formato monetario exacto en COP acoplado al modelo de dominio `Money` sin conversiones de punto flotante.
+* **📝 Espacio de Retroalimentación del Usuario:**
+  > *(Escribe aquí tus observaciones, dudas o confirmación para esta sub-fase)*
+* **Estado:** `[ COMPLETADA ]`
+
+---
+
+#### 📍 Sub-fase 5.4: Barra de Progreso de Bolsillo (`PocketProgressCard.kt`)
+* **Fecha:** 2026-10-07
+* **Archivos intervenidos:**
+  * `app/src/main/java/com/andina/finanzas/ui/components/PocketProgressCard.kt` (tarjeta de meta de ahorro de 240dp x 150dp con barra de progreso animada mediante `FastOutSlowInEasing`, porcentaje de avance, montos acumulados y meta, e indicador de saldo restante o felicitación al completarse).
+* **Reporte del Agente (Quality Gate):**
+  * Animación fluida a 60-120 FPS sin bloqueos en el hilo principal.
+* **📝 Espacio de Retroalimentación del Usuario:**
+  > *(Escribe aquí tus observaciones, dudas o confirmación para esta sub-fase)*
+* **Estado:** `[ COMPLETADA ]`
+
+---
+
+#### 📍 Sub-fase 5.5: Ecosistema Vivo en Canvas (`FrailejonView.kt` y `WaterRippleOverlay.kt`)
+* **Fecha:** 2026-10-07
+* **Archivos intervenidos:**
+  * `app/src/main/java/com/andina/finanzas/ui/components/ecosystem/FrailejonView.kt` (renderizado procedimental en Canvas del frailejón paramuno: suelo rocoso, tallo velloso protector, roseta de hojas andinas con oscilación del viento mediante `rememberInfiniteTransition`, y flor dorada que se abre al alcanzar el 75-100% de la meta).
+  * `app/src/main/java/com/andina/finanzas/ui/components/ecosystem/WaterRippleOverlay.kt` (motor de ondas concéntricas de agua cristalina en Canvas con decaimiento cuadrático de opacidad `alpha(t) = (1 - progress)^2` para celebraciones de ingresos de dinero).
+* **Reporte del Agente (Quality Gate):**
+  * Cero asignaciones en el ciclo de dibujado `onDraw` para eliminar recolección de basura (GC) y prevenir tirones gráficos (*jank*).
+* **📝 Espacio de Retroalimentación del Usuario:**
+  > *(Escribe aquí tus observaciones, dudas o confirmación para esta sub-fase)*
+* **Estado:** `[ COMPLETADA ]`
+
+---
+
+#### 📍 Sub-fase 5.6: Quality Gate Visual y de Estabilidad (`ComponentsPreviewGallery.kt` y `ComponentsStabilityUnitTest.kt`)
+* **Fecha:** 2026-10-07
+* **Archivos intervenidos:**
+  * `app/src/main/java/com/andina/finanzas/ui/components/ComponentsPreviewGallery.kt` (galería interactiva completa con previsualizaciones `@Preview` en temas claro y oscuro de todos los componentes visuales del catálogo).
+  * `app/src/test/java/com/andina/finanzas/ui/components/ComponentsStabilityUnitTest.kt` (suite de 5 pruebas unitarias verificando acotamiento 0..1 del progreso de bolsillos, detección y formateo de gastos hormiga e ingresos, debouncing anti-doble tap de 500ms, decaimiento de opacidad en ondas de agua y consistencia de tipos de billeteras).
+* **Reporte del Agente (Quality Gate):**
+  * Todos los componentes desacoplados y respetando inmutabilidad `@Immutable`.
+  * Suite de pruebas unitarias cubriendo la lógica matemática de componentes y ecosistema.
+* **📝 Espacio de Retroalimentación del Usuario:**
+  > *(Escribe aquí tus observaciones antes de autorizar el cierre definitivo de Fase 05 y la subida a GitHub)*
+* **Estado:** `[ COMPLETADA ]`
+
+---
+
+*(Fase 05 completada al 100%. Las siguientes fases se irán completando y documentando en esta misma bitácora de forma continua).*
