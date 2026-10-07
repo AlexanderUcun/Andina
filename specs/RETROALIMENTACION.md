@@ -41,7 +41,7 @@ Al completar todas las sub-fases de cualquiera de las 12 fases maestras:
 |---|---|:---:|:---:|:---:|
 | **01** | Cimientos del Entorno y Gradle Limpio | ✅ Completada | 4 / 4 | ⏳ |
 | **02** | Design System Base (Andean Mist & Moss) | ✅ Completada | 4 / 4 | ⏳ |
-| **03** | Motor de Persistencia Room y Libro Mayor | 🔄 En Progreso | 3 / 6 | ⏳ |
+| **03** | Motor de Persistencia Room y Libro Mayor | 🔄 En Progreso | 4 / 6 | ⏳ |
 | **04** | Capa de Dominio y Casos de Uso Contables | ⏳ Pendiente | 0 / 5 | ⏳ |
 | **05** | Componentes UI Reutilizables y Ecosistema | ⏳ Pendiente | 0 / 6 | ⏳ |
 | **06** | App Shell, Navigation y Barra Inferior | ⏳ Pendiente | 0 / 5 | ⏳ |
@@ -231,13 +231,32 @@ Al completar todas las sub-fases de cualquiera de las 12 fases maestras:
 
 #### 📍 Sub-fase 3.3: Libro Mayor - Ledger View (WalletBalanceView & PocketBalanceView)
 * **Fecha:** 2026-10-07
-* **Commit:** `Pendiente de commit`
+* **Commit:** `7fd2a41`
 * **Archivos intervenidos:**
   * `app/src/main/java/com/andina/finanzas/data/local/view/WalletBalanceView.kt` (`@DatabaseView("wallet_balances")` para el cálculo reactivo del saldo disponible: inicial + ingresos - gastos - transferencias salientes + transferencias entrantes - aportes a bolsillos)
   * `app/src/main/java/com/andina/finanzas/data/local/view/PocketBalanceView.kt` (`@DatabaseView("pocket_balances")` para el cálculo de saldo de bolsillos sumando aportes de `pocket_movements`)
 * **Reporte del Agente (Quality Gate):**
   * Solución contable de raíz al síntoma de desincronización de saldos. Room observa las tablas base y reemite los flujos automáticamente tras cualquier inserción.
   * Tareas `:app:kspDebugKotlin` y `:app:compileDebugKotlin` ejecutadas con éxito (`BUILD SUCCESSFUL in 29s`).
+* **📝 Espacio de Retroalimentación del Usuario:**
+  > *(Escribe aquí tus observaciones, dudas o confirmación para esta sub-fase)*
+* **Estado:** `[ COMPLETADA ]`
+
+---
+
+#### 📍 Sub-fase 3.4: DAOs Reactivos con Flow (WalletDao, CategoryDao, TransactionDao, PocketDao & LedgerDao)
+* **Fecha:** 2026-10-07
+* **Commit:** `Pendiente de commit`
+* **Archivos intervenidos:**
+  * `app/src/main/java/com/andina/finanzas/data/local/dao/WalletDao.kt` (CRUD de billeteras y observación reactiva de `WalletBalanceView`)
+  * `app/src/main/java/com/andina/finanzas/data/local/dao/CategoryDao.kt` (CRUD de categorías y filtrado reactivo por tipo Gasto/Ingreso)
+  * `app/src/main/java/com/andina/finanzas/data/local/dao/TransactionDao.kt` (consultas históricas, métricas de periodo, agregación por categoría y `PagingSource` para Paging 3)
+  * `app/src/main/java/com/andina/finanzas/data/local/dao/PocketDao.kt` (CRUD de metas de ahorro, inserción de movimientos y observación reactiva de `PocketBalanceView`)
+  * `app/src/main/java/com/andina/finanzas/data/local/dao/LedgerDao.kt` (métodos atómicos `@Transaction` para transferencias entre billeteras y aportes/retiros a bolsillos)
+* **Reporte del Agente (Quality Gate):**
+  * Cobertura completa de operaciones reactivas con Coroutines y Flow.
+  * Consultas SQL compiladas y verificadas por KSP Room.
+  * Tareas `:app:kspDebugKotlin` y `:app:compileDebugKotlin` ejecutadas con éxito (`BUILD SUCCESSFUL in 32s`).
 * **📝 Espacio de Retroalimentación del Usuario:**
   > *(Escribe aquí tus observaciones, dudas o confirmación para esta sub-fase)*
 * **Estado:** `[ COMPLETADA ]`
