@@ -39,7 +39,7 @@ Al completar todas las sub-fases de cualquiera de las 12 fases maestras:
 
 | Fase | Título | Estado | Sub-fases Completadas | Aprobación Usuario |
 |---|---|:---:|:---:|:---:|
-| **01** | Cimientos del Entorno y Gradle Limpio | 🟡 En curso | 1 / 4 | ⏳ |
+| **01** | Cimientos del Entorno y Gradle Limpio | 🟡 En curso | 2 / 4 | ⏳ |
 | **02** | Design System Base (Andean Mist & Moss) | ⏳ Pendiente | 0 / 5 | ⏳ |
 | **03** | Motor de Persistencia Room y Libro Mayor | ⏳ Pendiente | 0 / 6 | ⏳ |
 | **04** | Capa de Dominio y Casos de Uso Contables | ⏳ Pendiente | 0 / 5 | ⏳ |
@@ -77,15 +77,17 @@ Al completar todas las sub-fases de cualquiera de las 12 fases maestras:
 ---
 
 #### 📍 Sub-fase 1.2: Catálogo Centralizado de Dependencias (`libs.versions.toml`)
-* **Fecha:** *[Pendiente]*
-* **Commit:** *[Pendiente]*
+* **Fecha:** 2026-10-07
+* **Commit:** `e529c08`
 * **Archivos intervenidos:**
-  * `gradle/libs.versions.toml`
+  * `gradle/libs.versions.toml` (23 versiones, 23 librerías y 6 plugins mapeados)
 * **Reporte del Agente (Quality Gate):**
-  * *[Pendiente de ejecución]*
+  * Catálogo TOML libre de errores de sintaxis.
+  * Versiones blindadas de Kotlin 2.0.21, AGP 8.7.2, KSP 2.0.21-1.0.25, Compose BOM 2024.10.01 y Room 2.6.1 alineadas según `ARQUITECTURA.md`.
+  * Commit local registrado con éxito sin push remoto.
 * **📝 Espacio de Retroalimentación del Usuario:**
   > *(Escribe aquí tus observaciones, dudas o confirmación para esta sub-fase)*
-* **Estado:** `[ PENDIENTE ]`
+* **Estado:** `[ COMPLETADA ]`
 
 ---
 
