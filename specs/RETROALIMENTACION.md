@@ -40,7 +40,7 @@ Al completar todas las sub-fases de cualquiera de las 12 fases maestras:
 | Fase | Título | Estado | Sub-fases Completadas | Aprobación Usuario |
 |---|---|:---:|:---:|:---:|
 | **01** | Cimientos del Entorno y Gradle Limpio | ✅ Completada | 4 / 4 | ⏳ |
-| **02** | Design System Base (Andean Mist & Moss) | 🟡 En Progreso | 2 / 4 | ⏳ |
+| **02** | Design System Base (Andean Mist & Moss) | 🟡 En Progreso | 3 / 4 | ⏳ |
 | **03** | Motor de Persistencia Room y Libro Mayor | ⏳ Pendiente | 0 / 6 | ⏳ |
 | **04** | Capa de Dominio y Casos de Uso Contables | ⏳ Pendiente | 0 / 5 | ⏳ |
 | **05** | Componentes UI Reutilizables y Ecosistema | ⏳ Pendiente | 0 / 6 | ⏳ |
@@ -162,7 +162,21 @@ Al completar todas las sub-fases de cualquiera de las 12 fases maestras:
   > *(Escribe aquí tus observaciones, dudas o confirmación para esta sub-fase)*
 * **Estado:** `[ COMPLETADA ]`
 
+#### 📍 Sub-fase 2.3: Tema Material 3 Adaptable (Theme.kt)
+* **Fecha:** 2026-10-07
+* **Commit:** `31f8c4f`
+* **Archivos intervenidos:**
+  * `app/src/main/java/com/andina/finanzas/ui/theme/Theme.kt` (`AndinaTheme`, `LightColorScheme`, `DarkColorScheme` Páramo Nocturno, control Edge-to-Edge)
+* **Reporte del Agente (Quality Gate):**
+  * `AndinaTheme` configurado con Material 3 estándar, protegiendo la identidad de marca (`dynamicColor = false` por defecto para preservar los tonos del páramo).
+  * Soporte para `WindowCompat` con barras transparentes Edge-to-Edge nativas.
+  * Tarea de compilación Gradle `:app:compileDebugKotlin` ejecutada con éxito (`BUILD SUCCESSFUL in 31s`).
+* **📝 Espacio de Retroalimentación del Usuario:**
+  > *(Escribe aquí tus observaciones, dudas o confirmación para esta sub-fase)*
+* **Estado:** `[ COMPLETADA ]`
+
 ---
 
 *(Las siguientes sub-fases se irán completando y documentando en esta misma bitácora de forma continua).*
+
 
