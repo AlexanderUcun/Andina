@@ -40,7 +40,7 @@ Al completar todas las sub-fases de cualquiera de las 12 fases maestras:
 | Fase | Título | Estado | Sub-fases Completadas | Aprobación Usuario |
 |---|---|:---:|:---:|:---:|
 | **01** | Cimientos del Entorno y Gradle Limpio | ✅ Completada | 4 / 4 | ⏳ |
-| **02** | Design System Base (Andean Mist & Moss) | ⏳ Pendiente | 0 / 5 | ⏳ |
+| **02** | Design System Base (Andean Mist & Moss) | 🟡 En Progreso | 1 / 4 | ⏳ |
 | **03** | Motor de Persistencia Room y Libro Mayor | ⏳ Pendiente | 0 / 6 | ⏳ |
 | **04** | Capa de Dominio y Casos de Uso Contables | ⏳ Pendiente | 0 / 5 | ⏳ |
 | **05** | Componentes UI Reutilizables y Ecosistema | ⏳ Pendiente | 0 / 6 | ⏳ |
@@ -127,4 +127,26 @@ Al completar todas las sub-fases de cualquiera de las 12 fases maestras:
 
 ---
 
-*(Las siguientes fases se irán completando y documentando en esta misma bitácora de forma continua).*
+### 🔹 FASE 02: Sistema de Diseño Base "Andean Mist & Moss"
+
+#### 📍 Sub-fase 2.1: Tipografía Local Embebida (Manrope & Escala M3)
+* **Fecha:** 2026-10-07
+* **Commit:** `5411bb9`
+* **Archivos intervenidos:**
+  * `app/src/main/res/font/manrope_regular.ttf`
+  * `app/src/main/res/font/manrope_medium.ttf`
+  * `app/src/main/res/font/manrope_semibold.ttf`
+  * `app/src/main/res/font/manrope_bold.ttf`
+  * `app/src/main/java/com/andina/finanzas/ui/theme/Type.kt` (escala completa M3 con `tnum`)
+  * `gradle/libs.versions.toml` (corrección del artefacto `lifecycle-viewmodel-compose`)
+* **Reporte del Agente (Quality Gate):**
+  * Fuentes oficiales Manrope TTF incorporadas en recursos locales de Android.
+  * `Type.kt` implementa `displayLarge`, `headlineLarge`, `titleMedium`, `bodyMedium`, `labelLarge`, etc., con configuración `fontFeatureSettings = "tnum"` para garantizar estabilidad numérica sin saltos ni vibraciones en montos financieros.
+  * Tarea de compilación Gradle `:app:compileDebugKotlin` ejecutada con éxito (`BUILD SUCCESSFUL in 1m 30s`).
+* **📝 Espacio de Retroalimentación del Usuario:**
+  > *(Escribe aquí tus observaciones, dudas o confirmación para esta sub-fase)*
+* **Estado:** `[ COMPLETADA ]`
+
+---
+
+*(Las siguientes sub-fases se irán completando y documentando en esta misma bitácora de forma continua).*
