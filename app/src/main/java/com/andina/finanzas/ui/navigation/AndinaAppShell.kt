@@ -258,15 +258,10 @@ fun AndinaAppShell(
             }
 
             // Pantalla / Modal de Registro Rápido
-            composable<RegisterRoute> { backStackEntry ->
-                val route = backStackEntry.toRoute<RegisterRoute>()
-                RegisterPlaceholderScreen(
-                    initialType = route.initialType,
-                    onClose = { appState.navigateUp() },
-                    onSaved = { message ->
-                        appState.navigateUp()
-                        appState.showSnackbar(message)
-                    }
+            composable<RegisterRoute> {
+                com.andina.finanzas.ui.register.RegisterRoute(
+                    onDone = { appState.navigateUp() },
+                    onShowSnackbar = { message -> appState.showSnackbar(message) }
                 )
             }
 
@@ -426,79 +421,3 @@ private fun ShellPlaceholderScreen(
     }
 }
 
-/**
- * Pantalla de registro provisional invocable desde el botón flotante (+).
- */
-@Composable
-private fun RegisterPlaceholderScreen(
-    initialType: String,
-    onClose: () -> Unit,
-    onSaved: (String) -> Unit
-) {
-    Surface(
-        modifier = Modifier.fillMaxSize(),
-        color = MaterialTheme.colorScheme.surface
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .statusBarsPadding()
-                .padding(24.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = "Registro Rápido (+)",
-                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-                IconButton(onClick = onClose) {
-                    Icon(
-                        imageVector = Icons.Default.Close,
-                        contentDescription = "Cerrar",
-                        tint = MaterialTheme.colorScheme.onSurface
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(28.dp))
-
-            FrostedGlassCard(
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Column(
-                    modifier = Modifier.padding(24.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Text(
-                        text = "🐻 Muggy te acompañará aquí",
-                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                        color = MaterialTheme.colorScheme.primary
-                    )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(
-                        text = "Tipo inicial: $initialType · El modal completo con teclado táctil y seguimiento ocular se activa en la Fase 07.",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        textAlign = TextAlign.Center
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.weight(1f))
-
-            AndinaButton(
-                text = "Guardar Simulación ($ 50.000)",
-                onClick = { onSaved("Movimiento registrado en la prueba de navegación") },
-                variant = AndinaButtonVariant.RegisterAction,
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-        }
-    }
-}
