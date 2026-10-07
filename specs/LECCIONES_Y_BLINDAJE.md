@@ -228,6 +228,13 @@ Para garantizar que esta sesión de desarrollo sea quirúrgica y no repita sobre
     * Tests de navegación (`NavigationBackStackTest`) y validación de Previews para Compose.
   * Si un test falla, **se detiene el avance y se repara de inmediato** antes de escribir código de la siguiente fase.
 
+### 4.10 Protocolo Anti-Alucinación: Bitácora Desacoplada, Cero Auto-Push y Cortes Limpios
+* **El riesgo:** Discusiones extensas y volcados continuos de logs en la ventana del chat saturan los tokens de contexto, provocando degradación de atención y alucinaciones sintácticas.
+* **La regla de trabajo:**
+  * **Bitácora externa en disco:** El usuario revisa en VS Code y anota su feedback en [**specs/RETROALIMENTACION.md**](./RETROALIMENTACION.md), manteniendo el chat ligero y enfocado en instrucciones directas (*"Siguiente"*, *"Ajusta X"*).
+  * **Cero Auto-Push:** Todo avance se asegura con commits locales en Git. La sincronización con GitHub **solo** se ejecuta bajo la orden expresa: **"Subir a github"**.
+  * **Corte Limpio entre Fases Mayores:** Al cerrar cualquiera de las 12 fases, el usuario tiene la opción de abrir un nuevo chat/sesión. Dado que todo el estado vive en disco, en Git y en `specs/`, el agente arranca la nueva fase con **0% de memoria saturada y 100% de lucidez técnica**.
+
 ---
 
 ## 5. Checklist de Validación antes de dar una Pantalla por "Terminada"

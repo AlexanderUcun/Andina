@@ -229,3 +229,5 @@
    El agente **NUNCA ejecuta `git push` automáticamente**.  
    Al concluir cada sub-fase y al cerrar cada fase principal, el agente debe presentar una **explicación detallada y pedagógica** (qué se construyó, por qué, archivos exactos intervenidos, pruebas del Quality Gate superadas y estado de la bitácora).  
    Los cambios solo se subirán a GitHub cuando el usuario lo autorice explícitamente escribiendo: **"Subir a github"**.
+7. **Punto de Corte Limpio (Anti-Alucinaciones por Fatiga de Tokens):**  
+   Al finalizar cada fase mayor (cada una de las 12 fases) y quedar sincronizada en GitHub, el usuario puede optar por abrir una sesión/chat limpia para la siguiente fase. El agente retomará leyendo los archivos de `specs/` con cero sobrecarga de memoria, garantizando máxima precisión.

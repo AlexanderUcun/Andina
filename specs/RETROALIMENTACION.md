@@ -12,30 +12,26 @@
 
 ---
 
-## 🚦 Protocolo de Retroalimentación y Control en 4 Pasos
+## 🚦 Protocolo de Trabajo Anti-Alucinación y Control de Contexto
 
-```
-   ┌───────────────────────┐
-   │ 1. REPORTE Y DETALLE  │  --> Explicación detallada de la sub-fase, archivos y Quality Gate.
-   └───────────┬───────────┘
-               ▼
-   ┌───────────────────────┐
-   │ 2. FEEDBACK USUARIO   │  --> Escribes tus notas, ajustes estéticos o correcciones aquí.
-   └───────────┬───────────┘
-               ▼
-   ┌───────────────────────┐
-   │ 3. CIERRE Y COMMIT    │  --> El agente incorpora tu feedback y sella el commit local en Git.
-   └───────────┬───────────┘
-               ▼
-   ┌───────────────────────┐
-   │ 4. "Subir a github"   │  --> SOLO con autorización explícita del usuario se hace git push.
-   └───────────────────────┘
-```
+Para eliminar al 100% el riesgo de saturación de tokens, degradación de atención o alucinaciones durante el desarrollo de la app, el flujo de trabajo se desacopla en **dos niveles complementarios**:
 
-> [!IMPORTANT]
-> **Regla Estricta de Sincronización Remota:** El agente **NUNCA ejecutará `git push` automáticamente**.  
-> Al finalizar cada sub-fase y cada fase mayor, el agente entregará una **explicación técnica detallada y comprensible**. Los cambios solo se enviarán a GitHub cuando el usuario lo autorice explícitamente escribiendo: **"Subir a github"**.
+### 🔹 Nivel Sub-Fase: Avance Atómico y Feedback Ultraligero (< 200 tokens)
+1. **Construcción Atómica:** El agente interviene únicamente los 2 o 3 archivos asignados a la sub-fase.
+2. **Quality Gate:** Se ejecuta la verificación (compilación o test unitario JVM en terminal).
+3. **Registro en Bitácora:** El agente asienta el estado técnico en este archivo (`specs/RETROALIMENTACION.md`).
+4. **Tu Feedback Desacoplado:** Tú revisas los archivos en VS Code y escribes tus notas en este archivo. En el chat respondes de forma directa: *"Siguiente"* / *"Aprobado"* o la corrección puntual.
+5. **Commit Local en Git:** El agente sella el commit localmente en la máquina.
 
+### 🔹 Nivel Fase Mayor: Auditoría Integral, Sincronización y "Corte Limpio"
+Al completar todas las sub-fases de cualquiera de las 12 fases maestras:
+1. **Explicación Exhaustiva:** El agente entrega un reporte detallado y comprensible de arquitectura, diseño, seguridad y estado general.
+2. **Revisión Profunda del Usuario:** El usuario evalúa la fase en su totalidad y aprueba la fila correspondiente en la matriz.
+3. **Autorización Remota Obligatoria:** Los cambios se suben a GitHub **única y exclusivamente** cuando el usuario escriba la instrucción exacta: **"Subir a github"**.
+4. **Punto de "Corte Limpio" (Anti-Fatiga de Tokens):**  
+   Dado que todo el código, las pruebas y las especificaciones están 100% blindados en disco y en Git, al cerrar una fase el usuario puede:
+   * Continuar en la misma sesión si el contexto sigue ágil.
+   * O **abrir un nuevo chat/sesión** para la siguiente fase. El nuevo proceso leerá los `.md` de [**specs/**](./) y arrancará con **0% de memoria saturada y máxima precisión de ingeniería**.
 
 ---
 
