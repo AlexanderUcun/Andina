@@ -41,7 +41,7 @@ Al completar todas las sub-fases de cualquiera de las 12 fases maestras:
 |---|---|:---:|:---:|:---:|
 | **01** | Cimientos del Entorno y Gradle Limpio | ✅ Completada | 4 / 4 | ⏳ |
 | **02** | Design System Base (Andean Mist & Moss) | ✅ Completada | 4 / 4 | ⏳ |
-| **03** | Motor de Persistencia Room y Libro Mayor | 🔄 En Progreso | 4 / 6 | ⏳ |
+| **03** | Motor de Persistencia Room y Libro Mayor | 🔄 En Progreso | 5 / 6 | ⏳ |
 | **04** | Capa de Dominio y Casos de Uso Contables | ⏳ Pendiente | 0 / 5 | ⏳ |
 | **05** | Componentes UI Reutilizables y Ecosistema | ⏳ Pendiente | 0 / 6 | ⏳ |
 | **06** | App Shell, Navigation y Barra Inferior | ⏳ Pendiente | 0 / 5 | ⏳ |
@@ -246,7 +246,7 @@ Al completar todas las sub-fases de cualquiera de las 12 fases maestras:
 
 #### 📍 Sub-fase 3.4: DAOs Reactivos con Flow (WalletDao, CategoryDao, TransactionDao, PocketDao & LedgerDao)
 * **Fecha:** 2026-10-07
-* **Commit:** `Pendiente de commit`
+* **Commit:** `80a97a0`
 * **Archivos intervenidos:**
   * `app/src/main/java/com/andina/finanzas/data/local/dao/WalletDao.kt` (CRUD de billeteras y observación reactiva de `WalletBalanceView`)
   * `app/src/main/java/com/andina/finanzas/data/local/dao/CategoryDao.kt` (CRUD de categorías y filtrado reactivo por tipo Gasto/Ingreso)
@@ -257,6 +257,23 @@ Al completar todas las sub-fases de cualquiera de las 12 fases maestras:
   * Cobertura completa de operaciones reactivas con Coroutines y Flow.
   * Consultas SQL compiladas y verificadas por KSP Room.
   * Tareas `:app:kspDebugKotlin` y `:app:compileDebugKotlin` ejecutadas con éxito (`BUILD SUCCESSFUL in 32s`).
+* **📝 Espacio de Retroalimentación del Usuario:**
+  > *(Escribe aquí tus observaciones, dudas o confirmación para esta sub-fase)*
+* **Estado:** `[ COMPLETADA ]`
+
+---
+
+#### 📍 Sub-fase 3.5: Base de Datos y Seeder Inicial (AppDatabase & DatabaseSeeder)
+* **Fecha:** 2026-10-07
+* **Commit:** `Pendiente de commit`
+* **Archivos intervenidos:**
+  * `app/src/main/java/com/andina/finanzas/data/local/AppDatabase.kt` (RoomDatabase central con registro de 5 entidades, 2 vistas de ledger, exportSchema activado y fábrica de instancias persistente y en memoria)
+  * `app/src/main/java/com/andina/finanzas/data/local/seed/DatabaseSeeder.kt` (seeder de catálogo colombiano con `SupportSQLiteDatabase` directo en `onCreate` blindado contra deadlocks)
+  * `app/schemas/com.andina.finanzas.data.local.AppDatabase/1.json` (esquema oficial de Room exportado por KSP)
+* **Reporte del Agente (Quality Gate):**
+  * KSP generó con éxito el archivo de esquema `1.json` e implementaciones `AppDatabase_Impl`.
+  * Verificación estricta de tablas, tipos e índices relacionales en Room.
+  * Tareas `:app:kspDebugKotlin` y `:app:compileDebugKotlin` ejecutadas con éxito (`BUILD SUCCESSFUL in 38s`).
 * **📝 Espacio de Retroalimentación del Usuario:**
   > *(Escribe aquí tus observaciones, dudas o confirmación para esta sub-fase)*
 * **Estado:** `[ COMPLETADA ]`
