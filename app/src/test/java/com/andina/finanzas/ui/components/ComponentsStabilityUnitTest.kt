@@ -54,7 +54,7 @@ class ComponentsStabilityUnitTest {
 
         assertTrue("Debe estar marcado como gasto hormiga", antExpense.isAntExpense)
         assertEquals(TransactionType.GASTO, antExpense.type)
-        assertEquals("$ 8.500 COP", antExpense.amount.formatCop())
+        assertEquals("$ 8.500 COP", antExpense.amount.formatCop(includeCode = true))
 
         val regularIncome = Transaction(
             id = 2,
@@ -67,7 +67,7 @@ class ComponentsStabilityUnitTest {
 
         assertFalse("El ingreso no debe ser gasto hormiga", regularIncome.isAntExpense)
         assertEquals(TransactionType.INGRESO, regularIncome.type)
-        assertEquals("$ 2.500.000 COP", regularIncome.amount.formatCop())
+        assertEquals("$ 2.500.000 COP", regularIncome.amount.formatCop(includeCode = true))
     }
 
     @Test
