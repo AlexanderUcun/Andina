@@ -282,7 +282,7 @@ Al completar todas las sub-fases de cualquiera de las 12 fases maestras:
 
 #### 📍 Sub-fase 3.6: Quality Gate Unitario del Libro Mayor (RoomLedgerUnitTest)
 * **Fecha:** 2026-10-07
-* **Commit:** `Pendiente de commit`
+* **Commit:** `a031b2a`
 * **Archivos intervenidos:**
   * `gradle/libs.versions.toml` (dependencias de Robolectric y AndroidX Test Core para ejecución JVM)
   * `app/build.gradle.kts` (incorporación de `testImplementation` para tests de base de datos)
