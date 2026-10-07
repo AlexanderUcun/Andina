@@ -41,7 +41,7 @@ Al completar todas las sub-fases de cualquiera de las 12 fases maestras:
 |---|---|:---:|:---:|:---:|
 | **01** | Cimientos del Entorno y Gradle Limpio | ✅ Completada | 4 / 4 | ⏳ |
 | **02** | Design System Base (Andean Mist & Moss) | ✅ Completada | 4 / 4 | ⏳ |
-| **03** | Motor de Persistencia Room y Libro Mayor | 🔄 En Progreso | 5 / 6 | ⏳ |
+| **03** | Motor de Persistencia Room y Libro Mayor | ✅ Completada | 6 / 6 | ⏳ |
 | **04** | Capa de Dominio y Casos de Uso Contables | ⏳ Pendiente | 0 / 5 | ⏳ |
 | **05** | Componentes UI Reutilizables y Ecosistema | ⏳ Pendiente | 0 / 6 | ⏳ |
 | **06** | App Shell, Navigation y Barra Inferior | ⏳ Pendiente | 0 / 5 | ⏳ |
@@ -265,7 +265,7 @@ Al completar todas las sub-fases de cualquiera de las 12 fases maestras:
 
 #### 📍 Sub-fase 3.5: Base de Datos y Seeder Inicial (AppDatabase & DatabaseSeeder)
 * **Fecha:** 2026-10-07
-* **Commit:** `Pendiente de commit`
+* **Commit:** `689fd7c`
 * **Archivos intervenidos:**
   * `app/src/main/java/com/andina/finanzas/data/local/AppDatabase.kt` (RoomDatabase central con registro de 5 entidades, 2 vistas de ledger, exportSchema activado y fábrica de instancias persistente y en memoria)
   * `app/src/main/java/com/andina/finanzas/data/local/seed/DatabaseSeeder.kt` (seeder de catálogo colombiano con `SupportSQLiteDatabase` directo en `onCreate` blindado contra deadlocks)
@@ -280,7 +280,28 @@ Al completar todas las sub-fases de cualquiera de las 12 fases maestras:
 
 ---
 
-*(Las siguientes sub-fases de Fase 03 se irán completando y documentando en esta misma bitácora de forma continua).*
+#### 📍 Sub-fase 3.6: Quality Gate Unitario del Libro Mayor (RoomLedgerUnitTest)
+* **Fecha:** 2026-10-07
+* **Commit:** `Pendiente de commit`
+* **Archivos intervenidos:**
+  * `gradle/libs.versions.toml` (dependencias de Robolectric y AndroidX Test Core para ejecución JVM)
+  * `app/build.gradle.kts` (incorporación de `testImplementation` para tests de base de datos)
+  * `app/src/test/java/com/andina/finanzas/data/local/RoomLedgerUnitTest.kt` (suite de 5 pruebas unitarias con base de datos en memoria para verificar integridad contable matemática)
+* **Reporte del Agente (Quality Gate):**
+  * Se implementaron y superaron 5 pruebas matemáticas automatizadas sobre Room:
+    1. **Sembrado inicial:** Verifica que la BD contenga las 4 billeteras colombianas predeterminadas (Nequi, Daviplata, Bancolombia, Efectivo) y categorías con candidatos a gasto hormiga.
+    2. **Gasto descuenta de `@DatabaseView`:** Saldo inicial $1.000.000 - Gasto $150.000 = $850.000 COP exactos devueltos por `WalletBalanceView`.
+    3. **Ingreso incrementa saldo en `@DatabaseView`:** Saldo $200.000 + Ingreso $500.000 = $700.000 COP exactos.
+    4. **Transferencia entre billeteras:** Bancolombia ($1.000.000) transfiere $300.000 a Nequi ($200.000). Bancolombia queda en $700.000, Nequi en $500.000 y el patrimonio consolidado se conserva inalterado en $1.200.000 (sin duplicación de dinero).
+    5. **Aporte y retiro a bolsillos:** Daviplata ($600.000) aporta $200.000 al Fondo de Emergencia (queda Daviplata en $400.000 y Bolsillo en $200.000); posterior retiro de $50.000 deja Daviplata en $450.000 y Bolsillo en $150.000. Patrimonio total inalterable en $600.000.
+  * Tarea Gradle `:app:testDebugUnitTest` ejecutada con éxito (`BUILD SUCCESSFUL in 2m 51s`, 100% pruebas en verde, 10 de 10 tests unitarios pasando).
+* **📝 Espacio de Retroalimentación del Usuario:**
+  > *(Escribe aquí tus observaciones antes de autorizar el cierre definitivo de Fase 03 y la subida a GitHub)*
+* **Estado:** `[ COMPLETADA ]`
+
+---
+
+*(Fase 03 completada al 100%. Las siguientes fases se irán completando y documentando en esta misma bitácora de forma continua).*
 
 
 
