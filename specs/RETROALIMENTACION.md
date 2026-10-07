@@ -42,7 +42,7 @@ Al completar todas las sub-fases de cualquiera de las 12 fases maestras:
 | **01** | Cimientos del Entorno y Gradle Limpio | ✅ Completada | 4 / 4 | ⏳ |
 | **02** | Design System Base (Andean Mist & Moss) | ✅ Completada | 4 / 4 | ⏳ |
 | **03** | Motor de Persistencia Room y Libro Mayor | ✅ Completada | 6 / 6 | ⏳ |
-| **04** | Capa de Dominio y Casos de Uso Contables | ⏳ Pendiente | 0 / 5 | ⏳ |
+| **04** | Capa de Dominio y Casos de Uso Contables | ✅ Completada | 6 / 6 | ⏳ |
 | **05** | Componentes UI Reutilizables y Ecosistema | ⏳ Pendiente | 0 / 6 | ⏳ |
 | **06** | App Shell, Navigation y Barra Inferior | ⏳ Pendiente | 0 / 5 | ⏳ |
 | **07** | Modal de Registro Rápido con Muggy Asomado | ⏳ Pendiente | 0 / 5 | ⏳ |
@@ -301,7 +301,114 @@ Al completar todas las sub-fases de cualquiera de las 12 fases maestras:
 
 ---
 
-*(Fase 03 completada al 100%. Las siguientes fases se irán completando y documentando en esta misma bitácora de forma continua).*
+### 🔹 FASE 04: Capa de Dominio y Matemáticas Financieras
+
+#### 📍 Sub-fase 4.1: Value Object Monetario (`Money.kt`)
+* **Fecha:** 2026-10-07
+* **Commit:** `81e1701`
+* **Archivos intervenidos:**
+  * `app/src/main/java/com/andina/finanzas/domain/model/Money.kt` (`@JvmInline value class Money(val pesos: Long)`, operaciones aritméticas exactas sin coma flotante `+`, `-`, `*`, `/`, propiedades `isPositive`, `isZero`, `isNegative`, `absoluteValue`, formateador `formatCop()` al estándar colombiano `$ 14.850.000 COP` y parseador seguro `fromStringOrNull()`).
+* **Reporte del Agente (Quality Gate):**
+  * Se elimina de raíz cualquier error por desbordamiento o imprecisión de coma flotante (`Double`/`Float`).
+  * Tarea de compilación Gradle `:app:compileDebugKotlin` ejecutada con éxito (`BUILD SUCCESSFUL in 50s`).
+* **📝 Espacio de Retroalimentación del Usuario:**
+  > *(Escribe aquí tus observaciones, dudas o confirmación para esta sub-fase)*
+* **Estado:** `[ COMPLETADA ]`
+
+---
+
+#### 📍 Sub-fase 4.2: Modelos de Dominio Inmutables (`DomainEnums`, `Category`, `Wallet`, `Pocket`, `Transaction` y `FinancialSummary`)
+* **Fecha:** 2026-10-07
+* **Commit:** `2bf0c53`
+* **Archivos intervenidos:**
+  * `app/src/main/java/com/andina/finanzas/domain/model/DomainEnums.kt` (`TransactionType`, `WalletType`, `CategoryKind`)
+  * `app/src/main/java/com/andina/finanzas/domain/model/Category.kt` (modelo inmutable de categorías)
+  * `app/src/main/java/com/andina/finanzas/domain/model/Wallet.kt` (modelo inmutable de billeteras con `currentBalance: Money`)
+  * `app/src/main/java/com/andina/finanzas/domain/model/Pocket.kt` (modelo de metas de ahorro con cálculo de progreso 0..1, `remaining` y `isCompleted`)
+  * `app/src/main/java/com/andina/finanzas/domain/model/Transaction.kt` (movimientos con campos enriquecidos para la UI)
+  * `app/src/main/java/com/andina/finanzas/domain/model/FinancialSummary.kt` (patrimonio consolidado, montos mensuales y `savingsRate`)
+* **Reporte del Agente (Quality Gate):**
+  * Modelos puros desacoplados de cualquier anotación de base de datos o framework.
+  * Tarea de compilación Gradle `:app:compileDebugKotlin` ejecutada con éxito (`BUILD SUCCESSFUL in 31s`).
+* **📝 Espacio de Retroalimentación del Usuario:**
+  > *(Escribe aquí tus observaciones, dudas o confirmación para esta sub-fase)*
+* **Estado:** `[ COMPLETADA ]`
+
+---
+
+#### 📍 Sub-fase 4.3: Casos de Uso Transaccionales (`DomainError`, `FinanceRepository`, `DetectAntExpensesUseCase`, `RegisterTransactionUseCase` y `ObserveBalancesUseCase`)
+* **Fecha:** 2026-10-07
+* **Commit:** `3a606bc`
+* **Archivos intervenidos:**
+  * `app/src/main/java/com/andina/finanzas/domain/model/DomainError.kt` (errores tipados: `InvalidAmount`, `SameWalletTransfer`, `WalletNotFound`, `PocketNotFound`, `InsufficientFunds`)
+  * `app/src/main/java/com/andina/finanzas/domain/repository/FinanceRepository.kt` (contrato de repositorio en la capa de dominio)
+  * `app/src/main/java/com/andina/finanzas/domain/usecase/DetectAntExpensesUseCase.kt` (clasificador con umbral de $25.000 COP y respeto estricto de override)
+  * `app/src/main/java/com/andina/finanzas/domain/usecase/RegisterTransactionUseCase.kt` (validaciones financieras: monto positivo, cuentas válidas en transferencias, inyección de flag hormiga)
+  * `app/src/main/java/com/andina/finanzas/domain/usecase/ObserveBalancesUseCase.kt` (observación reactiva consolidada de Libro Mayor y dashboard)
+* **Reporte del Agente (Quality Gate):**
+  * Lógica de negocio blindada con Clean Architecture estricta.
+  * Tarea de compilación Gradle `:app:compileDebugKotlin` ejecutada con éxito (`BUILD SUCCESSFUL in 36s`).
+* **📝 Espacio de Retroalimentación del Usuario:**
+  > *(Escribe aquí tus observaciones, dudas o confirmación para esta sub-fase)*
+* **Estado:** `[ COMPLETADA ]`
+
+---
+
+#### 📍 Sub-fase 4.4: Caso de Uso de Ahorro Atómico (`ContributeToPocketUseCase` y `WithdrawFromPocketUseCase`)
+* **Fecha:** 2026-10-07
+* **Commit:** `91160ba`
+* **Archivos intervenidos:**
+  * `app/src/main/java/com/andina/finanzas/domain/usecase/ContributeToPocketUseCase.kt` (valida existencia de bolsillo, billetera origen y saldo disponible suficiente antes del aporte)
+  * `app/src/main/java/com/andina/finanzas/domain/usecase/WithdrawFromPocketUseCase.kt` (valida existencia y saldo ahorrado suficiente en el bolsillo antes del retiro)
+* **Reporte del Agente (Quality Gate):**
+  * Reglas de negocio que impiden saldos negativos en aportes y retiros de ahorro.
+  * Tarea de compilación Gradle `:app:compileDebugKotlin` ejecutada con éxito (`BUILD SUCCESSFUL in 34s`).
+* **📝 Espacio de Retroalimentación del Usuario:**
+  > *(Escribe aquí tus observaciones, dudas o confirmación para esta sub-fase)*
+* **Estado:** `[ COMPLETADA ]`
+
+---
+
+#### 📍 Sub-fase 4.5: Repositorio de Dominio e Implementación (`FinanceMappers` y `FinanceRepositoryImpl`)
+* **Fecha:** 2026-10-07
+* **Commit:** `bc15490`
+* **Archivos intervenidos:**
+  * `app/src/main/java/com/andina/finanzas/data/mapper/FinanceMappers.kt` (mapeo bidireccional puro entre entidades Room y modelos inmutables de dominio)
+  * `app/src/main/java/com/andina/finanzas/data/repository/FinanceRepositoryImpl.kt` (implementación `@Singleton` de `FinanceRepository` enlazada a `WalletDao`, `CategoryDao`, `TransactionDao`, `PocketDao` y `LedgerDao` con derivación en vivo de `WalletBalanceView` y `PocketBalanceView`)
+* **Reporte del Agente (Quality Gate):**
+  * La capa de dominio queda completamente conectada a la base de datos sin acoplar la UI a Room.
+  * Tarea de compilación Gradle `:app:compileDebugKotlin` ejecutada con éxito (`BUILD SUCCESSFUL in 32s`).
+* **📝 Espacio de Retroalimentación del Usuario:**
+  > *(Escribe aquí tus observaciones, dudas o confirmación para esta sub-fase)*
+* **Estado:** `[ COMPLETADA ]`
+
+---
+
+#### 📍 Sub-fase 4.6: Quality Gate Unitario de Dinero y Casos de Uso (`MoneyMathUnitTest`)
+* **Fecha:** 2026-10-07
+* **Commit:** `117e59b`
+* **Archivos intervenidos:**
+  * `app/src/test/java/com/andina/finanzas/domain/model/MoneyMathUnitTest.kt` (suite de 9 pruebas unitarias matemáticas y de casos de uso con repositorio simulado)
+* **Reporte del Agente (Quality Gate):**
+  * Se implementaron y superaron 9 pruebas unitarias matemáticas:
+    1. **Aritmética exacta:** Suma, resta y operaciones con `Money(Long)` sin pérdida de centavos.
+    2. **Multiplicación y división:** Cuotas, porcentajes y divisiones enteras precisas.
+    3. **Formateo COP:** Formato oficial colombiano `$ 14.850.000`, `$ 14.850.000 COP`, `-$ 25.000`, `$ 0`.
+    4. **Parseo seguro:** Limpieza de texto y extracción de dígitos enteros (`"$ 50.000"`, `"14.850.000 COP"`).
+    5. **Modelo Pocket:** Cálculo de porcentaje de avance (0.25f), saldo restante ($750.000) y flag `isCompleted`.
+    6. **Detector de compras hormiga:** Clasificación por categoría candidata y umbral de $25.000 COP.
+    7. **Respeto a override:** El flag del usuario tiene precedencia absoluta sobre la heurística.
+    8. **RegisterTransactionUseCase:** Bloqueo de montos cero, transferencias a la misma cuenta, cuentas inexistentes y registro exitoso.
+    9. **Contribute & Withdraw Use Cases:** Bloqueo ante saldo insuficiente en billetera o bolsillo y ejecución exitosa.
+  * Tarea Gradle `:app:testDebugUnitTest` ejecutada con éxito (`BUILD SUCCESSFUL in 45s`, 19 pruebas de 19 pasando al 100% en verde en todo el proyecto: 5 de Tema UI + 5 de Ledger Room + 9 de Dominio).
+* **📝 Espacio de Retroalimentación del Usuario:**
+  > *(Escribe aquí tus observaciones antes de autorizar el cierre definitivo de Fase 04 y la subida a GitHub)*
+* **Estado:** `[ COMPLETADA ]`
+
+---
+
+*(Fase 04 completada al 100%. Las siguientes fases se irán completando y documentando en esta misma bitácora de forma continua).*
+
 
 
 
