@@ -13,7 +13,7 @@
 > * Motor técnico e ingeniería de Muggy: [**MUGGY_MOTOR_TECNICO.md**](./MUGGY_MOTOR_TECNICO.md)
 > * Ayudas interactivas y simuladores: [**AYUDAS_INTERACTIVAS.md**](./AYUDAS_INTERACTIVAS.md)
 > * Lecciones aprendidas y blindaje: [**LECCIONES_Y_BLINDAJE.md**](./LECCIONES_Y_BLINDAJE.md)
-> * Índice maestro: [**README.md**](./README.md)
+> * Índice maestro: [**README.md**](../README.md)
 
 ---
 

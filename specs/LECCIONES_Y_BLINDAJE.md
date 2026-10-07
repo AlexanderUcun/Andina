@@ -9,7 +9,7 @@
 > * Lógica, base de datos y pantallas: [**ARQUITECTURA.md**](./ARQUITECTURA.md)
 > * Tokens, colores y componentes visuales: [**DISENO_VISUAL.md**](./DISENO_VISUAL.md)
 > * Motor técnico e ingeniería de Muggy: [**MUGGY_MOTOR_TECNICO.md**](./MUGGY_MOTOR_TECNICO.md)
-> * Resumen general del proyecto: [**README.md**](./README.md)
+> * Resumen general del proyecto: [**README.md**](../README.md)
 
 ---
 

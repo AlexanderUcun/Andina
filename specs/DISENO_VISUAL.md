@@ -10,7 +10,7 @@
 > * Historia y personalidad de Muggy: [**MUGGY.md**](./MUGGY.md)
 > * Implementación de animaciones de Muggy: [**MUGGY_INTERACCION.md**](./MUGGY_INTERACCION.md)
 > * Motor técnico e ingeniería de Muggy: [**MUGGY_MOTOR_TECNICO.md**](./MUGGY_MOTOR_TECNICO.md)
-> * Resumen general del proyecto: [**README.md**](./README.md)
+> * Resumen general del proyecto: [**README.md**](../README.md)
 
 ---
 
