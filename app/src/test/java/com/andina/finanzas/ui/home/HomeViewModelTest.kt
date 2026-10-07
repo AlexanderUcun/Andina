@@ -221,8 +221,19 @@ private class FakeFinanceRepository : FinanceRepository {
     }
 
     override fun observeRecentTransactions(limit: Int): Flow<List<Transaction>> = flowOf(testTransactions)
+    override fun getTransactionsPaged(
+        query: String,
+        type: TransactionType?,
+        walletId: Long?,
+        categoryId: Long?,
+        onlyAntExpense: Boolean,
+        fromMillis: Long?,
+        toMillis: Long?
+    ): Flow<androidx.paging.PagingData<Transaction>> = flowOf(androidx.paging.PagingData.empty())
     override suspend fun getTransactionById(id: Long): Transaction? = testTransactions.find { it.id == id }
     override suspend fun registerTransaction(transaction: Transaction): Long = 1L
+    override suspend fun updateTransaction(transaction: Transaction) {}
+    override suspend fun restoreTransaction(transaction: Transaction): Long = 1L
     override suspend fun deleteTransaction(id: Long) {}
 
     override fun observePockets(): Flow<List<Pocket>> = flowOf(testPockets)

@@ -295,6 +295,15 @@ private class FakeFinanceRepository : FinanceRepository {
         flowOf(FinancialSummary(totalNetWorth = Money(1_600_000L)))
 
     override fun observeRecentTransactions(limit: Int): Flow<List<Transaction>> = flowOf(emptyList())
+    override fun getTransactionsPaged(
+        query: String,
+        type: TransactionType?,
+        walletId: Long?,
+        categoryId: Long?,
+        onlyAntExpense: Boolean,
+        fromMillis: Long?,
+        toMillis: Long?
+    ): Flow<androidx.paging.PagingData<Transaction>> = flowOf(androidx.paging.PagingData.empty())
     override suspend fun getTransactionById(id: Long): Transaction? = null
 
     override suspend fun registerTransaction(transaction: Transaction): Long {
@@ -302,6 +311,8 @@ private class FakeFinanceRepository : FinanceRepository {
         return 101L
     }
 
+    override suspend fun updateTransaction(transaction: Transaction) {}
+    override suspend fun restoreTransaction(transaction: Transaction): Long = 101L
     override suspend fun deleteTransaction(id: Long) {}
 
     override fun observePockets(): Flow<List<Pocket>> = flowOf(pockets.values.toList())
