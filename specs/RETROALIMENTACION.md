@@ -39,7 +39,7 @@ Al completar todas las sub-fases de cualquiera de las 12 fases maestras:
 
 | Fase | Título | Estado | Sub-fases Completadas | Aprobación Usuario |
 |---|---|:---:|:---:|:---:|
-| **01** | Cimientos del Entorno y Gradle Limpio | 🟡 En curso | 3 / 4 | ⏳ |
+| **01** | Cimientos del Entorno y Gradle Limpio | ✅ Completada | 4 / 4 | ⏳ |
 | **02** | Design System Base (Andean Mist & Moss) | ⏳ Pendiente | 0 / 5 | ⏳ |
 | **03** | Motor de Persistencia Room y Libro Mayor | ⏳ Pendiente | 0 / 6 | ⏳ |
 | **04** | Capa de Dominio y Casos de Uso Contables | ⏳ Pendiente | 0 / 5 | ⏳ |
@@ -113,14 +113,17 @@ Al completar todas las sub-fases de cualquiera de las 12 fases maestras:
 ---
 
 #### 📍 Sub-fase 1.4: Quality Gate de Fase 01
-* **Fecha:** *[Pendiente]*
-* **Commit:** *[Pendiente]*
-* **Comando ejecutado:** `./gradlew tasks --dry-run`
+* **Fecha:** 2026-10-07
+* **Commit:** `857d735`
+* **Comando ejecutado:** `.\gradlew.bat tasks --dry-run` (con JDK 21 LTS de JetBrains)
 * **Reporte del Agente:**
-  * *[Pendiente de ejecución]*
+  * `BUILD SUCCESSFUL in 18s`
+  * Grafo completo de dependencias resuelto sin conflictos de versiones, sin dependencias circulares y sin advertencias críticas.
+  * Wrapper portátil generado e incluido en el proyecto (`gradlew`, `gradlew.bat`, `gradle/wrapper/`).
+  * Fase 01 lista para ser auditada y aprobada.
 * **📝 Espacio de Retroalimentación del Usuario:**
-  > *(Escribe aquí tus observaciones antes de cerrar la Fase 01)*
-* **Estado:** `[ PENDIENTE ]`
+  > *(Escribe aquí tus observaciones antes de autorizar el cierre definitivo de Fase 01 y la subida a GitHub)*
+* **Estado:** `[ COMPLETADA ]`
 
 ---
 
