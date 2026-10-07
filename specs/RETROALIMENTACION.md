@@ -39,7 +39,7 @@ Al completar todas las sub-fases de cualquiera de las 12 fases maestras:
 
 | Fase | Título | Estado | Sub-fases Completadas | Aprobación Usuario |
 |---|---|:---:|:---:|:---:|
-| **01** | Cimientos del Entorno y Gradle Limpio | 🟡 En curso | 2 / 4 | ⏳ |
+| **01** | Cimientos del Entorno y Gradle Limpio | 🟡 En curso | 3 / 4 | ⏳ |
 | **02** | Design System Base (Andean Mist & Moss) | ⏳ Pendiente | 0 / 5 | ⏳ |
 | **03** | Motor de Persistencia Room y Libro Mayor | ⏳ Pendiente | 0 / 6 | ⏳ |
 | **04** | Capa de Dominio y Casos de Uso Contables | ⏳ Pendiente | 0 / 5 | ⏳ |
@@ -92,18 +92,23 @@ Al completar todas las sub-fases de cualquiera de las 12 fases maestras:
 ---
 
 #### 📍 Sub-fase 1.3: Configuración de Módulos y Manifiesto
-* **Fecha:** *[Pendiente]*
-* **Commit:** *[Pendiente]*
+* **Fecha:** 2026-10-07
+* **Commit:** `7ec8992`
 * **Archivos intervenidos:**
-  * `settings.gradle.kts`
-  * `build.gradle.kts` (raíz)
-  * `app/build.gradle.kts`
-  * `app/src/main/AndroidManifest.xml`
+  * `settings.gradle.kts` (repositorios Google, MavenCentral, GradlePluginPortal y módulo `:app`)
+  * `build.gradle.kts` (plugins a nivel raíz con `apply false`)
+  * `app/build.gradle.kts` (namespace `com.andina.finanzas`, compileSdk 35, minSdk 26, Java 17, Compose habilitado, SQLCipher, Room, Hilt, Vico)
+  * `app/proguard-rules.pro` (reglas R8 para SQLCipher y RoomDatabase)
+  * `app/src/main/AndroidManifest.xml` (MainActivity, AndinaApp, permisos biométricos y notificaciones)
+  * `app/src/main/res/values/strings.xml` (`app_name` = Andina)
+  * `app/src/main/res/xml/backup_rules.xml` y `data_extraction_rules.xml` (protección contra copia no autorizada de BD en la nube)
 * **Reporte del Agente (Quality Gate):**
-  * *[Pendiente de ejecución]*
+  * Estructura de módulos completa y alineada con `ARQUITECTURA.md`.
+  * Reglas de protección de base de datos en nube implementadas en el manifiesto.
+  * Commit local registrado con éxito sin push remoto.
 * **📝 Espacio de Retroalimentación del Usuario:**
   > *(Escribe aquí tus observaciones, dudas o confirmación para esta sub-fase)*
-* **Estado:** `[ PENDIENTE ]`
+* **Estado:** `[ COMPLETADA ]`
 
 ---
 
