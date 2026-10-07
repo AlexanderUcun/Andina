@@ -48,9 +48,9 @@ Al completar todas las sub-fases de cualquiera de las 12 fases maestras:
 | **07** | Modal de Registro Rápido con Muggy Asomado | ✅ Completada | 6 / 6 | ⏳ |
 | **08** | Pantalla de Inicio (Hero Saldo y Carrusel) | ✅ Completada | 6 / 6 | ⏳ |
 | **09** | Bolsillos de Ahorro y Frailejón Vivo | ✅ Completada | 6 / 6 | ⏳ |
-| **10** | Historial de Movimientos, Paging y Filtros | ⏳ Pendiente | 0 / 6 | ⏳ |
-| **11** | Muggy 3D, Ayudas e Inteligencia On-Device | ⏳ Pendiente | 0 / 9 | ⏳ |
-| **12** | Seguridad SQLCipher, Exportación y Release | ⏳ Pendiente | 0 / 7 | ⏳ |
+| **10** | Historial de Movimientos, Paging y Filtros | ✅ Completada | 6 / 6 | ⏳ |
+| **11** | Muggy 3D, Ayudas e Inteligencia On-Device | ✅ Completada | 9 / 9 | ⏳ |
+| **12** | Seguridad SQLCipher, Exportación y Release | 🔄 En Progreso | 1 / 7 | ⏳ |
 
 ---
 
@@ -1020,5 +1020,18 @@ Al completar todas las sub-fases de cualquiera de las 12 fases maestras:
 
 ---
 
-*(Fase 11 completada al 100%. La Fase 12: Blindaje de Seguridad, Modo Oscuro, Exportación y Publicación cerrará el ciclo de producción).*
+### 🔹 FASE 12: Blindaje de Seguridad, Modo Oscuro, Exportación y Publicación
+
+#### 📍 Sub-fase 12.1: Android Keystore por Hardware (`KeystoreHelper.kt`)
+* **Fecha:** 2026-10-07
+* **Archivos intervenidos:**
+  * `app/src/main/java/com/andina/finanzas/data/security/KeystoreHelper.kt` (gestor criptográfico `@Singleton` respaldado por Android Keystore en TEE/StrongBox con clave maestra AES-256 en modo GCM/NoPadding, generación de frase de paso de 32 bytes con `SecureRandom`, empaquetado con IV de 12 bytes y Auth Tag de 128 bits, almacenamiento seguro en preferencias privadas y caché en memoria).
+* **Reporte del Agente (Quality Gate):**
+  * Clave criptográfica custodiada por hardware sin credenciales codificadas en el APK.
+  * Tarea de compilación `:app:compileDebugKotlin` superada limpiamente (`BUILD SUCCESSFUL in 3m 47s`).
+* **📝 Espacio de Retroalimentación del Usuario:**
+  > *(Escribe aquí tus observaciones, dudas o confirmación para esta sub-fase)*
+* **Estado:** `[ COMPLETADA ]`
+
+---
 
