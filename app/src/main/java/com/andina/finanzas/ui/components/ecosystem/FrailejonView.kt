@@ -82,22 +82,22 @@ fun FrailejonView(
     Canvas(
         modifier = modifier.size(size)
     ) {
-        val width = size.width
-        val height = size.height
+        val canvasWidth = this.size.width
+        val canvasHeight = this.size.height
 
-        val centerX = width / 2f
-        val groundY = height * 0.88f
+        val centerX = canvasWidth / 2f
+        val groundY = canvasHeight * 0.88f
 
         // 1. Dibuja el suelo rocoso/musgoso del páramo
-        drawParamoGround(centerX = centerX, groundY = groundY, width = width)
+        drawParamoGround(centerX = centerX, groundY = groundY, width = canvasWidth)
 
         // 2. Altura dinámica del tallo según progreso (crece hacia arriba)
-        val maxStemHeight = height * 0.45f
+        val maxStemHeight = canvasHeight * 0.45f
         val currentStemHeight = 12.dp.toPx() + (maxStemHeight * animatedGrowth)
         val stemTopY = groundY - currentStemHeight
 
         // Desplazamiento horizontal por viento en la copa
-        val swayOffsetPx = (swayAngle * (currentStemHeight / maxStemHeight) * 1.5f).dp.toPx()
+        val swayOffsetPx = swayAngle * (currentStemHeight / maxStemHeight) * 2.dp.toPx()
         val crownCenterX = centerX + swayOffsetPx
 
         // 3. Tallo leñoso cubierto de hojas secas protectoras
@@ -122,7 +122,7 @@ fun FrailejonView(
             val flowerScale = ((animatedGrowth - 0.70f) / 0.30f).coerceIn(0f, 1f)
             drawGoldenFlower(
                 centerX = crownCenterX,
-                centerY = stemTopY - 8.dp.toPx() * flowerScale,
+                centerY = stemTopY - (8.dp.toPx() * flowerScale),
                 scale = flowerScale
             )
         }
