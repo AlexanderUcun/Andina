@@ -12,11 +12,11 @@
 
 ---
 
-## 🚦 Protocolo de Retroalimentación en 3 Pasos
+## 🚦 Protocolo de Retroalimentación y Control en 4 Pasos
 
 ```
    ┌───────────────────────┐
-   │ 1. REPORTE DEL AGENTE │  --> Archivos creados, tests ejecutados y Quality Gate superado.
+   │ 1. REPORTE Y DETALLE  │  --> Explicación detallada de la sub-fase, archivos y Quality Gate.
    └───────────┬───────────┘
                ▼
    ┌───────────────────────┐
@@ -24,9 +24,18 @@
    └───────────┬───────────┘
                ▼
    ┌───────────────────────┐
-   │ 3. CIERRE Y AVANCE    │  --> El agente incorpora tu feedback y pasa a la siguiente sub-fase.
+   │ 3. CIERRE Y COMMIT    │  --> El agente incorpora tu feedback y sella el commit local en Git.
+   └───────────┬───────────┘
+               ▼
+   ┌───────────────────────┐
+   │ 4. "Subir a github"   │  --> SOLO con autorización explícita del usuario se hace git push.
    └───────────────────────┘
 ```
+
+> [!IMPORTANT]
+> **Regla Estricta de Sincronización Remota:** El agente **NUNCA ejecutará `git push` automáticamente**.  
+> Al finalizar cada sub-fase y cada fase mayor, el agente entregará una **explicación técnica detallada y comprensible**. Los cambios solo se enviarán a GitHub cuando el usuario lo autorice explícitamente escribiendo: **"Subir a github"**.
+
 
 ---
 

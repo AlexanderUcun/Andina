@@ -224,4 +224,8 @@
 2. **Verificación inmediata:** Si una sub-fase tiene un error de sintaxis o tipo, se resuelve inmediatamente antes de pasar a la siguiente sub-fase.
 3. **Cero pérdida de contexto:** La conversación se mantiene ligera y enfocada en micro-objetivos claros y alcanzables.
 4. **Bitácora y Retroalimentación Continua:** Al terminar cada sub-fase, el agente documenta los archivos creados y el Quality Gate en [**RETROALIMENTACION.md**](./RETROALIMENTACION.md). El usuario cuenta con su sección editable para observaciones, ajustes o aprobación.
-5. **Commits Atómicos en Git:** Cada sub-fase verificada se consolida con su commit descriptivo en Git para mantener un historial auditable.
+5. **Commits Locales Atómicos:** Cada sub-fase verificada se consolida con su commit local en Git para mantener un historial auditable.
+6. **Subida a GitHub Solo con Autorización Explícita ("Subir a github") y Explicación Detallada:**  
+   El agente **NUNCA ejecuta `git push` automáticamente**.  
+   Al concluir cada sub-fase y al cerrar cada fase principal, el agente debe presentar una **explicación detallada y pedagógica** (qué se construyó, por qué, archivos exactos intervenidos, pruebas del Quality Gate superadas y estado de la bitácora).  
+   Los cambios solo se subirán a GitHub cuando el usuario lo autorice explícitamente escribiendo: **"Subir a github"**.
