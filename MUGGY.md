@@ -29,6 +29,12 @@ En el páramo, el oso andino no acumula por codicia; **preserva, cuida las fuent
 Muggy transmite esa misma sabiduría a la economía personal del usuario:
 > *"Ahorrar no es privarse de la vida; es proteger tu propio páramo interior para que florezca con tranquilidad."*
 
+### 1.2 Regla de Oro Minimalista de Muggy: "Acompañar en Silencio"
+Muggy no es un asistente parlanchín tipo *Clippy* ni un invasor visual. Aplica la elegancia del minimalismo:
+* **Micro-mensajes al grano:** Consejos de máximo 2 oraciones concisas y cálidas. Cero sermones ni rodeos.
+* **Presencia no invasiva:** Si el usuario está registrando gastos en ráfaga o auditando movimientos, Muggy permanece en reposo sereno sin interrumpir ni bloquear botones.
+* **Acento emocional armónico:** Su ternura 3D aporta calidez orgánica a un ámbito tradicionalmente frío como las finanzas, pero jamás compite con la legibilidad clara del dinero.
+
 ---
 
 ## 2. Anatomía Visual y Paleta de Muggy

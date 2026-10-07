@@ -23,6 +23,28 @@ La experiencia visual de Andina se inspira en el **ecosistema de páramo y bosqu
 * **Carbón Mineral (*Charcoal Ink*):** Legibilidad absoluta, contraste noble y precisión tipográfica.
 * **Vidrio Esmerilado (*Apple Frosted Glass*):** Capas de elevación translúcidas que dejan traslucir los gradientes orgánicos de fondo sin ensuciar el contenido.
 
+### 1.1 El Toque Minimalista: Lujo Silencioso y Cero Ruido Visual (*Quiet Luxury*)
+
+El diseño de Andina rechaza las interfaces financieras abarrotadas, con decenas de cajas, banners publicitarios y colores estridentes. La app aplica los principios del **minimalismo suizo y el diseño nórdico/Apple**, fusionados con la calidez del páramo:
+
+1. **Espacio Negativo Generoso (Respiración Visual):**
+   * Márgenes laterales amplios (`20.dp` a `24.dp`) y separación vertical holgada (`16.dp` a `24.dp`) entre módulos.
+   * La información financiera no se amontona: cada cifra tiene su propio espacio para ser comprendida sin estrés cognitivo.
+2. **Jerarquía Tipográfica Reductiva:**
+   * Solo existe **un foco protagónico por pantalla** (la cifra principal en Manrope Bold de `34.sp` a `38.sp`).
+   * Toda la información contextual se presenta en tamaños secundarios discretos (`12.sp` a `14.sp`) en tonos grafito/carbón atenuado, sin competir por la atención.
+3. **Vidrio Esmerilado Silencioso (*Quiet Frosted Glass*):**
+   * Tarjetas limpias con fondos translúcidos que flotan sobre el fondo verde niebla.
+   * Bordes ultrafinos de `1.dp` con opacidad sutil al 15% (`#1AFFFFFF` en claro, `#1AFFFFFF` en oscuro), prescindiendo de sombras pesadas o bordes toscos.
+4. **Muggy como Acento Emocional, No como Distracción:**
+   * Muggy 3D es el anfitrión y el compañero afectivo, pero **nunca obstaculiza la lectura rápida de los saldos**.
+   * Su presencia es elegante y medida: habita en tarjetas clave o se asoma discretamente en el botón central, acompañando en silencio en lugar de saturar la pantalla.
+5. **Cero Adornos Inútiles (Diseño Funcional Esencial):**
+   * Si un elemento no ayuda al usuario a tomar una mejor decisión o a sentir paz mental con su dinero, **se elimina**.
+   * Sin líneas divisorias agresivas, sin botones redundantes, sin etiquetas innecesarias. La separación se logra mediante espaciado puro y contraste tonal.
+6. **Paleta Restringida y Armoniosa:**
+   * Una paleta controlada de 4 tonos dominantes (Verde Musgo, Niebla, Ámbar cálido y Carbón). Se evita el efecto "arcoíris" de categorías saturadas.
+
 ---
 
 ## 2. Paleta de Colores y Tokens Semánticos
