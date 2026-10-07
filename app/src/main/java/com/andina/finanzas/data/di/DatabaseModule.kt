@@ -7,6 +7,7 @@ import com.andina.finanzas.data.local.dao.LedgerDao
 import com.andina.finanzas.data.local.dao.PocketDao
 import com.andina.finanzas.data.local.dao.TransactionDao
 import com.andina.finanzas.data.local.dao.WalletDao
+import com.andina.finanzas.data.security.KeystoreHelper
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -21,9 +22,11 @@ object DatabaseModule {
     @Provides
     @Singleton
     fun provideAppDatabase(
-        @ApplicationContext context: Context
+        @ApplicationContext context: Context,
+        keystoreHelper: KeystoreHelper
     ): AppDatabase {
-        return AppDatabase.buildDatabase(context)
+        val passphrase = keystoreHelper.getOrCreateDatabasePassphrase()
+        return AppDatabase.buildDatabase(context, passphrase)
     }
 
     @Provides

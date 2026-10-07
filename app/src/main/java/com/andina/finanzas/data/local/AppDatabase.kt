@@ -18,6 +18,7 @@ import com.andina.finanzas.data.local.entity.WalletEntity
 import com.andina.finanzas.data.local.seed.DatabaseSeeder
 import com.andina.finanzas.data.local.view.PocketBalanceView
 import com.andina.finanzas.data.local.view.WalletBalanceView
+import net.zetetic.database.sqlcipher.SupportOpenHelperFactory
 
 /**
  * Base de datos principal de Andina.
@@ -51,9 +52,14 @@ abstract class AppDatabase : RoomDatabase() {
 
         /**
          * Crea una instancia de base de datos persistente con precarga de catálogo colombiano.
+         * Si se suministra una frase de paso (passphrase), la base de datos se cifra íntegramente
+         * mediante SQLCipher con algoritmo AES-256.
          */
-        fun buildDatabase(context: Context): AppDatabase {
-            return Room.databaseBuilder(
+        fun buildDatabase(
+            context: Context,
+            passphrase: ByteArray? = null
+        ): AppDatabase {
+            val builder = Room.databaseBuilder(
                 context.applicationContext,
                 AppDatabase::class.java,
                 DATABASE_NAME
@@ -64,7 +70,12 @@ abstract class AppDatabase : RoomDatabase() {
                         DatabaseSeeder.seedInitialData(db)
                     }
                 })
-                .build()
+
+            if (passphrase != null && passphrase.isNotEmpty()) {
+                builder.openHelperFactory(SupportOpenHelperFactory(passphrase))
+            }
+
+            return builder.build()
         }
 
         /**

@@ -50,7 +50,7 @@ Al completar todas las sub-fases de cualquiera de las 12 fases maestras:
 | **09** | Bolsillos de Ahorro y Frailejón Vivo | ✅ Completada | 6 / 6 | ⏳ |
 | **10** | Historial de Movimientos, Paging y Filtros | ✅ Completada | 6 / 6 | ⏳ |
 | **11** | Muggy 3D, Ayudas e Inteligencia On-Device | ✅ Completada | 9 / 9 | ⏳ |
-| **12** | Seguridad SQLCipher, Exportación y Release | 🔄 En Progreso | 1 / 7 | ⏳ |
+| **12** | Seguridad SQLCipher, Exportación y Release | 🔄 En Progreso | 2 / 7 | ⏳ |
 
 ---
 
@@ -1029,6 +1029,20 @@ Al completar todas las sub-fases de cualquiera de las 12 fases maestras:
 * **Reporte del Agente (Quality Gate):**
   * Clave criptográfica custodiada por hardware sin credenciales codificadas en el APK.
   * Tarea de compilación `:app:compileDebugKotlin` superada limpiamente (`BUILD SUCCESSFUL in 3m 47s`).
+* **📝 Espacio de Retroalimentación del Usuario:**
+  > *(Escribe aquí tus observaciones, dudas o confirmación para esta sub-fase)*
+* **Estado:** `[ COMPLETADA ]`
+
+---
+
+#### 📍 Sub-fase 12.2: Cifrado SQLCipher de la Base de Datos (`AppDatabase.kt` y `DatabaseModule.kt`)
+* **Fecha:** 2026-10-07
+* **Archivos intervenidos:**
+  * `app/src/main/java/com/andina/finanzas/data/local/AppDatabase.kt` (integración de `SupportOpenHelperFactory` de `net.zetetic:sqlcipher-android` para aplicar cifrado militar AES-256 en disco, manteniendo compatibilidad con bases en memoria para pruebas rápidas).
+  * `app/src/main/java/com/andina/finanzas/data/di/DatabaseModule.kt` (inyección Hilt de `KeystoreHelper` para alimentar de manera transparente la passphrase de 32 bytes custodiada por hardware a la factoría de Room).
+* **Reporte del Agente (Quality Gate):**
+  * La base de datos se cifra íntegramente en SQLite local sin alterar los DAOs, vistas contables ni repositorios.
+  * Tareas `:app:compileDebugKotlin` y `:app:testDebugUnitTest` superadas al 100% en verde con todas las 80 pruebas unitarias existentes pasando.
 * **📝 Espacio de Retroalimentación del Usuario:**
   > *(Escribe aquí tus observaciones, dudas o confirmación para esta sub-fase)*
 * **Estado:** `[ COMPLETADA ]`
