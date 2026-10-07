@@ -814,8 +814,85 @@ Al completar todas las sub-fases de cualquiera de las 12 fases maestras:
 
 ---
 
-*(Fase 09 completada al 100%. Las siguientes fases se irán completando y documentando en esta misma bitácora de forma continua).*
+### 🔹 FASE 10: Historial de Movimientos, Paging y Filtros
 
+#### 📍 Sub-fase 10.1: Contrato y ViewModel de Movimientos (`TransactionsContract.kt`, `TransactionsViewModel.kt`, `TransactionDao.kt`, `FinanceRepository.kt`, `FinanceRepositoryImpl.kt`)
+* **Fecha:** 2026-10-07
+* **Archivos intervenidos:**
+  * `app/src/main/java/com/andina/finanzas/data/local/dao/TransactionDao.kt` (evolución de la consulta `pagingSource` con soporte reactivo de búsqueda textual insensible a mayúsculas, filtro por tipo contable, billetera, categoría, solo compras hormiga y rango temporal epoch `fromMillis`/`toMillis`).
+  * `app/src/main/java/com/andina/finanzas/domain/repository/FinanceRepository.kt` y `FinanceRepositoryImpl.kt` (integración de `getTransactionsPaged` conectando Paging 3 con `Pager`, más métodos de actualización y restauración con conservación de ID).
+  * `app/src/main/java/com/andina/finanzas/ui/transactions/TransactionsContract.kt` (contrato formal con `TransactionsFilter`, preajustes temporales `DateRangeFilterPreset`, estado inmutable `TransactionsUiState`, intenciones `TransactionsEvent` y efectos `TransactionsEffect`).
+  * `app/src/main/java/com/andina/finanzas/ui/transactions/TransactionsViewModel.kt` (orquestación reactiva con `flatMapLatest` + `cachedIn(viewModelScope)`, combinación en tiempo real con billeteras y categorías activas, y gestión de borrado temporal con retención en memoria durante 5 segundos).
+* **Reporte del Agente (Quality Gate):**
+  * Flujo paginado totalmente desacoplado y reactivo a cualquier cambio de filtros sin recrear repositorios ni invalidar caches indebidamente.
+* **📝 Espacio de Retroalimentación del Usuario:**
+  > *(Escribe aquí tus observaciones, dudas o confirmación para esta sub-fase)*
+* **Estado:** `[ COMPLETADA ]`
 
+---
 
+#### 📍 Sub-fase 10.2: Lista Paginada con Paging 3 y Agrupación Temporal (`TransactionsScreen.kt`)
+* **Fecha:** 2026-10-07
+* **Archivos intervenidos:**
+  * `app/src/main/java/com/andina/finanzas/ui/transactions/TransactionsScreen.kt` (pantalla principal con cabecera de búsqueda rápida, chips horizontales de selección ágil [Todos, Gastos, Ingresos, Hormiga 🐜, Transferencias], recolección con `collectAsLazyPagingItems()` y cálculo dinámico de encabezados de agrupación: *Hoy*, *Ayer*, *Mes actual* y meses previos).
+* **Reporte del Agente (Quality Gate):**
+  * Renderizado fluido en `LazyColumn` sin bloqueos de hilo principal, separadores andinos sutiles y estado vacío con botón de restablecimiento inmediato de filtros.
+* **📝 Espacio de Retroalimentación del Usuario:**
+  > *(Escribe aquí tus observaciones, dudas o confirmación para esta sub-fase)*
+* **Estado:** `[ COMPLETADA ]`
 
+---
+
+#### 📍 Sub-fase 10.3: Swipe-to-Action con Hojas Andinas y Deshacer (`SwipeableTransactionRow.kt`)
+* **Fecha:** 2026-10-07
+* **Archivos intervenidos:**
+  * `app/src/main/java/com/andina/finanzas/ui/transactions/components/SwipeableTransactionRow.kt` (componente interactivo con `SwipeToDismissBox`, fondo degradado con tono andino `AndinaDeepForest` y `AndeanError`, ráfaga orgánica de hojas de frailejón aterciopeladas trazadas en `Canvas` y nervaduras sutiles durante el deslizamiento).
+* **Reporte del Agente (Quality Gate):**
+  * Deslizado bidireccional suave con umbral del 45% y retroalimentación inmediata conectada al snackbar con acción "Deshacer" de 5 segundos.
+* **📝 Espacio de Retroalimentación del Usuario:**
+  > *(Escribe aquí tus observaciones, dudas o confirmación para esta sub-fase)*
+* **Estado:** `[ COMPLETADA ]`
+
+---
+
+#### 📍 Sub-fase 10.4: Modal de Filtros Avanzados (`TransactionsFilterBottomSheet.kt`)
+* **Fecha:** 2026-10-07
+* **Archivos intervenidos:**
+  * `app/src/main/java/com/andina/finanzas/ui/transactions/components/TransactionsFilterBottomSheet.kt` (modal inferior multi-criterio con selección de tipo, métodos de pago colombianos dinámicos [`Nequi`, `Daviplata`, `Efectivo`, etc.], tarjeta interactiva con switch para compras hormiga caramelo, chips de rango de fechas y botón de aplicación con conteo de criterios activos).
+* **Reporte del Agente (Quality Gate):**
+  * Conteo visual de filtros activos reflejado en la barra superior con badge destacado en verde musgo.
+* **📝 Espacio de Retroalimentación del Usuario:**
+  > *(Escribe aquí tus observaciones, dudas o confirmación para esta sub-fase)*
+* **Estado:** `[ COMPLETADA ]`
+
+---
+
+#### 📍 Sub-fase 10.5: Detalle y Edición de Movimiento (`TransactionDetailScreen.kt`, `TransactionDetailViewModel.kt`, `AndinaDestinations.kt` y `AndinaAppShell.kt`)
+* **Fecha:** 2026-10-07
+* **Archivos intervenidos:**
+  * `app/src/main/java/com/andina/finanzas/ui/navigation/AndinaDestinations.kt` (registro type-safe de `TransactionDetailRoute(transactionId: Long)`).
+  * `app/src/main/java/com/andina/finanzas/ui/transactions/detail/TransactionDetailContract.kt` y `TransactionDetailViewModel.kt` (gestión de carga, edición de notas, alternancia de gasto hormiga y eliminación atómica).
+  * `app/src/main/java/com/andina/finanzas/ui/transactions/detail/TransactionDetailScreen.kt` (tarjeta hero con cifra en pesos colombianos, número de folio contable `#TX-XXXXXX`, metadatos de billetera/categoría, edición de notas en vivo, switch hormiga y diálogo de confirmación de borrado).
+  * `app/src/main/java/com/andina/finanzas/ui/navigation/AndinaAppShell.kt` (conexión de la pestaña Movimientos y ruta de Detalle, integrando `showSnackbarWithAction` en el shell).
+* **Reporte del Agente (Quality Gate):**
+  * Navegación fluida bidireccional entre la lista paginada y la vista detallada de cualquier transacción con actualización reactiva.
+* **📝 Espacio de Retroalimentación del Usuario:**
+  > *(Escribe aquí tus observaciones, dudas o confirmación para esta sub-fase)*
+* **Estado:** `[ COMPLETADA ]`
+
+---
+
+#### 📍 Sub-fase 10.6: Quality Gate de Transacciones (`TransactionsFilterTest.kt`)
+* **Fecha:** 2026-10-07
+* **Archivos intervenidos:**
+  * `app/src/test/java/com/andina/finanzas/ui/transactions/TransactionsFilterTest.kt` (suite de 14 pruebas unitarias validando: estado inicial por defecto, búsqueda por texto, filtro de tipo, filtro de billetera, switch hormiga, presets temporales, acumulación de filtros activos, reset completo, visibilidad del modal de filtros, eliminación con guardado temporal, restauración exitosa con Deshacer, expiración de la ventana de 5 segundos, límites de epoch y clasificación por grupos temporales *Hoy* y *Ayer*).
+* **Reporte del Agente (Quality Gate):**
+  * **66 pruebas unitarias de 66 pasando al 100% en verde** en todo el proyecto (`:app:testDebugUnitTest`).
+  * Tarea de empaquetado `:app:assembleDebug` ejecutada con éxito (`BUILD SUCCESSFUL in 50s`), generando el APK de depuración con la suite completa de auditoría financiera, Paging 3 y filtros.
+* **📝 Espacio de Retroalimentación del Usuario:**
+  > *(Escribe aquí tus observaciones antes de autorizar el cierre definitivo de Fase 10 y avanzar a la Fase 11)*
+* **Estado:** `[ COMPLETADA ]`
+
+---
+
+*(Fase 10 completada al 100%. Las siguientes fases se irán completando y documentando en esta misma bitácora de forma continua).*
