@@ -301,3 +301,44 @@ El dinero se conceptualiza como un **recurso líquido vital**:
 ### 11.4 La Niebla Viva (*Andean Mist Ambient*)
 * **Capa Atmosférica:** Una bruma muy sutil y translúcida recorre el tercio superior de la pantalla a velocidad lenta (2 px/s en GPU sin impacto de CPU).
 * **Páramo Nocturno:** En modo oscuro, la niebla desciende sobre las tarjetas y deja ver pequeños destellos dorados que flotan como luciérnagas andinas del páramo.
+
+---
+
+## 12. Estética 3D Táctil y Profundidad Parallax en Compose
+
+Para garantizar una experiencia visual que sorprenda al usuario a primera vista (*efecto WOW*), Andina adopta una dirección de **3D Táctil Orgánico** (estilo *3D Claymation / Pixar / Apple Memoji*) combinada con transformaciones de perspectiva y sensores en Jetpack Compose, logrando máxima fidelidad con **cero consumo excesivo de batería**.
+
+### 12.1 Filosofía de Render 3D Táctil
+* **Textura Aterciopelada Mate (*Velvety Touch*):** El personaje Muggy y la vegetación de frailejones poseen volumen redondeado, textura física táctil y luz ambiental cálida con borde dorado (*rim light*).
+* **Sombras Físicas y Oclusión:** Los personajes proyectan sombras suaves (*soft ambient occlusion*) directamente sobre las tarjetas esmeralda de la interfaz, haciendo que parezcan objetos físicos reales colocados sobre el teléfono.
+* **Formatos de Alto Rendimiento:** Se utilizan renders en formato WebP con compresión sin pérdida y canal alfa (< 100 KB por recurso), garantizando 120 FPS sin motores 3D pesados.
+
+### 12.2 Profundidad Parallax Interactiva con Giroscopio
+La tarjeta principal de Muggy y los elementos destacados reaccionan en tiempo real a la inclinación física del dispositivo:
+
+```kotlin
+// Modificador de perspectiva 3D reactivo en Jetpack Compose
+Modifier.graphicsLayer {
+    // Inclinación suave ligada al sensor de rotación del teléfono
+    rotationX = tiltState.pitch * 6f
+    rotationY = tiltState.roll * 6f
+    cameraDistance = 16f * density
+    shadowElevation = (8.dp + (tiltState.magnitude * 4f).dp).toPx()
+}
+```
+
+* **Comportamiento Sensorial:** Cuando el usuario sostiene el celular y mueve la muñeca, la tarjeta y la figura de Muggy se inclinan sutilmente en 3D, desplazando su sombra y reflejando una luz especular dinámica.
+* **Eficiencia de Batería:** El `SensorEventListener` solo se registra cuando la pantalla está activa (`Lifecycle.State.RESUMED`) y se apaga automáticamente en pausa o segundo plano.
+
+### 12.3 Respuesta al Toque en el Eje Z (*Touch Tilt & Squash*)
+* **Hundimiento Tridimensional:** Al tocar la tarjeta de Muggy o una billetera, el componente se hunde dinámicamente hacia la coordenada exacta del dedo:
+  $$\text{Ángulo de Inclinación} \propto (\text{Posición del Dedo} - \text{Centro de la Tarjeta})$$
+* **Gesto de Saludo:** Al recibir el toque, Muggy agita su mano 3D en un resorte elástico (*Spring Animation*) y parpadea con alegría.
+
+### 12.4 El Frailejón 3D Progresivo (Bolsillos)
+* El frailejón de las metas de ahorro no es un icono plano; es una flor andina en 3D volumétrico que va desplegando sus capas de hojas carnosas en perspectiva a medida que el porcentaje de ahorro pasa del 0% al 100%.
+
+### 12.5 Botón Central (+) con Orejitas 3D Asomadas
+* El botón flotante central de registro rápido incluye las orejitas tridimensionales de Muggy asomadas por detrás de la píldora verde esmeralda.
+* Al presionar el botón (+), las orejitas se comprimen (*Squash*) un 15% y vuelven elásticamente a su posición (*Stretch*), confirmando táctilmente la acción.
+

@@ -320,3 +320,55 @@ En Colombia existe una amplia gama de dispositivos Android (desde gamas de entra
    * Al escuchar `PowerManager.isPowerSaveMode`, todas las transiciones infinitas (respiración, parpadeo) se apagan y Muggy se renderiza como imagen vectorial estática de cero consumo de GPU.
 3. **Liberación de Memoria:**
    * Las animaciones pesadas de Lottie (celebración de meta) se destruyen de la memoria RAM tan pronto termina el evento festivo.
+
+---
+
+## 7. Motor Cinemático 3D Táctil y Perspectiva Parallax en Compose
+
+Para acompañar la nueva **anatomía 3D táctil de Muggy**, el motor de renderizado en Jetpack Compose implementa un sistema de proyección de perspectiva tridimensional ligada a sensores físicos:
+
+### 7.1 Modelo Cinemático de Giroscopio (`MuggyTiltState`)
+
+```kotlin
+data class MuggyTiltState(
+    val pitch: Float = 0f,       // Inclinación vertical en radianes [-π/4, π/4]
+    val roll: Float = 0f,        // Inclinación horizontal en radianes [-π/4, π/4]
+    val elevationDp: Float = 8f  // Altura del eje Z sobre la tarjeta base
+)
+```
+
+### 7.2 Implementación del Modificador `Modifier.muggy3DParallax()`
+
+```kotlin
+@Composable
+fun Modifier.muggy3DParallax(
+    tiltState: MuggyTiltState,
+    maxRotationDegrees: Float = 7.5f
+): Modifier {
+    val animatedPitch by animateFloatAsState(
+        targetValue = (tiltState.pitch * maxRotationDegrees).coerceIn(-maxRotationDegrees, maxRotationDegrees),
+        animationSpec = spring(stiffness = Spring.StiffnessLow, dampingRatio = Spring.DampingRatioMediumBouncy),
+        label = "pitchSpring"
+    )
+    val animatedRoll by animateFloatAsState(
+        targetValue = (tiltState.roll * maxRotationDegrees).coerceIn(-maxRotationDegrees, maxRotationDegrees),
+        animationSpec = spring(stiffness = Spring.StiffnessLow, dampingRatio = Spring.DampingRatioMediumBouncy),
+        label = "rollSpring"
+    )
+
+    return this.graphicsLayer {
+        rotationX = -animatedPitch
+        rotationY = animatedRoll
+        cameraDistance = 16f * density
+        // Sombra física dinámica que se desplaza en sentido contrario a la inclinación
+        shadowElevation = (tiltState.elevationDp * density)
+        translationX = animatedRoll * 1.5f
+        translationY = animatedPitch * 1.5f
+    }
+}
+```
+
+### 7.3 Interacción Táctil en el Eje Z (*Touch Sink*)
+* Al apoyar el pulgar sobre Muggy, se aplica una escala de compresión física (`scaleX = 0.95f, scaleY = 0.95f`) y la sombra se comprime a `2.dp`, simulando que el muñeco 3D se hunde elásticamente en la tarjeta.
+* Al soltar el pulgar, el muñeco salta con resorte hacia arriba (`scaleX = 1.05f`), emite una vibración háptica suave y regresa a su reposo sereno.
+

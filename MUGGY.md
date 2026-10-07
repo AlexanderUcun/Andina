@@ -44,10 +44,10 @@ Muggy transmite esa misma sabiduría a la economía personal del usuario:
 | **Ojos** | `PureBlack` & `White` | `#000000` / `#FFFFFF` | Ojos vivaces con destello blanco de curiosidad |
 | **Accesorio: Hoja / Frailejón** | `AndeanMoss` | `#435C3C` | Elemento andino que sostiene en momentos especiales |
 
-### 2.2 Proporciones y Estilo Gráfico
-* **Estilo:** Ilustración vectorial minimalista con bordes redondeados y formas geométricas limpias (estilo moderno fintech de Stitch / Google Design).
-* **Cabeza y Cuerpo:** Proporción 1:1.5 (ligeramente cabezón para transmitir ternura y cercanía sin perder madurez).
-* **Silueta:** Compacto, esponjoso, de postura sólida y tranquila.
+### 2.2 Proporciones y Estilo Gráfico Oficial (3D Táctil)
+* **Estilo Oficial:** **3D Táctil Orgánico** (estilo *3D Claymation / Pixar / Apple Memoji*): volumen redondeado, textura aterciopelada mate (*velvety fur touch*), anteojos físicos con reflejos sutiles, patitas acolchadas con almohadillas tiernas y luz de contorno dorada (*rim light*).
+* **Cabeza y Cuerpo:** Proporción 1:1.5 (ligeramente cabezón para transmitir ternura, sabiduría y cercanía sin infantilizar las finanzas).
+* **Silueta y Presencia:** Compacto, esponjoso, de postura sólida y táctil, con sombras de oclusión ambiental que lo integran físicamente sobre las tarjetas de la interfaz.
 
 ---
 
