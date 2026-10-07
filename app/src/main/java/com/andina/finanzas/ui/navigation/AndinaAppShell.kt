@@ -65,6 +65,7 @@ import com.andina.finanzas.ui.components.AndinaBottomBar
 import com.andina.finanzas.ui.components.AndinaButton
 import com.andina.finanzas.ui.components.AndinaButtonVariant
 import com.andina.finanzas.ui.components.FrostedGlassCard
+import com.andina.finanzas.ui.home.HomeScreen
 import com.andina.finanzas.ui.theme.AndeanPrimaryContainer
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -209,15 +210,20 @@ fun AndinaAppShell(
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            // Pestaña 1: Inicio (Dashboard)
+            // Pestaña 1: Inicio (Dashboard Maestro)
             composable<HomeRoute> {
-                ShellPlaceholderScreen(
-                    title = "Inicio · Páramo Andino",
-                    subtitle = "Patrimonio consolidado, balance del mes y balance de paz financiera",
-                    icon = Icons.Default.Home,
-                    accentColor = Color(0xFF2C4427),
-                    actionText = "Ver Estadísticas",
-                    onAction = { appState.navigateToStats() }
+                HomeScreen(
+                    onNavigateToWallet = { appState.navigateToTab(AndinaNavTab.WALLETS) },
+                    onNavigateToPocket = { appState.navigateToTab(AndinaNavTab.POCKETS) },
+                    onNavigateToTransaction = { appState.navigateToTab(AndinaNavTab.TRANSACTIONS) },
+                    onNavigateToWalletsTab = { appState.navigateToTab(AndinaNavTab.WALLETS) },
+                    onNavigateToPocketsTab = { appState.navigateToTab(AndinaNavTab.POCKETS) },
+                    onNavigateToTransactionsTab = { appState.navigateToTab(AndinaNavTab.TRANSACTIONS) },
+                    onNavigateToRegister = { appState.navigateToRegister() },
+                    onNavigateToSettings = { appState.showSnackbar("Perfil y configuración en desarrollo") },
+                    onNavigateToBudgets = { appState.showSnackbar("Gestión de presupuestos en desarrollo") },
+                    onNavigateToNotifications = { appState.showSnackbar("Alertas del páramo al día") },
+                    onShowSnackbar = { msg -> appState.showSnackbar(msg) }
                 )
             }
 
