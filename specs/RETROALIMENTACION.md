@@ -50,7 +50,7 @@ Al completar todas las sub-fases de cualquiera de las 12 fases maestras:
 | **09** | Bolsillos de Ahorro y Frailejón Vivo | ✅ Completada | 6 / 6 | ⏳ |
 | **10** | Historial de Movimientos, Paging y Filtros | ✅ Completada | 6 / 6 | ⏳ |
 | **11** | Muggy 3D, Ayudas e Inteligencia On-Device | ✅ Completada | 9 / 9 | ⏳ |
-| **12** | Seguridad SQLCipher, Exportación y Release | 🔄 En Progreso | 5 / 7 | ⏳ |
+| **12** | Seguridad SQLCipher, Exportación y Release | 🔄 En Progreso | 6 / 7 | ⏳ |
 
 ---
 
@@ -1088,6 +1088,19 @@ Al completar todas las sub-fases de cualquiera de las 12 fases maestras:
 * **Reporte del Agente (Quality Gate):**
   * Exportación e importación de grado contable verificada sin dependencias externas inseguras.
   * Tareas `:app:compileDebugKotlin` y `:app:testDebugUnitTest` superadas al 100% en verde con todas las 81 pruebas pasando.
+* **📝 Espacio de Retroalimentación del Usuario:**
+  > *(Escribe aquí tus observaciones, dudas o confirmación para esta sub-fase)*
+* **Estado:** `[ COMPLETADA ]`
+
+---
+
+#### 📍 Sub-fase 12.6: Ofuscación y Reglas ProGuard/R8 (`proguard-rules.pro`)
+* **Fecha:** 2026-10-07
+* **Archivos intervenidos:**
+  * `app/proguard-rules.pro` (reglas completas de R8 y ProGuard protegiendo las librerías nativas de SQLCipher, entidades y DAOs de Room, compatibilidad con Kotlinx Serialization para DTOs de backup y rutas de Navigation Compose, BiometricPrompt nativo y módulos Hilt).
+* **Reporte del Agente (Quality Gate):**
+  * Configuración R8 blindada que previene el quiebre de clases criptográficas y modelos en empaquetado optimizado Release.
+  * Tarea de compilación `:app:compileDebugKotlin` superada limpiamente en 18s.
 * **📝 Espacio de Retroalimentación del Usuario:**
   > *(Escribe aquí tus observaciones, dudas o confirmación para esta sub-fase)*
 * **Estado:** `[ COMPLETADA ]`
