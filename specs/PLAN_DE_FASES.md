@@ -223,3 +223,5 @@
 1. **Una sub-fase a la vez:** En cada paso se crea o modifica únicamente el grupo de archivos de esa sub-fase.
 2. **Verificación inmediata:** Si una sub-fase tiene un error de sintaxis o tipo, se resuelve inmediatamente antes de pasar a la siguiente sub-fase.
 3. **Cero pérdida de contexto:** La conversación se mantiene ligera y enfocada en micro-objetivos claros y alcanzables.
+4. **Bitácora y Retroalimentación Continua:** Al terminar cada sub-fase, el agente documenta los archivos creados y el Quality Gate en [**RETROALIMENTACION.md**](./RETROALIMENTACION.md). El usuario cuenta con su sección editable para observaciones, ajustes o aprobación.
+5. **Commits Atómicos en Git:** Cada sub-fase verificada se consolida con su commit descriptivo en Git para mantener un historial auditable.

@@ -12,6 +12,7 @@ El proyecto cuenta con un sistema de 4 documentos maestros complementarios y per
 
 | Documento | Enfoque | Contenido Clave |
 |---|---|---|
+| 📝 [**RETROALIMENTACION.md**](./specs/RETROALIMENTACION.md) | **Bitácora y Feedback** | Registro continuo tras cada sub-fase y fase, reportes del Quality Gate y espacio de notas/aprobaciones del usuario. |
 | 🗺️ [**PLAN_DE_FASES.md**](./specs/PLAN_DE_FASES.md) | **Estrategia de Ejecución** | Ruta quirúrgica de 12 fases atómicas independientes con criterios de aceptación para evitar pérdida de contexto o alucinaciones. |
 | 🏛️ [**ARQUITECTURA.md**](./specs/ARQUITECTURA.md) | **Lógica, Datos y Navegación** | Clean Architecture, Room + SQLCipher, libro mayor (*ledger*), casos de uso, las 26 pantallas con fichas detalladas y matriz de reactividad. |
 | 🎨 [**DISENO_VISUAL.md**](./specs/DISENO_VISUAL.md) | **Sistema de Diseño e Interfaz** | Paleta *Andean Mist & Moss*, tokens semánticos, Manrope, frosted glass de Apple, grilla de espaciado y reglas hápticas. |
