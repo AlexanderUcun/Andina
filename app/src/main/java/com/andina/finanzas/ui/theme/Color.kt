@@ -37,14 +37,21 @@ val AndeanErrorContainer = Color(0xFFFFDAD6)
 val AndeanOnErrorContainer = Color(0xFF410002)
 
 // ============================================================================
-// 🌙 MODO OSCURO (PÁRAMO NOCTURNO)
+// 🌙 MODO OSCURO (PÁRAMO NOCTURNO OLED #121411)
 // ============================================================================
-val AndeanDarkSurface = Color(0xFF121411)
+val AndeanDarkSurface = Color(0xFF121411) // Negro carbón con tinte verde musgo profundo
 val AndeanDarkSurfaceContainer = Color(0xFF1B1E19)
-val AndeanDarkPrimaryContainer = Color(0xFF587550)
-val AndeanDarkOnSurface = Color(0xFFE3E5DF)
-val AndeanDarkOnSurfaceVariant = Color(0xA1A69BFF)
-val AndeanDarkFrostedGlass = Color(0x261F231D) // 15% blanco + tono musgo
+val AndeanDarkSurfaceContainerHigh = Color(0xFF242822)
+val AndeanDarkSurfaceContainerLowest = Color(0xFF0C0E0B)
+val AndeanDarkPrimary = Color(0xFF8BB582) // Verde musgo desaturado 15% para menor fatiga nocturna
+val AndeanDarkPrimaryContainer = Color(0xFF3B5236)
+val AndeanDarkSecondary = Color(0xFFE5B067) // Ámbar anteojos suave desaturado
+val AndeanDarkSecondaryContainer = Color(0xFF6B4500)
+val AndeanDarkGoldHighlight = Color(0xFFD4AF37) // Reflejos dorados de flores de frailejón nocturno
+val AndeanDarkOnSurface = Color(0xFFE3E5DF) // Blanco mineral de alto contraste WCAG AA
+val AndeanDarkOnSurfaceVariant = Color(0xFFA1A69B)
+val AndeanDarkOutlineVariant = Color(0x1AFFFFFF) // 10% blanco sutil para bordes de tarjeta
+val AndeanDarkFrostedGlass = Color(0x261F231D) // 15% blanco + tono musgo nocturno
 
 // ============================================================================
 // 🪟 EFECTO VIDRIO ESMERILADO (QUIET FROSTED GLASS)

@@ -80,6 +80,23 @@ class ThemePreviewTest {
     }
 
     @Test
+    fun `test WCAG AA contrast for dark mode primary and gold highlight`() {
+        // Verde Musgo Desaturado (#8BB582) sobre Fondo Páramo Nocturno (#121411)
+        val primaryRatio = calculateContrastRatio(0x8BB582, 0x121411)
+        assertTrue(
+            "El contraste de AndeanDarkPrimary sobre superficie debe ser >= 4.5:1 (obtenido: $primaryRatio)",
+            primaryRatio >= 4.5
+        )
+
+        // Reflejo Dorado (#D4AF37) sobre Fondo Páramo Nocturno (#121411)
+        val goldRatio = calculateContrastRatio(0xD4AF37, 0x121411)
+        assertTrue(
+            "El contraste de reflejo dorado sobre superficie debe ser >= 4.5:1 (obtenido: $goldRatio)",
+            goldRatio >= 4.5
+        )
+    }
+
+    @Test
     fun `test WCAG AA contrast on error color`() {
         // Blanco (#FFFFFF) sobre Error Andino (#BA1A1A)
         val ratio = calculateContrastRatio(0xFFFFFF, 0xBA1A1A)

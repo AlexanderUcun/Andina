@@ -39,23 +39,26 @@ private val LightColorScheme = lightColorScheme(
     onErrorContainer = AndeanOnErrorContainer
 )
 
-// Esquema de Colores Oscuro: "Páramo Nocturno"
+// Esquema de Colores Oscuro Oficial: "Páramo Nocturno" (OLED #121411 con niebla y reflejos dorados)
 private val DarkColorScheme = darkColorScheme(
-    primary = AndeanPrimaryContainer,
+    primary = AndeanDarkPrimary,
     onPrimary = AndeanDarkSurface,
     primaryContainer = AndeanDarkPrimaryContainer,
-    onPrimaryContainer = AndeanOnPrimaryContainer,
-    secondary = AndeanSecondaryContainer,
+    onPrimaryContainer = AndeanDarkOnSurface,
+    secondary = AndeanDarkSecondary,
     onSecondary = AndeanDarkSurface,
-    secondaryContainer = AndeanSecondary,
-    onSecondaryContainer = AndeanSecondaryContainer,
+    secondaryContainer = AndeanDarkSecondaryContainer,
+    onSecondaryContainer = AndeanDarkSecondary,
+    tertiary = AndeanDarkGoldHighlight,
+    onTertiary = AndeanDarkSurface,
     surface = AndeanDarkSurface,
     onSurface = AndeanDarkOnSurface,
     surfaceContainer = AndeanDarkSurfaceContainer,
-    surfaceContainerHigh = Color(0xFF242822),
+    surfaceContainerHigh = AndeanDarkSurfaceContainerHigh,
+    surfaceContainerLowest = AndeanDarkSurfaceContainerLowest,
     onSurfaceVariant = AndeanDarkOnSurfaceVariant,
     outline = AndeanOutline,
-    outlineVariant = Color(0xFF3F443B),
+    outlineVariant = AndeanDarkOutlineVariant,
     error = Color(0xFFFFB4AB),
     onError = Color(0xFF690005),
     errorContainer = Color(0xFF93000A),

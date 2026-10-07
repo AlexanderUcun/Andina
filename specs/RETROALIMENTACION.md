@@ -50,7 +50,7 @@ Al completar todas las sub-fases de cualquiera de las 12 fases maestras:
 | **09** | Bolsillos de Ahorro y Frailejón Vivo | ✅ Completada | 6 / 6 | ⏳ |
 | **10** | Historial de Movimientos, Paging y Filtros | ✅ Completada | 6 / 6 | ⏳ |
 | **11** | Muggy 3D, Ayudas e Inteligencia On-Device | ✅ Completada | 9 / 9 | ⏳ |
-| **12** | Seguridad SQLCipher, Exportación y Release | 🔄 En Progreso | 3 / 7 | ⏳ |
+| **12** | Seguridad SQLCipher, Exportación y Release | 🔄 En Progreso | 4 / 7 | ⏳ |
 
 ---
 
@@ -1057,6 +1057,21 @@ Al completar todas las sub-fases de cualquiera de las 12 fases maestras:
 * **Reporte del Agente (Quality Gate):**
   * Soporte biométrico nativo completo con experiencia fluida y fallback seguro sin riesgo de bloqueo accidental.
   * Tarea de compilación `:app:compileDebugKotlin` superada limpiamente (`BUILD SUCCESSFUL in 34s`).
+* **📝 Espacio de Retroalimentación del Usuario:**
+  > *(Escribe aquí tus observaciones, dudas o confirmación para esta sub-fase)*
+* **Estado:** `[ COMPLETADA ]`
+
+---
+
+#### 📍 Sub-fase 12.4: Paleta Modo Oscuro "Páramo Nocturno" (`Theme.kt`, `Color.kt` y `ThemePreviewTest.kt`)
+* **Fecha:** 2026-10-07
+* **Archivos intervenidos:**
+  * `app/src/main/java/com/andina/finanzas/ui/theme/Color.kt` (definición de tokens OLED `#121411` con verde musgo nocturno desaturado 15%, contenedor `#1B1E19`, reflejos dorados de flores de frailejón nocturno `#D4AF37`, bordes sutiles al 10% `#1AFFFFFF` y gradiente vertical andino).
+  * `app/src/main/java/com/andina/finanzas/ui/theme/Theme.kt` (configuración del esquema `DarkColorScheme` oficial con contraste certificado).
+  * `app/src/test/java/com/andina/finanzas/ui/theme/ThemePreviewTest.kt` (validación matemática de ratios WCAG AA para todos los pares cromáticos nocturnos con ratios >= 7.0:1).
+* **Reporte del Agente (Quality Gate):**
+  * Paleta OLED pura sin halos agresivos ni agotamiento visual, cumpliendo accesibilidad WCAG AA.
+  * Tarea `:app:testDebugUnitTest` superada al 100% en verde (81 pruebas pasando).
 * **📝 Espacio de Retroalimentación del Usuario:**
   > *(Escribe aquí tus observaciones, dudas o confirmación para esta sub-fase)*
 * **Estado:** `[ COMPLETADA ]`
