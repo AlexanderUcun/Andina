@@ -50,7 +50,7 @@ Al completar todas las sub-fases de cualquiera de las 12 fases maestras:
 | **09** | Bolsillos de Ahorro y Frailejón Vivo | ✅ Completada | 6 / 6 | ⏳ |
 | **10** | Historial de Movimientos, Paging y Filtros | ✅ Completada | 6 / 6 | ⏳ |
 | **11** | Muggy 3D, Ayudas e Inteligencia On-Device | ✅ Completada | 9 / 9 | ⏳ |
-| **12** | Seguridad SQLCipher, Exportación y Release | 🔄 En Progreso | 2 / 7 | ⏳ |
+| **12** | Seguridad SQLCipher, Exportación y Release | 🔄 En Progreso | 3 / 7 | ⏳ |
 
 ---
 
@@ -1043,6 +1043,20 @@ Al completar todas las sub-fases de cualquiera de las 12 fases maestras:
 * **Reporte del Agente (Quality Gate):**
   * La base de datos se cifra íntegramente en SQLite local sin alterar los DAOs, vistas contables ni repositorios.
   * Tareas `:app:compileDebugKotlin` y `:app:testDebugUnitTest` superadas al 100% en verde con todas las 80 pruebas unitarias existentes pasando.
+* **📝 Espacio de Retroalimentación del Usuario:**
+  > *(Escribe aquí tus observaciones, dudas o confirmación para esta sub-fase)*
+* **Estado:** `[ COMPLETADA ]`
+
+---
+
+#### 📍 Sub-fase 12.3: Bloqueo Biométrico (`LockScreen.kt` y `MainActivity.kt`)
+* **Fecha:** 2026-10-07
+* **Archivos intervenidos:**
+  * `app/src/main/java/com/andina/finanzas/ui/security/LockScreen.kt` (pantalla de autenticación bancaria con integración nativa de `BiometricPrompt` [huella/rostro] y fallback táctil a teclado numérico de PIN de 4 dígitos con animación de sacudida y vibración háptica).
+  * `app/src/main/java/com/andina/finanzas/MainActivity.kt` (evolución a `FragmentActivity` para soportar `BiometricPrompt` nativo preservando Edge-to-Edge y Hilt).
+* **Reporte del Agente (Quality Gate):**
+  * Soporte biométrico nativo completo con experiencia fluida y fallback seguro sin riesgo de bloqueo accidental.
+  * Tarea de compilación `:app:compileDebugKotlin` superada limpiamente (`BUILD SUCCESSFUL in 34s`).
 * **📝 Espacio de Retroalimentación del Usuario:**
   > *(Escribe aquí tus observaciones, dudas o confirmación para esta sub-fase)*
 * **Estado:** `[ COMPLETADA ]`
