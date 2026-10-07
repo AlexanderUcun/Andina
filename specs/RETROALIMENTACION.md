@@ -39,7 +39,7 @@ Al completar todas las sub-fases de cualquiera de las 12 fases maestras:
 
 | Fase | Título | Estado | Sub-fases Completadas | Aprobación Usuario |
 |---|---|:---:|:---:|:---:|
-| **01** | Cimientos del Entorno y Gradle Limpio | ⏳ Pendiente | 0 / 4 | ⏳ |
+| **01** | Cimientos del Entorno y Gradle Limpio | 🟡 En curso | 1 / 4 | ⏳ |
 | **02** | Design System Base (Andean Mist & Moss) | ⏳ Pendiente | 0 / 5 | ⏳ |
 | **03** | Motor de Persistencia Room y Libro Mayor | ⏳ Pendiente | 0 / 6 | ⏳ |
 | **04** | Capa de Dominio y Casos de Uso Contables | ⏳ Pendiente | 0 / 5 | ⏳ |
@@ -61,16 +61,18 @@ Al completar todas las sub-fases de cualquiera de las 12 fases maestras:
 ### 🔹 FASE 01: Cimientos del Entorno y Gradle Limpio
 
 #### 📍 Sub-fase 1.1: Higiene y Control de Memoria
-* **Fecha:** *[Pendiente]*
-* **Commit:** *[Pendiente]*
+* **Fecha:** 2026-10-07
+* **Commit:** `86a4179`
 * **Archivos intervenidos:**
-  * `.gitignore` (actualizado y blindado)
-  * `gradle.properties` (`jvmargs=-Xmx2048m -Dfile.encoding=UTF-8`)
+  * `.gitignore` (actualizado y blindado contra archivos efímeros de compilación y caches)
+  * `gradle.properties` (`jvmargs=-Xmx2048m -Dfile.encoding=UTF-8`, `org.gradle.parallel=true`, `org.gradle.caching=true`, `android.useAndroidX=true`, `kotlin.code.style=official`, `android.nonTransitiveRClass=true`)
 * **Reporte del Agente (Quality Gate):**
-  * *[Pendiente de ejecución]*
+  * `.gitignore` excluye `.idea/`, `.gradle/`, `build/`, `*.trace`, `*.hprof`, `secrets.properties` y subdirectorios de Room/KSP.
+  * `gradle.properties` protege contra OutOfMemory en Gradle Daemon fijando 2048MB y forzando UTF-8 nativo en Windows para prevenir fallos con caracteres colombianos (tildes/símbolo $).
+  * Commit local registrado con éxito sin push remoto.
 * **📝 Espacio de Retroalimentación del Usuario:**
   > *(Escribe aquí tus observaciones, dudas o confirmación para esta sub-fase)*
-* **Estado:** `[ PENDIENTE ]`
+* **Estado:** `[ COMPLETADA ]`
 
 ---
 
