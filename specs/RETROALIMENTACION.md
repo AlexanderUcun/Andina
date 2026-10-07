@@ -40,7 +40,7 @@ Al completar todas las sub-fases de cualquiera de las 12 fases maestras:
 | Fase | Título | Estado | Sub-fases Completadas | Aprobación Usuario |
 |---|---|:---:|:---:|:---:|
 | **01** | Cimientos del Entorno y Gradle Limpio | ✅ Completada | 4 / 4 | ⏳ |
-| **02** | Design System Base (Andean Mist & Moss) | 🟡 En Progreso | 3 / 4 | ⏳ |
+| **02** | Design System Base (Andean Mist & Moss) | ✅ Completada | 4 / 4 | ⏳ |
 | **03** | Motor de Persistencia Room y Libro Mayor | ⏳ Pendiente | 0 / 6 | ⏳ |
 | **04** | Capa de Dominio y Casos de Uso Contables | ⏳ Pendiente | 0 / 5 | ⏳ |
 | **05** | Componentes UI Reutilizables y Ecosistema | ⏳ Pendiente | 0 / 6 | ⏳ |
@@ -175,8 +175,27 @@ Al completar todas las sub-fases de cualquiera de las 12 fases maestras:
   > *(Escribe aquí tus observaciones, dudas o confirmación para esta sub-fase)*
 * **Estado:** `[ COMPLETADA ]`
 
+#### 📍 Sub-fase 2.4: Quality Gate de Fase 02 (ThemePreview.kt & ThemePreviewTest.kt)
+* **Fecha:** 2026-10-07
+* **Commit:** `7c036e4`
+* **Archivos intervenidos:**
+  * `app/src/main/java/com/andina/finanzas/ui/theme/ThemePreview.kt` (galería interactiva `@Preview` para modo claro y modo oscuro)
+  * `app/src/test/java/com/andina/finanzas/ui/theme/ThemePreviewTest.kt` (pruebas unitarias de ratio de contraste WCAG AA ≥ 4.5:1)
+* **Reporte del Agente (Quality Gate):**
+  * Se implementaron 5 pruebas matemáticas automatizadas de contraste relativo de luminancia:
+    * Contraste Carbón sobre Superficie Niebla: **15.9:1** (Supera 4.5:1).
+    * Contraste Texto sobre Botón Primario: **10.2:1** (Supera 4.5:1).
+    * Contraste Texto sobre Botón Central (+): **7.2:1** (Supera 4.5:1).
+    * Contraste Modo Oscuro Páramo Nocturno: **14.4:1** (Supera 4.5:1).
+    * Contraste sobre Alerta de Gasto/Error: **6.6:1** (Supera 4.5:1).
+  * Tarea de pruebas unitarias Gradle `:app:testDebugUnitTest` ejecutada con éxito (`BUILD SUCCESSFUL in 57s`, 100% pruebas en verde).
+* **📝 Espacio de Retroalimentación del Usuario:**
+  > *(Escribe aquí tus observaciones antes de autorizar el cierre definitivo de Fase 02 y la subida a GitHub)*
+* **Estado:** `[ COMPLETADA ]`
+
 ---
 
-*(Las siguientes sub-fases se irán completando y documentando en esta misma bitácora de forma continua).*
+*(Las siguientes fases se irán completando y documentando en esta misma bitácora de forma continua).*
+
 
 
