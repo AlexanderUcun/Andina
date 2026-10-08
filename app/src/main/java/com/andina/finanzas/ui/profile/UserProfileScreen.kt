@@ -81,7 +81,24 @@ fun UserProfileScreen(
     var tempNameInput by remember { mutableStateOf("") }
     var tempNicknameInput by remember { mutableStateOf("") }
 
-    val avatarList = listOf("🌿", "🏔️", "🦅", "🦙", "💧", "☕")
+    var isHighPerformanceMode by remember { mutableStateOf(true) }
+    var currencyFormat by remember { mutableStateOf("COP ($)") }
+
+    val avatarList = listOf(
+        Pair("🐻", "Muggy"),
+        Pair("🌿", "Frailejón"),
+        Pair("🦅", "Cóndor"),
+        Pair("🌸", "Colibrí"),
+        Pair("💧", "Laguna"),
+        Pair("☕", "Cafetal")
+    )
+
+    val nicknamePresets = listOf(
+        "Guardián del Páramo",
+        "Frailejón Mayor",
+        "Explorador Andino",
+        "Caminante de Niebla"
+    )
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
@@ -138,7 +155,7 @@ fun UserProfileScreen(
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            text = avatarList[selectedAvatarIndex],
+                            text = avatarList[selectedAvatarIndex].first,
                             fontSize = 42.sp
                         )
                     }
@@ -180,18 +197,18 @@ fun UserProfileScreen(
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        avatarList.forEachIndexed { index, avatar ->
+                        avatarList.forEachIndexed { index, (avatar, label) ->
                             val isSelected = index == selectedAvatarIndex
                             Surface(
                                 shape = CircleShape,
                                 color = if (isSelected) AndeanPrimary.copy(alpha = 0.25f) else MaterialTheme.colorScheme.surface,
                                 modifier = Modifier
-                                    .size(40.dp)
+                                    .size(44.dp)
                                     .clip(CircleShape)
                                     .clickable { selectedAvatarIndex = index }
                             ) {
                                 Box(contentAlignment = Alignment.Center) {
-                                    Text(text = avatar, fontSize = 20.sp)
+                                    Text(text = avatar, fontSize = 22.sp)
                                 }
                             }
                         }
@@ -213,7 +230,75 @@ fun UserProfileScreen(
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            // 2. Sección de Preferencias y Seguridad
+            // 2. Sección de Preferencias y Rendimiento
+            Text(
+                text = "Preferencias del Páramo",
+                style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.fillMaxWidth()
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Card(
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
+                ),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    // Formato Moneda
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(
+                                imageVector = Icons.Default.Palette,
+                                contentDescription = null,
+                                tint = AndeanPrimary,
+                                modifier = Modifier.size(22.dp)
+                            )
+                            Spacer(modifier = Modifier.width(12.dp))
+                            Column {
+                                Text(
+                                    text = "Moneda del Sistema",
+                                    style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                                Text(
+                                    text = "Pesos Colombianos (COP)",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                        }
+                        Text(
+                            text = currencyFormat,
+                            style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold, color = AndeanPrimary)
+                        )
+                    }
+
+                    HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp), thickness = 0.5.dp)
+
+                    // Switch Alto Rendimiento
+                    PreferenceSwitchRow(
+                        icon = Icons.Default.DarkMode,
+                        title = "Modo Gráficos 4K",
+                        subtitle = "Animaciones botánicas y efectos de páramo vivos",
+                        checked = isHighPerformanceMode,
+                        onCheckedChange = {
+                            isHighPerformanceMode = it
+                            onShowSnackbar(if (it) "Modo 4K Completo activado" else "Modo ahorro de batería activado")
+                        }
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            // 3. Sección de Seguridad y Privacidad
             Text(
                 text = "Seguridad y Privacidad",
                 style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
@@ -292,6 +377,34 @@ fun UserProfileScreen(
                         shape = RoundedCornerShape(12.dp),
                         modifier = Modifier.fillMaxWidth()
                     )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text(
+                        text = "Sugerencias de títulos:",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Spacer(modifier = Modifier.height(6.dp))
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(6.dp),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        nicknamePresets.take(2).forEach { preset ->
+                            Surface(
+                                shape = RoundedCornerShape(8.dp),
+                                color = MaterialTheme.colorScheme.surfaceVariant,
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(8.dp))
+                                    .clickable { tempNicknameInput = preset }
+                            ) {
+                                Text(
+                                    text = preset,
+                                    fontSize = 11.sp,
+                                    fontWeight = FontWeight.Medium,
+                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                                )
+                            }
+                        }
+                    }
                 }
             },
             confirmButton = {
