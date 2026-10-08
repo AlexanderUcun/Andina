@@ -1,6 +1,7 @@
 package com.andina.finanzas.ui.components.ecosystem
 
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.Spring
@@ -31,6 +32,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
@@ -42,16 +44,20 @@ import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
+import kotlin.math.PI
+import kotlin.math.cos
+import kotlin.math.sin
 
 /**
- * Contenedor Pull-to-Refresh con Gota de Agua Glaciar Cristalina y Transición Cromática (AndeanDewPullRefresh).
+ * Contenedor Pull-to-Refresh con Gota de Rocío Líquida Orgánica y Morfismo Continuo (AndeanDewPullRefresh).
  *
- * Especificaciones de diseño sensorial hiperrealista:
- * 1. Agua azul cristalina con refracción 3D, bisel cáustico y reflejos solares especulares.
- * 2. Transición cromática dinámica: Cambia fluidamente de Azul Cielo Glaciar a Azul Turquesa Esmeralda con la tensión.
- * 3. En recarga: Micro-cápsula de cristal suspendida con vórtice cromático dual entrelazado.
- * 4. Renderizado 100% acelerado por GPU (cero relayouts a 60/120 FPS).
+ * Características clave:
+ * 1. Morfismo continuo: Desprendimiento elástico sin saltos ni parpadeos de transición.
+ * 2. Física líquida orgánica: Geometría dinámica no circular basada en armónicos sinusoidales de tensión superficial.
+ * 3. Cristalino y cromático: Gradientes fluidos de Azul Zafiro, Cian Glaciar y Turquesa Andino con refracción 3D.
+ * 4. Cierre etéreo: Disolución suave y natural al finalizar la recarga.
  */
 @Composable
 fun AndeanDewPullRefresh(
@@ -74,71 +80,89 @@ fun AndeanDewPullRefresh(
     var hasTriggeredHaptic by remember { mutableStateOf(false) }
     var animationJob by remember { mutableStateOf<Job?>(null) }
 
-    // Rotación del vórtice cromático principal
-    val vortexRotation = remember { Animatable(0f) }
-    // Rotación armónica del contra-vórtice secundario
-    val subVortexRotation = remember { Animatable(0f) }
-    // Pulsación suave de la gota central
-    val pulseScale = remember { Animatable(1f) }
+    // Factor de morfismo: 0f = estiramiento elástico con cuello, 1f = gota flotante orgánica libre
+    val morphProgress = remember { Animatable(0f) }
+    // Fase de ondulación líquida continua (armónicos de fluidos)
+    val liquidPhase = remember { Animatable(0f) }
+    // Rotación del filamento de agua y destellos cáusticos
+    val swirlRotation = remember { Animatable(0f) }
+    // Opacidad de salida suave para evitar parpadeos
+    val exitAlpha = remember { Animatable(1f) }
+
+    LaunchedEffect(Unit) {
+        launch {
+            liquidPhase.animateTo(
+                targetValue = (2 * PI).toFloat(),
+                animationSpec = infiniteRepeatable(
+                    animation = tween(durationMillis = 1800, easing = LinearEasing),
+                    repeatMode = RepeatMode.Restart
+                )
+            )
+        }
+        launch {
+            swirlRotation.animateTo(
+                targetValue = 360f,
+                animationSpec = infiniteRepeatable(
+                    animation = tween(durationMillis = 1200, easing = LinearEasing),
+                    repeatMode = RepeatMode.Restart
+                )
+            )
+        }
+    }
 
     LaunchedEffect(isRefreshing) {
         animationJob?.cancel()
         if (isRefreshing) {
+            exitAlpha.snapTo(1f)
             animationJob = launch {
-                animate(
-                    initialValue = pullOffset,
-                    targetValue = refreshHoldPx,
-                    animationSpec = spring(
-                        dampingRatio = Spring.DampingRatioMediumBouncy,
-                        stiffness = Spring.StiffnessMedium
+                launch {
+                    morphProgress.animateTo(
+                        targetValue = 1f,
+                        animationSpec = tween(durationMillis = 350, easing = FastOutSlowInEasing)
                     )
-                ) { value, _ ->
-                    pullOffset = value
                 }
-            }
-            launch {
-                vortexRotation.animateTo(
-                    targetValue = 360f,
-                    animationSpec = infiniteRepeatable(
-                        animation = tween(durationMillis = 900, easing = LinearEasing),
-                        repeatMode = RepeatMode.Restart
-                    )
-                )
-            }
-            launch {
-                subVortexRotation.animateTo(
-                    targetValue = -360f,
-                    animationSpec = infiniteRepeatable(
-                        animation = tween(durationMillis = 1400, easing = LinearEasing),
-                        repeatMode = RepeatMode.Restart
-                    )
-                )
-            }
-            launch {
-                pulseScale.animateTo(
-                    targetValue = 1.18f,
-                    animationSpec = infiniteRepeatable(
-                        animation = tween(durationMillis = 450, easing = LinearEasing),
-                        repeatMode = RepeatMode.Reverse
-                    )
-                )
+                launch {
+                    animate(
+                        initialValue = pullOffset,
+                        targetValue = refreshHoldPx,
+                        animationSpec = spring(
+                            dampingRatio = Spring.DampingRatioMediumBouncy,
+                            stiffness = Spring.StiffnessMedium
+                        )
+                    ) { value, _ ->
+                        pullOffset = value
+                    }
+                }
             }
         } else {
             hasTriggeredHaptic = false
-            vortexRotation.snapTo(0f)
-            subVortexRotation.snapTo(0f)
-            pulseScale.snapTo(1f)
             animationJob = launch {
-                animate(
-                    initialValue = pullOffset,
-                    targetValue = 0f,
-                    animationSpec = spring(
-                        dampingRatio = Spring.DampingRatioNoBouncy,
-                        stiffness = Spring.StiffnessMedium
+                // Desvanecimiento etéreo suave y retorno
+                launch {
+                    exitAlpha.animateTo(
+                        targetValue = 0f,
+                        animationSpec = tween(durationMillis = 280, easing = FastOutSlowInEasing)
                     )
-                ) { value, _ ->
-                    pullOffset = value
                 }
+                launch {
+                    morphProgress.animateTo(
+                        targetValue = 0f,
+                        animationSpec = tween(durationMillis = 280, easing = FastOutSlowInEasing)
+                    )
+                }
+                launch {
+                    animate(
+                        initialValue = pullOffset,
+                        targetValue = 0f,
+                        animationSpec = spring(
+                            dampingRatio = Spring.DampingRatioNoBouncy,
+                            stiffness = Spring.StiffnessMedium
+                        )
+                    ) { value, _ ->
+                        pullOffset = value
+                    }
+                }
+                exitAlpha.snapTo(1f)
             }
         }
     }
@@ -163,7 +187,6 @@ fun AndeanDewPullRefresh(
             ): Offset {
                 if (isRefreshing) return Offset.Zero
 
-                // Solo arrastre manual directo del usuario
                 if (source == NestedScrollSource.UserInput && available.y > 0) {
                     val resistance = 0.45f
                     val newOffset = (pullOffset + available.y * resistance).coerceAtMost(maxDragPx)
@@ -231,9 +254,8 @@ fun AndeanDewPullRefresh(
             .nestedScroll(nestedScrollConnection)
     ) {
         val currentOffset = pullOffset
-        val isVisible = currentOffset > 1f || (isRefreshing && currentOffset > 0f)
+        val isVisible = (currentOffset > 0.5f || isRefreshing) && exitAlpha.value > 0.01f
 
-        // Indicador de Gota de Rocío Glaciar Cristalina
         if (isVisible) {
             val canvasHeightDp = with(density) { maxDragPx.toDp() }
 
@@ -244,212 +266,181 @@ fun AndeanDewPullRefresh(
             ) {
                 val canvasWidth = size.width
                 val centerX = canvasWidth / 2f
+                val morph = morphProgress.value
+                val alphaMultiplier = exitAlpha.value
 
-                if (isRefreshing) {
-                    // MODO RECARGA: Micro-cápsula suspendida con Vórtice Cromático Dual
-                    val badgeCenterY = refreshHoldPx / 2f
-                    val badgeRadius = 20.dp.toPx()
+                val effectiveHeight = currentOffset.coerceIn(0f, maxDragPx)
+                val dragRatio = (effectiveHeight / thresholdPx).coerceIn(0f, 1.5f)
 
-                    // Resplandor ambiental cian translúcido
-                    drawCircle(
-                        brush = Brush.radialGradient(
-                            listOf(Color(0x3038BDF8), Color(0x0038BDF8)),
-                            center = Offset(centerX, badgeCenterY),
-                            radius = badgeRadius + 8.dp.toPx()
-                        ),
-                        radius = badgeRadius + 8.dp.toPx(),
-                        center = Offset(centerX, badgeCenterY)
-                    )
+                // Posición central del cuerpo líquido
+                val restingCenterY = refreshHoldPx * 0.48f
+                val dragCenterY = (effectiveHeight - 12.dp.toPx()).coerceAtLeast(16.dp.toPx())
+                val liquidCenterY = lerp(dragCenterY, restingCenterY, morph)
 
-                    // Fondo de cristal esmerilado
-                    val capsuleBg = if (isDark) Color(0xF4161C22) else Color(0xF8FFFFFF)
-                    val capsuleBorder = Color(0x4038BDF8)
-
-                    // Sombra sutil de la cápsula
-                    drawCircle(
-                        color = Color.Black.copy(alpha = 0.09f),
-                        radius = badgeRadius + 2.dp.toPx(),
-                        center = Offset(centerX, badgeCenterY + 1.5.dp.toPx())
-                    )
-                    // Cuerpo de la cápsula
-                    drawCircle(
-                        color = capsuleBg,
-                        radius = badgeRadius,
-                        center = Offset(centerX, badgeCenterY)
-                    )
-                    // Borde de cristal zafiro
-                    drawCircle(
-                        color = capsuleBorder,
-                        radius = badgeRadius,
-                        center = Offset(centerX, badgeCenterY),
-                        style = Stroke(width = 1.2.dp.toPx())
-                    )
-
-                    // 1. Filamento de Vórtice Principal (Azul Glaciar -> Turquesa Esmeralda)
-                    val mainRingRadius = 13.dp.toPx()
-                    val mainArcRect = Rect(
-                        centerX - mainRingRadius,
-                        badgeCenterY - mainRingRadius,
-                        centerX + mainRingRadius,
-                        badgeCenterY + mainRingRadius
-                    )
-
-                    drawArc(
-                        brush = Brush.sweepGradient(
-                            listOf(
-                                Color(0x000284C7),
-                                Color(0x600284C7),
-                                Color(0xFF00B4D8),
-                                Color(0xFF06D6A0),
-                                Color(0xFF38BDF8)
-                            ),
-                            center = Offset(centerX, badgeCenterY)
-                        ),
-                        startAngle = vortexRotation.value,
-                        sweepAngle = 270f,
-                        useCenter = false,
-                        topLeft = Offset(mainArcRect.left, mainArcRect.top),
-                        size = Size(mainArcRect.width, mainArcRect.height),
-                        style = Stroke(width = 2.6.dp.toPx(), cap = StrokeCap.Round)
-                    )
-
-                    // 2. Contra-filamento Armónico Secundario (Cian Cristalino)
-                    val subRingRadius = 8.5.dp.toPx()
-                    val subArcRect = Rect(
-                        centerX - subRingRadius,
-                        badgeCenterY - subRingRadius,
-                        centerX + subRingRadius,
-                        badgeCenterY + subRingRadius
-                    )
-
-                    drawArc(
-                        brush = Brush.sweepGradient(
-                            listOf(
-                                Color(0x0038BDF8),
-                                Color(0x80BAE6FD),
-                                Color(0xFF7DD3FC)
-                            ),
-                            center = Offset(centerX, badgeCenterY)
-                        ),
-                        startAngle = subVortexRotation.value,
-                        sweepAngle = 180f,
-                        useCenter = false,
-                        topLeft = Offset(subArcRect.left, subArcRect.top),
-                        size = Size(subArcRect.width, subArcRect.height),
-                        style = Stroke(width = 1.5.dp.toPx(), cap = StrokeCap.Round)
-                    )
-
-                    // 3. Micro-gota central cristalina con pulso y destello blanco
-                    val dotRadius = 3.6.dp.toPx() * pulseScale.value
-                    drawCircle(
-                        color = Color(0xFF0284C7),
-                        radius = dotRadius,
-                        center = Offset(centerX, badgeCenterY)
-                    )
-                    drawCircle(
-                        color = Color(0xFF7DD3FC),
-                        radius = dotRadius * 0.65f,
-                        center = Offset(centerX - 0.5.dp.toPx(), badgeCenterY - 0.5.dp.toPx())
-                    )
-                    drawCircle(
-                        color = Color.White,
-                        radius = 1.2.dp.toPx(),
-                        center = Offset(centerX - 1.dp.toPx(), badgeCenterY - 1.dp.toPx())
-                    )
-                } else {
-                    // MODO ARRASTRE: Gota Elástica Cristalina con Transición Cromática Dinámica
-                    val dropAlpha = (currentOffset / thresholdPx).coerceIn(0f, 1f)
-                    val effectiveHeight = currentOffset.coerceIn(0f, maxDragPx)
-                    val stretchProgress = (effectiveHeight / thresholdPx).coerceIn(0f, 1.5f)
-                    val bulbRadius = (9.dp.toPx() + stretchProgress * 6.8.dp.toPx())
-                    val neckWidth = (18.dp.toPx() / (1f + stretchProgress * 0.9f)).coerceAtLeast(4.5.dp.toPx())
-                    val dropBottomY = effectiveHeight - 4.dp.toPx()
-                    val bulbCenterY = dropBottomY - bulbRadius
-
-                    if (bulbCenterY > 0f) {
-                        val dropPath = Path().apply {
-                            moveTo(centerX - neckWidth, 0f)
-                            cubicTo(
-                                centerX - neckWidth * 0.65f, bulbCenterY * 0.5f,
-                                centerX - bulbRadius, bulbCenterY - bulbRadius * 0.5f,
-                                centerX - bulbRadius, bulbCenterY
-                            )
-                            arcTo(
-                                rect = Rect(
-                                    centerX - bulbRadius,
-                                    bulbCenterY - bulbRadius,
-                                    centerX + bulbRadius,
-                                    bulbCenterY + bulbRadius
-                                ),
-                                startAngleDegrees = 180f,
-                                sweepAngleDegrees = -180f,
-                                forceMoveTo = false
-                            )
-                            cubicTo(
-                                centerX + bulbRadius, bulbCenterY - bulbRadius * 0.5f,
-                                centerX + neckWidth * 0.65f, bulbCenterY * 0.5f,
-                                centerX + neckWidth, 0f
-                            )
-                            close()
-                        }
-
-                        // Transición cromática dinámica: De Azul Cielo Glaciar a Azul Turquesa Esmeralda
-                        val topWaterColor = Color(0x357DD3FC).copy(alpha = 0.3f * dropAlpha)
-                        val midWaterColor = if (stretchProgress > 0.85f) {
-                            Color(0x8500B4D8).copy(alpha = 0.7f * dropAlpha)
-                        } else {
-                            Color(0x7538BDF8).copy(alpha = 0.65f * dropAlpha)
-                        }
-                        val bottomWaterColor = if (stretchProgress > 0.85f) {
-                            Color(0xE006D6A0).copy(alpha = 0.95f * dropAlpha) // Transición a Turquesa Esmeralda
-                        } else {
-                            Color(0xDE0284C7).copy(alpha = 0.92f * dropAlpha) // Azul Glaciar Zafiro
-                        }
-
-                        // 1. Relleno cristalino de agua azul glaciar
-                        val crystalBlueWaterBrush = Brush.verticalGradient(
-                            colors = listOf(topWaterColor, midWaterColor, bottomWaterColor)
-                        )
-                        drawPath(path = dropPath, brush = crystalBlueWaterBrush)
-
-                        // 2. Contorno de refracción de luz (efecto cristal 3D de alta definición)
-                        val glassRefractionBrush = Brush.verticalGradient(
-                            colors = listOf(
-                                Color.White.copy(alpha = 0.85f * dropAlpha),
-                                Color(0xAA7DD3FC).copy(alpha = 0.55f * dropAlpha),
-                                Color(0x400284C7).copy(alpha = 0.35f * dropAlpha)
-                            )
-                        )
-                        drawPath(
-                            path = dropPath,
-                            brush = glassRefractionBrush,
-                            style = Stroke(width = 1.4.dp.toPx())
-                        )
-
-                        // 3. Destello cáustico interior (curvatura de luz en la base)
-                        drawCircle(
-                            color = Color(0x45BAE6FD).copy(alpha = 0.5f * dropAlpha),
-                            radius = bulbRadius * 0.55f,
-                            center = Offset(centerX, bulbCenterY + bulbRadius * 0.25f)
-                        )
-
-                        // 4. Destello especular de luz solar en el lateral de la gota
-                        drawCircle(
-                            color = Color.White.copy(alpha = 0.4f * dropAlpha),
-                            radius = 4.2.dp.toPx(),
-                            center = Offset(centerX - bulbRadius * 0.36f, bulbCenterY - bulbRadius * 0.28f)
-                        )
-                        drawCircle(
-                            color = Color.White.copy(alpha = 0.98f * dropAlpha),
-                            radius = 2.0.dp.toPx(),
-                            center = Offset(centerX - bulbRadius * 0.36f, bulbCenterY - bulbRadius * 0.28f)
-                        )
-                    }
+                // Radio base dinámico de la masa de agua
+                val baseRadius = with(density) {
+                    lerp(10.dp.toPx() + dragRatio * 5.5.dp.toPx(), 18.5.dp.toPx(), morph)
                 }
+
+                val phase = liquidPhase.value
+                val rot = swirlRotation.value
+
+                // 1. Resplandor ambiental de agua andina (aura fluida translúcida)
+                drawCircle(
+                    brush = Brush.radialGradient(
+                        colors = listOf(
+                            Color(0x3538BDF8).copy(alpha = 0.35f * alphaMultiplier),
+                            Color(0x0038BDF8)
+                        ),
+                        center = Offset(centerX, liquidCenterY),
+                        radius = baseRadius * 1.85f
+                    ),
+                    radius = baseRadius * 1.85f,
+                    center = Offset(centerX, liquidCenterY)
+                )
+
+                // 2. Construcción del Trazado Líquido Orgánico (Bézier con deformación armónica)
+                val liquidPath = if (morph < 0.95f) {
+                    // Estado Elástico con cuello que se adelgaza y desprende
+                    val neckWidth = (16.dp.toPx() / (1f + dragRatio * 0.85f)) * (1f - morph * 0.95f)
+                    val topY = lerp(0f, liquidCenterY - baseRadius, morph)
+
+                    Path().apply {
+                        moveTo(centerX - neckWidth, topY)
+                        cubicTo(
+                            centerX - neckWidth * 0.7f, topY + (liquidCenterY - topY) * 0.45f,
+                            centerX - baseRadius * 1.05f, liquidCenterY - baseRadius * 0.55f,
+                            centerX - baseRadius, liquidCenterY
+                        )
+                        // Curva inferior con oscilación de tensión
+                        val bottomWobble = sin(phase * 2f) * 1.8f * (1f - morph)
+                        cubicTo(
+                            centerX - baseRadius * 0.95f, liquidCenterY + baseRadius + bottomWobble,
+                            centerX + baseRadius * 0.95f, liquidCenterY + baseRadius + bottomWobble,
+                            centerX + baseRadius, liquidCenterY
+                        )
+                        cubicTo(
+                            centerX + baseRadius * 1.05f, liquidCenterY - baseRadius * 0.55f,
+                            centerX + neckWidth * 0.7f, topY + (liquidCenterY - topY) * 0.45f,
+                            centerX + neckWidth, topY
+                        )
+                        close()
+                    }
+                } else {
+                    // Estado Gota Flotante Orgánica (Masa líquida viva no-circular con 8 nodos armónicos)
+                    createOrganicBlobPath(
+                        centerX = centerX,
+                        centerY = liquidCenterY,
+                        baseRadius = baseRadius,
+                        phase = phase
+                    )
+                }
+
+                // 3. Gradiente Cromático Líquido (Azul Zafiro -> Cian Glaciar -> Turquesa Esmeralda)
+                val tensionHue = (dragRatio * 0.7f + morph * 0.5f).coerceIn(0f, 1f)
+                val topColor = Color(0x997DD3FC).copy(alpha = 0.65f * alphaMultiplier)
+                val midColor = if (tensionHue > 0.6f) {
+                    Color(0xD000B4D8).copy(alpha = 0.88f * alphaMultiplier)
+                } else {
+                    Color(0xC038BDF8).copy(alpha = 0.82f * alphaMultiplier)
+                }
+                val bottomColor = if (tensionHue > 0.6f) {
+                    Color(0xF006D6A0).copy(alpha = 0.95f * alphaMultiplier) // Turquesa Esmeralda
+                } else {
+                    Color(0xEA0284C7).copy(alpha = 0.92f * alphaMultiplier) // Azul Zafiro Glaciar
+                }
+
+                val waterGradient = Brush.verticalGradient(
+                    colors = listOf(topColor, midColor, bottomColor),
+                    startY = liquidCenterY - baseRadius,
+                    endY = liquidCenterY + baseRadius
+                )
+
+                // Render del cuerpo de agua
+                drawPath(path = liquidPath, brush = waterGradient)
+
+                // 4. Borde de Refracción Cristalina 3D
+                val glassStroke = Brush.verticalGradient(
+                    colors = listOf(
+                        Color.White.copy(alpha = 0.92f * alphaMultiplier),
+                        Color(0xB0BAE6FD).copy(alpha = 0.65f * alphaMultiplier),
+                        Color(0x500284C7).copy(alpha = 0.40f * alphaMultiplier)
+                    ),
+                    startY = liquidCenterY - baseRadius,
+                    endY = liquidCenterY + baseRadius
+                )
+                drawPath(
+                    path = liquidPath,
+                    brush = glassStroke,
+                    style = Stroke(width = with(density) { 1.35.dp.toPx() })
+                )
+
+                // 5. Filamento de Corriente Líquida Interna (Espiral armónica en movimiento)
+                if (morph > 0.15f) {
+                    val streamAlpha = (morph * alphaMultiplier).coerceIn(0f, 1f)
+                    val streamRadius = baseRadius * 0.62f
+                    val arcRect = Rect(
+                        centerX - streamRadius,
+                        liquidCenterY - streamRadius,
+                        centerX + streamRadius,
+                        liquidCenterY + streamRadius
+                    )
+
+                    drawArc(
+                        brush = Brush.sweepGradient(
+                            listOf(
+                                Color(0x00FFFFFF),
+                                Color(0x60BAE6FD),
+                                Color(0xE006D6A0),
+                                Color(0xFF38BDF8),
+                                Color(0x00FFFFFF)
+                            ),
+                            center = Offset(centerX, liquidCenterY)
+                        ),
+                        startAngle = rot,
+                        sweepAngle = 240f,
+                        useCenter = false,
+                        topLeft = Offset(arcRect.left, arcRect.top),
+                        size = Size(arcRect.width, arcRect.height),
+                        style = Stroke(
+                            width = with(density) { 2.2.dp.toPx() },
+                            cap = StrokeCap.Round
+                        ),
+                        alpha = streamAlpha
+                    )
+                }
+
+                // 6. Destellos Especulares Asimétricos y Cáusticos (Brillos solares sobre agua viva)
+                val glintAngle1 = phase
+                val glintX1 = centerX + cos(glintAngle1) * (baseRadius * 0.45f)
+                val glintY1 = liquidCenterY + sin(glintAngle1) * (baseRadius * 0.38f) - baseRadius * 0.18f
+
+                val glintAngle2 = phase + PI.toFloat() * 0.85f
+                val glintX2 = centerX + cos(glintAngle2) * (baseRadius * 0.35f)
+                val glintY2 = liquidCenterY + sin(glintAngle2) * (baseRadius * 0.32f)
+
+                // Destello primario de luz viva
+                drawCircle(
+                    color = Color.White.copy(alpha = 0.95f * alphaMultiplier),
+                    radius = with(density) { 2.4.dp.toPx() },
+                    center = Offset(glintX1, glintY1)
+                )
+                drawCircle(
+                    color = Color(0x80BAE6FD).copy(alpha = 0.6f * alphaMultiplier),
+                    radius = with(density) { 4.5.dp.toPx() },
+                    center = Offset(glintX1, glintY1)
+                )
+
+                // Destello cáustico secundario
+                drawCircle(
+                    color = Color.White.copy(alpha = 0.75f * alphaMultiplier),
+                    radius = with(density) { 1.6.dp.toPx() },
+                    center = Offset(glintX2, glintY2)
+                )
             }
         }
 
-        // Contenido principal desplazado en GPU (cero recomposiciones de hijos durante el arrastre)
+        // Contenido principal desplazado fluidamente en GPU
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -461,5 +452,54 @@ fun AndeanDewPullRefresh(
         }
     }
 }
+
+/**
+ * Genera un trazado orgánico no circular (Gota viva) mediante perturbaciones sinusoidales armónicas.
+ */
+private fun createOrganicBlobPath(
+    centerX: Float,
+    centerY: Float,
+    baseRadius: Float,
+    phase: Float
+): Path {
+    val pointsCount = 8
+    val coords = ArrayList<Offset>(pointsCount)
+
+    for (i in 0 until pointsCount) {
+        val angle = (i * 2 * PI / pointsCount).toFloat()
+        // Armónicos de vibración líquida
+        val harmonic1 = sin(angle * 2f + phase) * 0.09f
+        val harmonic2 = cos(angle * 3f - phase * 1.2f) * 0.06f
+        val harmonic3 = sin(angle * 4f + phase * 0.7f) * 0.035f
+
+        val radius = baseRadius * (1f + harmonic1 + harmonic2 + harmonic3)
+        val x = centerX + cos(angle) * radius
+        val y = centerY + sin(angle) * radius
+        coords.add(Offset(x, y))
+    }
+
+    val path = Path()
+    if (coords.isEmpty()) return path
+
+    path.moveTo((coords[0].x + coords[pointsCount - 1].x) / 2f, (coords[0].y + coords[pointsCount - 1].y) / 2f)
+
+    for (i in 0 until pointsCount) {
+        val curr = coords[i]
+        val next = coords[(i + 1) % pointsCount]
+        val midX = (curr.x + next.x) / 2f
+        val midY = (curr.y + next.y) / 2f
+        path.quadraticTo(curr.x, curr.y, midX, midY)
+    }
+    path.close()
+    return path
+}
+
+/**
+ * Interpolación lineal simple.
+ */
+private fun lerp(start: Float, stop: Float, fraction: Float): Float {
+    return start + (stop - start) * fraction.coerceIn(0f, 1f)
+}
+
 
 
