@@ -10,6 +10,8 @@ import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.LocalOverscrollConfiguration
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
@@ -17,6 +19,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
@@ -278,164 +281,169 @@ fun AndeanDewPullRefresh(
         }
     }
 
-    Box(
-        modifier = modifier
-            .fillMaxSize()
-            .nestedScroll(nestedScrollConnection)
+    @OptIn(ExperimentalFoundationApi::class)
+    CompositionLocalProvider(
+        LocalOverscrollConfiguration provides null
     ) {
-        val currentOffset = pullOffset
-        val isVisible = (currentOffset > 0.5f || isRefreshing) && exitAlpha.value > 0.01f
-
-        // 1. Contenido principal desplazado fluidamente en GPU
         Box(
-            modifier = Modifier
+            modifier = modifier
                 .fillMaxSize()
-                .graphicsLayer {
-                    translationY = currentOffset
-                }
+                .nestedScroll(nestedScrollConnection)
         ) {
-            content()
-        }
+            val currentOffset = pullOffset
+            val isVisible = (currentOffset > 0.5f || isRefreshing) && exitAlpha.value > 0.01f
 
-        // 2. Marea y Gota de Agua Andina en Primer Plano (Renderizado inmediato)
-        if (isVisible) {
-            val canvasHeightDp = with(density) { (maxDragPx + 20.dp.toPx()).toDp() }
-
-            Canvas(
+            // 1. Contenido principal desplazado fluidamente en GPU
+            Box(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .height(canvasHeightDp)
-                    .zIndex(10f)
-            ) {
-                val canvasWidth = size.width
-                val centerX = canvasWidth / 2f
-                val morph = morphProgress.value
-                val alphaMultiplier = exitAlpha.value
-
-                val effectiveHeight = currentOffset.coerceIn(0f, maxDragPx)
-                val dragRatio = (effectiveHeight / thresholdPx).coerceIn(0f, 1.5f)
-                val dragAlpha = ((effectiveHeight / 8.dp.toPx()).coerceIn(0.15f, 1f) * alphaMultiplier)
-
-                // Posición vertical del centro líquido
-                val restingCenterY = fullRefreshHoldPx * 0.52f
-                val dragCenterY = (effectiveHeight * 0.58f).coerceAtLeast(8.dp.toPx())
-                val liquidCenterY = lerp(dragCenterY, restingCenterY, morph)
-
-                // Radio dinámico del cuerpo de agua
-                val currentBulbRadius = with(density) {
-                    lerp((6.dp.toPx() + dragRatio * 8.5.dp.toPx()).coerceAtMost(20.dp.toPx()), 19.dp.toPx(), morph)
-                }
-
-                val phase = liquidPhase.value
-                val rot = swirlRotation.value
-
-                // 1. Resplandor ambiental de agua andina
-                drawCircle(
-                    brush = Brush.radialGradient(
-                        colors = listOf(
-                            Color(0x3538BDF8).copy(alpha = 0.4f * dragAlpha),
-                            Color(0x0038BDF8)
-                        ),
-                        center = Offset(centerX, liquidCenterY),
-                        radius = currentBulbRadius * 2.2f
-                    ),
-                    radius = currentBulbRadius * 2.2f,
-                    center = Offset(centerX, liquidCenterY)
-                )
-
-                // 2. Trazado Líquido: Marea y Gota Orgánica
-                val liquidPath = if (morph < 0.92f) {
-                    // Manto de agua elástico que cubre el ancho de pantalla
-                    val baseSpread = canvasWidth * 0.32f
-                    val maxSpread = canvasWidth * 0.44f
-                    val horizontalSpread = (baseSpread + dragRatio * (maxSpread - baseSpread)) * (1f - morph * 0.88f)
-                    val topY = 0f
-
-                    Path().apply {
-                        moveTo(centerX - horizontalSpread, topY)
-
-                        // Onda izquierda
-                        val leftControlX = centerX - horizontalSpread * 0.45f
-                        val leftControlY = topY + (liquidCenterY - topY) * 0.5f + sin(phase + 1.2f) * 2.5.dp.toPx()
-                        cubicTo(
-                            leftControlX, topY + 2.dp.toPx(),
-                            centerX - currentBulbRadius * 1.35f, leftControlY,
-                            centerX - currentBulbRadius, liquidCenterY
-                        )
-
-                        // Curva inferior del bulbo con tensión viva
-                        val bottomWobble = sin(phase * 2f) * 2.2f * (1f - morph)
-                        cubicTo(
-                            centerX - currentBulbRadius * 0.92f, liquidCenterY + currentBulbRadius + bottomWobble,
-                            centerX + currentBulbRadius * 0.92f, liquidCenterY + currentBulbRadius + bottomWobble,
-                            centerX + currentBulbRadius, liquidCenterY
-                        )
-
-                        // Onda derecha
-                        val rightControlX = centerX + horizontalSpread * 0.45f
-                        val rightControlY = topY + (liquidCenterY - topY) * 0.5f + cos(phase + 1.2f) * 2.5.dp.toPx()
-                        cubicTo(
-                            centerX + currentBulbRadius * 1.35f, rightControlY,
-                            rightControlX, topY + 2.dp.toPx(),
-                            centerX + horizontalSpread, topY
-                        )
-
-                        // Retorno superior con suave ondulación
-                        val crestWaveY = topY + sin(phase) * 1.5.dp.toPx() * (1f - morph)
-                        quadraticTo(
-                            centerX, crestWaveY,
-                            centerX - horizontalSpread, topY
-                        )
-                        close()
+                    .fillMaxSize()
+                    .graphicsLayer {
+                        translationY = currentOffset
                     }
-                } else {
-                    // Gota flotante viva no-circular con armónicos sinusoidales
-                    createOrganicBlobPath(
-                        centerX = centerX,
-                        centerY = liquidCenterY,
-                        baseRadius = currentBulbRadius,
-                        phase = phase
+            ) {
+                content()
+            }
+
+            // 2. Marea y Gota de Agua Andina en Primer Plano (Renderizado inmediato)
+            if (isVisible) {
+                val canvasHeightDp = with(density) { (maxDragPx + 20.dp.toPx()).toDp() }
+
+                Canvas(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(canvasHeightDp)
+                        .zIndex(10f)
+                ) {
+                    val canvasWidth = size.width
+                    val centerX = canvasWidth / 2f
+                    val morph = morphProgress.value
+                    val alphaMultiplier = exitAlpha.value
+
+                    val effectiveHeight = currentOffset.coerceIn(0f, maxDragPx)
+                    val dragRatio = (effectiveHeight / thresholdPx).coerceIn(0f, 1.5f)
+                    val dragAlpha = ((effectiveHeight / 8.dp.toPx()).coerceIn(0.15f, 1f) * alphaMultiplier)
+
+                    // Posición vertical del centro líquido
+                    val restingCenterY = fullRefreshHoldPx * 0.52f
+                    val dragCenterY = (effectiveHeight * 0.58f).coerceAtLeast(8.dp.toPx())
+                    val liquidCenterY = lerp(dragCenterY, restingCenterY, morph)
+
+                    // Radio dinámico del cuerpo de agua
+                    val currentBulbRadius = with(density) {
+                        lerp((6.dp.toPx() + dragRatio * 8.5.dp.toPx()).coerceAtMost(20.dp.toPx()), 19.dp.toPx(), morph)
+                    }
+
+                    val phase = liquidPhase.value
+                    val rot = swirlRotation.value
+
+                    // 1. Resplandor ambiental de agua andina
+                    drawCircle(
+                        brush = Brush.radialGradient(
+                            colors = listOf(
+                                Color(0x3538BDF8).copy(alpha = 0.4f * dragAlpha),
+                                Color(0x0038BDF8)
+                            ),
+                            center = Offset(centerX, liquidCenterY),
+                            radius = currentBulbRadius * 2.2f
+                        ),
+                        radius = currentBulbRadius * 2.2f,
+                        center = Offset(centerX, liquidCenterY)
                     )
-                }
 
-                // 3. Gradiente Cromático Dinámico
-                val tensionHue = (dragRatio * 0.75f + morph * 0.5f).coerceIn(0f, 1f)
-                val topColor = Color(0x907DD3FC).copy(alpha = 0.70f * dragAlpha)
-                val midColor = if (tensionHue > 0.55f) {
-                    Color(0xD800B4D8).copy(alpha = 0.90f * dragAlpha)
-                } else {
-                    Color(0xC838BDF8).copy(alpha = 0.85f * dragAlpha)
-                }
-                val bottomColor = if (tensionHue > 0.55f) {
-                    Color(0xF506D6A0).copy(alpha = 0.98f * dragAlpha)
-                } else {
-                    Color(0xF00284C7).copy(alpha = 0.95f * dragAlpha)
-                }
+                    // 2. Trazado Líquido: Marea y Gota Orgánica
+                    val liquidPath = if (morph < 0.92f) {
+                        // Manto de agua elástico que cubre el ancho de pantalla
+                        val baseSpread = canvasWidth * 0.32f
+                        val maxSpread = canvasWidth * 0.44f
+                        val horizontalSpread = (baseSpread + dragRatio * (maxSpread - baseSpread)) * (1f - morph * 0.88f)
+                        val topY = 0f
 
-                val waterGradient = Brush.verticalGradient(
-                    colors = listOf(topColor, midColor, bottomColor),
-                    startY = liquidCenterY - currentBulbRadius * 1.2f,
-                    endY = liquidCenterY + currentBulbRadius * 1.2f
-                )
+                        Path().apply {
+                            moveTo(centerX - horizontalSpread, topY)
 
-                // Render del cuerpo de agua
-                drawPath(path = liquidPath, brush = waterGradient)
+                            // Onda izquierda
+                            val leftControlX = centerX - horizontalSpread * 0.45f
+                            val leftControlY = topY + (liquidCenterY - topY) * 0.5f + sin(phase + 1.2f) * 2.5.dp.toPx()
+                            cubicTo(
+                                leftControlX, topY + 2.dp.toPx(),
+                                centerX - currentBulbRadius * 1.35f, leftControlY,
+                                centerX - currentBulbRadius, liquidCenterY
+                            )
 
-                // 4. Borde de Refracción Cristalina 3D
-                val glassStroke = Brush.verticalGradient(
-                    colors = listOf(
-                        Color.White.copy(alpha = 0.95f * dragAlpha),
-                        Color(0xC0BAE6FD).copy(alpha = 0.70f * dragAlpha),
-                        Color(0x600284C7).copy(alpha = 0.45f * dragAlpha)
-                    ),
-                    startY = liquidCenterY - currentBulbRadius * 1.2f,
-                    endY = liquidCenterY + currentBulbRadius * 1.2f
-                )
-                drawPath(
-                    path = liquidPath,
-                    brush = glassStroke,
-                    style = Stroke(width = with(density) { 1.45.dp.toPx() })
-                )
+                            // Curva inferior del bulbo con tensión viva
+                            val bottomWobble = sin(phase * 2f) * 2.2f * (1f - morph)
+                            cubicTo(
+                                centerX - currentBulbRadius * 0.92f, liquidCenterY + currentBulbRadius + bottomWobble,
+                                centerX + currentBulbRadius * 0.92f, liquidCenterY + currentBulbRadius + bottomWobble,
+                                centerX + currentBulbRadius, liquidCenterY
+                            )
+
+                            // Onda derecha
+                            val rightControlX = centerX + horizontalSpread * 0.45f
+                            val rightControlY = topY + (liquidCenterY - topY) * 0.5f + cos(phase + 1.2f) * 2.5.dp.toPx()
+                            cubicTo(
+                                centerX + currentBulbRadius * 1.35f, rightControlY,
+                                rightControlX, topY + 2.dp.toPx(),
+                                centerX + horizontalSpread, topY
+                            )
+
+                            // Retorno superior con suave ondulación
+                            val crestWaveY = topY + sin(phase) * 1.5.dp.toPx() * (1f - morph)
+                            quadraticTo(
+                                centerX, crestWaveY,
+                                centerX - horizontalSpread, topY
+                            )
+                            close()
+                        }
+                    } else {
+                        // Gota flotante viva no-circular con armónicos sinusoidales
+                        createOrganicBlobPath(
+                            centerX = centerX,
+                            centerY = liquidCenterY,
+                            baseRadius = currentBulbRadius,
+                            phase = phase
+                        )
+                    }
+
+                    // 3. Gradiente Cromático Dinámico
+                    val tensionHue = (dragRatio * 0.75f + morph * 0.5f).coerceIn(0f, 1f)
+                    val topColor = Color(0x907DD3FC).copy(alpha = 0.70f * dragAlpha)
+                    val midColor = if (tensionHue > 0.55f) {
+                        Color(0xD800B4D8).copy(alpha = 0.90f * dragAlpha)
+                    } else {
+                        Color(0xC838BDF8).copy(alpha = 0.85f * dragAlpha)
+                    }
+                    val bottomColor = if (tensionHue > 0.55f) {
+                        Color(0xF506D6A0).copy(alpha = 0.98f * dragAlpha)
+                    } else {
+                        Color(0xF00284C7).copy(alpha = 0.95f * dragAlpha)
+                    }
+
+                    val gradientStartY = if (morph < 0.92f) 0f else liquidCenterY - currentBulbRadius * 1.2f
+                    val waterGradient = Brush.verticalGradient(
+                        colors = listOf(topColor, midColor, bottomColor),
+                        startY = gradientStartY,
+                        endY = liquidCenterY + currentBulbRadius * 1.2f
+                    )
+
+                    // Render del cuerpo de agua
+                    drawPath(path = liquidPath, brush = waterGradient)
+
+                    // 4. Borde de Refracción Cristalina 3D
+                    val glassStroke = Brush.verticalGradient(
+                        colors = listOf(
+                            Color.White.copy(alpha = 0.95f * dragAlpha),
+                            Color(0xC0BAE6FD).copy(alpha = 0.70f * dragAlpha),
+                            Color(0x600284C7).copy(alpha = 0.45f * dragAlpha)
+                        ),
+                        startY = gradientStartY,
+                        endY = liquidCenterY + currentBulbRadius * 1.2f
+                    )
+                    drawPath(
+                        path = liquidPath,
+                        brush = glassStroke,
+                        style = Stroke(width = with(density) { 1.45.dp.toPx() })
+                    )
 
                 // 5. Filamento de Corriente Interna
                 if (morph > 0.15f) {
@@ -502,6 +510,7 @@ fun AndeanDewPullRefresh(
             }
         }
     }
+}
 }
 
 /**
