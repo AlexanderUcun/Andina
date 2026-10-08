@@ -103,13 +103,14 @@
 ## 🛣️ FASE 3: ENRUTAMIENTO REAL, FORMULARIOS Y CATEGORÍAS EN GRID
 > **Meta de la Fase:** Eliminar el 100% de los mensajes "En Desarrollo" y conectar formularios reales de creación y edición.
 
-### 📍 Sub-fase 3.1: Eliminación Total de Placeholders y Grafo de Navegación Directo (Módulo 16)
-- **Archivos Objetivo:** `AndinaAppShell.kt`, `NavGraph.kt`.
+### 📍 Sub-fase 3.1: Eliminación Total de Placeholders y Grafo de Navegación Directo (Módulo 16) [COMPLETADA]
+- **Archivos Objetivo:** `AndinaAppShell.kt`, `AndinaDestinations.kt`, `UserProfileScreen.kt`, `BudgetScreen.kt`, `NotificationsScreen.kt`.
 - **Acciones Técnicas:**
   1. Eliminar Snacks/Toasts de *"Gestión en desarrollo"* o *"Fase 10"*.
-  2. Conectar el clic en Presupuesto -> `BudgetScreen`.
-  3. Conectar el clic en Patrimonio -> `WalletsScreen`.
-  4. Conectar el clic en Avatar -> `UserProfileScreen`.
+  2. Conectar el clic en Presupuesto -> `BudgetScreen` (`BudgetRoute`).
+  3. Conectar el clic en Patrimonio -> `WalletsScreen` / `WalletsRoute`.
+  4. Conectar el clic en Avatar -> `UserProfileScreen` (`UserProfileRoute`).
+  5. Conectar el clic en Notificaciones -> `NotificationsScreen` (`NotificationsRoute`).
 - **Criterio de Cierre Sub-fase 3.1:** Cero mensajes temporales al tocar contenedores en Inicio.
 
 ### 📍 Sub-fase 3.2: Formulario Funcional "Añadir / Editar Billetera" (Módulo 3)

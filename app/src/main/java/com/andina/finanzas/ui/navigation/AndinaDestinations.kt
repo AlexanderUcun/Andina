@@ -71,6 +71,24 @@ data object StatsRoute : AndinaDestination
 data object ConsultorioRoute : AndinaDestination
 
 /**
+ * Gestor de Presupuesto Mensual Adaptativo (Módulo 4).
+ */
+@Serializable
+data object BudgetRoute : AndinaDestination
+
+/**
+ * Perfil y Configuración del Usuario (Módulo 1).
+ */
+@Serializable
+data object UserProfileRoute : AndinaDestination
+
+/**
+ * Centro de Notificaciones y Alertas del Páramo (Módulo 5).
+ */
+@Serializable
+data object NotificationsRoute : AndinaDestination
+
+/**
  * Definición estructurada de las 4 pestañas de navegación inferior de Andina.
  *
  * Distribución simétrica aprobada:

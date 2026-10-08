@@ -143,6 +143,27 @@ class AndinaAppState(
     }
 
     /**
+     * Navega al Perfil y Configuración del Usuario (Módulo 1).
+     */
+    fun navigateToProfile() {
+        navController.navigate(UserProfileRoute)
+    }
+
+    /**
+     * Navega al Gestor de Presupuesto Mensual Adaptativo (Módulo 4).
+     */
+    fun navigateToBudget() {
+        navController.navigate(BudgetRoute)
+    }
+
+    /**
+     * Navega al Centro de Notificaciones y Alertas (Módulo 5).
+     */
+    fun navigateToNotifications() {
+        navController.navigate(NotificationsRoute)
+    }
+
+    /**
      * Retrocede en la pila de navegación de forma segura.
      */
     fun navigateUp() {
@@ -253,14 +274,14 @@ fun AndinaAppShell(
                 HomeScreen(
                     onNavigateToWallet = { appState.navigateToTab(AndinaNavTab.WALLETS) },
                     onNavigateToPocket = { appState.navigateToTab(AndinaNavTab.POCKETS) },
-                    onNavigateToTransaction = { appState.navigateToTab(AndinaNavTab.TRANSACTIONS) },
+                    onNavigateToTransaction = { id -> appState.navigateToTransactionDetail(id) },
                     onNavigateToWalletsTab = { appState.navigateToTab(AndinaNavTab.WALLETS) },
                     onNavigateToPocketsTab = { appState.navigateToTab(AndinaNavTab.POCKETS) },
                     onNavigateToTransactionsTab = { appState.navigateToTab(AndinaNavTab.TRANSACTIONS) },
                     onNavigateToRegister = { appState.navigateToRegister() },
-                    onNavigateToSettings = { appState.showSnackbar("Perfil y configuración en desarrollo") },
-                    onNavigateToBudgets = { appState.showSnackbar("Gestión de presupuestos en desarrollo") },
-                    onNavigateToNotifications = { appState.showSnackbar("Alertas del páramo al día") },
+                    onNavigateToSettings = { appState.navigateToProfile() },
+                    onNavigateToBudgets = { appState.navigateToBudget() },
+                    onNavigateToNotifications = { appState.navigateToNotifications() },
                     onNavigateToConsultorio = { appState.navigateToConsultorio() },
                     onShowSnackbar = { msg -> appState.showSnackbar(msg) }
                 )
@@ -281,7 +302,7 @@ fun AndinaAppShell(
                     icon = Icons.Default.AccountBalanceWallet,
                     accentColor = Color(0xFF845400),
                     actionText = "Añadir Billetera",
-                    onAction = { appState.showSnackbar("Gestión de billeteras disponible en Fase 10") }
+                    onAction = { appState.navigateToRegister() }
                 )
             }
 
@@ -328,14 +349,38 @@ fun AndinaAppShell(
                 )
             }
 
-            // Pantalla S19: El Consultorio Financiero de Muggy (Fase 11)
+            // Pantalla S19: El Consultorio Financiero de Muggy
             composable<ConsultorioRoute> {
                 com.andina.finanzas.ui.consultorio.ConsultorioScreen(
                     onNavigateBack = { appState.navigateUp() },
-                    onNavigateToRegister = { amount, merchant, wallet, category, isAnt ->
+                    onNavigateToRegister = { _, _, _, _, _ ->
                         appState.navigateToRegister()
                     },
                     onNavigateToPockets = { appState.navigateToTab(AndinaNavTab.POCKETS) }
+                )
+            }
+
+            // Pantalla de Perfil de Usuario (Módulo 1)
+            composable<UserProfileRoute> {
+                com.andina.finanzas.ui.profile.UserProfileScreen(
+                    onNavigateBack = { appState.navigateUp() },
+                    onShowSnackbar = { msg -> appState.showSnackbar(msg) }
+                )
+            }
+
+            // Pantalla de Presupuesto Mensual Adaptativo (Módulo 4)
+            composable<BudgetRoute> {
+                com.andina.finanzas.ui.budget.BudgetScreen(
+                    onNavigateBack = { appState.navigateUp() },
+                    onShowSnackbar = { msg -> appState.showSnackbar(msg) }
+                )
+            }
+
+            // Pantalla de Centro de Notificaciones y Alertas (Módulo 5)
+            composable<NotificationsRoute> {
+                com.andina.finanzas.ui.notifications.NotificationsScreen(
+                    onNavigateBack = { appState.navigateUp() },
+                    onShowSnackbar = { msg -> appState.showSnackbar(msg) }
                 )
             }
         }
