@@ -159,7 +159,7 @@
 ## 🚀 FASE 5: ECOSISTEMA AVANZADO (PRESUPUESTOS, RECURRENTES Y REPORTES)
 > **Meta de la Fase:** Implementar las herramientas avanzadas del ecosistema Andina.
 
-### 📍 Sub-fase 5.1: Gestor de Presupuesto Mensual Adaptativo (Módulo 4)
+### 📍 Sub-fase 5.1: Gestor de Presupuesto Mensual Adaptativo (Módulo 4) [COMPLETADA]
 - **Archivos:** `BudgetScreen.kt`, `BudgetViewModel.kt`. (Definición de tope global y por categoría con alertas al 75% y 90%).
 
 ### 📍 Sub-fase 5.2: Gastos e Ingresos Fijos Programables con Autorización (Módulo 8)

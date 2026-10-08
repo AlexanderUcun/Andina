@@ -2,6 +2,7 @@ package com.andina.finanzas.ui.budget
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -62,6 +63,13 @@ import com.andina.finanzas.ui.theme.AndeanPrimary
 import java.text.NumberFormat
 import java.util.Locale
 
+data class CategoryBudgetItem(
+    val name: String,
+    var spent: Long,
+    var limit: Long,
+    val color: Color
+)
+
 /**
  * Pantalla de Gestión de Presupuesto Mensual Adaptativo (Módulo 4).
  */
@@ -73,9 +81,25 @@ fun BudgetScreen(
     modifier: Modifier = Modifier
 ) {
     var monthlyBudgetLimit by remember { mutableLongStateOf(2_500_000L) }
-    val currentSpent = 1_420_000L
     var showEditBudgetDialog by remember { mutableStateOf(false) }
     var tempBudgetInput by remember { mutableStateOf("") }
+
+    var categoryList by remember {
+        mutableStateOf(
+            listOf(
+                CategoryBudgetItem("Alimentación & Mercado", 620_000L, 900_000L, Color(0xFFE57373)),
+                CategoryBudgetItem("Transporte & Movilidad", 280_000L, 400_000L, Color(0xFF64B5F6)),
+                CategoryBudgetItem("Servicios & Hogar", 350_000L, 500_000L, Color(0xFFFFB74D)),
+                CategoryBudgetItem("Ocio & Entretenimiento", 170_000L, 300_000L, Color(0xFF81C784)),
+                CategoryBudgetItem("Salud & Bienestar", 50_000L, 200_000L, Color(0xFFBA68C8))
+            )
+        )
+    }
+
+    var selectedCategoryForEdit by remember { mutableStateOf<CategoryBudgetItem?>(null) }
+    var tempCategoryLimitInput by remember { mutableStateOf("") }
+
+    val currentSpent = categoryList.sumOf { it.spent }
 
     val percentage = if (monthlyBudgetLimit > 0) {
         (currentSpent.toFloat() / monthlyBudgetLimit.toFloat()).coerceIn(0f, 1f)
@@ -192,7 +216,7 @@ fun BudgetScreen(
                     ) {
                         Column {
                             Text(
-                                text = "Gastado",
+                                text = "Gastado este mes",
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -215,45 +239,50 @@ fun BudgetScreen(
                             )
                         }
                     }
-
-                    // Alertas al 75% y 90%
-                    if (percentage >= 0.75f) {
-                        Spacer(modifier = Modifier.height(14.dp))
-                        Surface(
-                            shape = RoundedCornerShape(10.dp),
-                            color = progressColor.copy(alpha = 0.12f),
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Row(
-                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.Warning,
-                                    contentDescription = null,
-                                    tint = progressColor,
-                                    modifier = Modifier.size(18.dp)
-                                )
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Text(
-                                    text = if (percentage >= 0.90f) "¡Alerta! Has superado el 90% del presupuesto." else "Has alcanzado el 75% del presupuesto.",
-                                    style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.SemiBold),
-                                    color = progressColor
-                                )
-                            }
-                        }
-                    }
                 }
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
-            // 2. Desglose por Categorías
-            Text(
-                text = "Desglose por Categorías",
-                style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
-                color = MaterialTheme.colorScheme.onSurface
+            // 2. Diagnóstico Inteligente de Muggy
+            com.andina.finanzas.ui.components.muggy.MuggySpeechBubble(
+                title = when {
+                    percentage >= 0.90f -> "¡Cuidado con el caudal!"
+                    percentage >= 0.75f -> "Atención al consumo"
+                    else -> "Presupuesto Saludable"
+                },
+                greeting = "Ritmo del mes: ${(percentage * 100).toInt()}% ejecutado",
+                text = when {
+                    percentage >= 0.90f -> "Has consumido más del 90% de tu tope. Te sugiero posponer compras no esenciales para cerrar el mes en positivo."
+                    percentage >= 0.75f -> "Vas en el 75% del presupuesto asignado. Modera los gastos variables en las próximas semanas."
+                    else -> "Tu caudal fluye de manera controlada. Mantén este ritmo para asegurar tus metas de ahorro en los frailejones."
+                },
+                pose = when {
+                    percentage >= 0.90f -> com.andina.finanzas.ui.components.muggy.MuggyPose.REFLECTIVE
+                    percentage >= 0.75f -> com.andina.finanzas.ui.components.muggy.MuggyPose.OBSERVING
+                    else -> com.andina.finanzas.ui.components.muggy.MuggyPose.SERENE
+                }
             )
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            // 3. Desglose y Control por Categorías
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Topes por Categoría",
+                    style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Text(
+                    text = "Toca para editar",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
             Spacer(modifier = Modifier.height(10.dp))
 
             Card(
@@ -264,13 +293,21 @@ fun BudgetScreen(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
-                    BudgetCategoryRow(name = "Alimentación & Mercado", spent = 620_000L, limit = 900_000L, color = Color(0xFFE57373))
-                    HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp), thickness = 0.5.dp)
-                    BudgetCategoryRow(name = "Transporte & Movilidad", spent = 280_000L, limit = 400_000L, color = Color(0xFF64B5F6))
-                    HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp), thickness = 0.5.dp)
-                    BudgetCategoryRow(name = "Servicios & Hogar", spent = 350_000L, limit = 500_000L, color = Color(0xFFFFB74D))
-                    HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp), thickness = 0.5.dp)
-                    BudgetCategoryRow(name = "Ocio & Entretenimiento", spent = 170_000L, limit = 300_000L, color = Color(0xFF81C784))
+                    categoryList.forEachIndexed { index, item ->
+                        BudgetCategoryRow(
+                            name = item.name,
+                            spent = item.spent,
+                            limit = item.limit,
+                            color = item.color,
+                            onClick = {
+                                selectedCategoryForEdit = item
+                                tempCategoryLimitInput = item.limit.toString()
+                            }
+                        )
+                        if (index < categoryList.size - 1) {
+                            HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp), thickness = 0.5.dp)
+                        }
+                    }
                 }
             }
 
@@ -278,20 +315,20 @@ fun BudgetScreen(
         }
     }
 
-    // Modal para editar tope mensual
+    // Modal para editar tope mensual global
     if (showEditBudgetDialog) {
         AlertDialog(
             onDismissRequest = { showEditBudgetDialog = false },
             title = {
                 Text(
-                    text = "Ajustar Tope Mensual",
+                    text = "Ajustar Tope Mensual Global",
                     style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
                 )
             },
             text = {
                 Column(modifier = Modifier.fillMaxWidth()) {
                     Text(
-                        text = "Define el límite máximo de gasto que deseas mantener este mes:",
+                        text = "Define el límite máximo de gasto total para el mes actual (máx $99.999.999 COP):",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -299,7 +336,7 @@ fun BudgetScreen(
                     OutlinedTextField(
                         value = tempBudgetInput,
                         onValueChange = { tempBudgetInput = it.filter { ch -> ch.isDigit() }.take(8) },
-                        label = { Text("Tope en COP") },
+                        label = { Text("Tope Global COP") },
                         prefix = { Text("$ ") },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         singleLine = true,
@@ -315,7 +352,7 @@ fun BudgetScreen(
                         if (parsed != null && parsed > 0) {
                             monthlyBudgetLimit = parsed
                             showEditBudgetDialog = false
-                            onShowSnackbar("Presupuesto mensual actualizado a ${formatPesos(parsed)}")
+                            onShowSnackbar("Presupuesto global actualizado a ${formatPesos(parsed)}")
                         }
                     }
                 ) {
@@ -329,6 +366,61 @@ fun BudgetScreen(
             }
         )
     }
+
+    // Modal para editar tope de categoría individual
+    if (selectedCategoryForEdit != null) {
+        val cat = selectedCategoryForEdit!!
+        AlertDialog(
+            onDismissRequest = { selectedCategoryForEdit = null },
+            title = {
+                Text(
+                    text = "Tope para ${cat.name}",
+                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
+                )
+            },
+            text = {
+                Column(modifier = Modifier.fillMaxWidth()) {
+                    Text(
+                        text = "Actualmente has gastado ${formatPesos(cat.spent)}. Asigna un nuevo límite:",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+                    OutlinedTextField(
+                        value = tempCategoryLimitInput,
+                        onValueChange = { tempCategoryLimitInput = it.filter { ch -> ch.isDigit() }.take(8) },
+                        label = { Text("Límite en COP") },
+                        prefix = { Text("$ ") },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        singleLine = true,
+                        shape = RoundedCornerShape(12.dp),
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        val parsed = tempCategoryLimitInput.toLongOrNull()
+                        if (parsed != null && parsed > 0) {
+                            categoryList = categoryList.map {
+                                if (it.name == cat.name) it.copy(limit = parsed) else it
+                            }
+                            selectedCategoryForEdit = null
+                            onShowSnackbar("Límite de ${cat.name} ajustado a ${formatPesos(parsed)}")
+                        }
+                    }
+                ) {
+                    Text("Guardar", fontWeight = FontWeight.Bold, color = AndeanPrimary)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { selectedCategoryForEdit = null }) {
+                    Text("Cancelar")
+                }
+            }
+        )
+    }
 }
 
 @Composable
@@ -336,10 +428,17 @@ private fun BudgetCategoryRow(
     name: String,
     spent: Long,
     limit: Long,
-    color: Color
+    color: Color,
+    onClick: () -> Unit
 ) {
-    val progress = (spent.toFloat() / limit.toFloat()).coerceIn(0f, 1f)
-    Column(modifier = Modifier.fillMaxWidth()) {
+    val progress = if (limit > 0) (spent.toFloat() / limit.toFloat()).coerceIn(0f, 1f) else 0f
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(8.dp))
+            .clickable { onClick() }
+            .padding(vertical = 4.dp)
+    ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween
