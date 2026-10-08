@@ -321,6 +321,8 @@ private class FakeTransactionsFinanceRepository : FinanceRepository {
     override fun observePocket(id: Long): Flow<Pocket?> = flowOf(null)
     override suspend fun getPocketById(id: Long): Pocket? = null
     override suspend fun createPocket(pocket: Pocket): Long = 1L
+    override suspend fun updatePocket(pocket: Pocket) {}
+    override suspend fun archivePocket(id: Long) {}
     override suspend fun contributeToPocket(pocketId: Long, walletId: Long, amount: Money): Boolean = true
     override suspend fun withdrawFromPocket(pocketId: Long, walletId: Long, amount: Money): Boolean = true
 

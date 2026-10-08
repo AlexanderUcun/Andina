@@ -308,6 +308,19 @@ private class FakePocketsFinanceRepository : FinanceRepository {
         return newId
     }
 
+    override suspend fun updatePocket(pocket: Pocket) {
+        val currentPockets = pocketsFlow.value.toMutableList()
+        val index = currentPockets.indexOfFirst { it.id == pocket.id }
+        if (index >= 0) {
+            currentPockets[index] = pocket
+            pocketsFlow.value = currentPockets
+        }
+    }
+
+    override suspend fun archivePocket(id: Long) {
+        pocketsFlow.value = pocketsFlow.value.filterNot { it.id == id }
+    }
+
     override suspend fun contributeToPocket(pocketId: Long, walletId: Long, amount: Money): Boolean {
         val currentPockets = pocketsFlow.value.toMutableList()
         val pocketIndex = currentPockets.indexOfFirst { it.id == pocketId }

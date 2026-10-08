@@ -221,6 +221,14 @@ class FinanceRepositoryImpl @Inject constructor(
         return pocketDao.insertPocket(pocket.toEntity())
     }
 
+    override suspend fun updatePocket(pocket: Pocket) {
+        pocketDao.updatePocket(pocket.toEntity())
+    }
+
+    override suspend fun archivePocket(id: Long) {
+        pocketDao.archivePocket(id)
+    }
+
     override suspend fun contributeToPocket(pocketId: Long, walletId: Long, amount: Money): Boolean {
         ledgerDao.contributeToPocket(
             pocketId = pocketId,

@@ -51,6 +51,8 @@ interface FinanceRepository {
     fun observePocket(id: Long): Flow<Pocket?>
     suspend fun getPocketById(id: Long): Pocket?
     suspend fun createPocket(pocket: Pocket): Long
+    suspend fun updatePocket(pocket: Pocket)
+    suspend fun archivePocket(id: Long)
     suspend fun contributeToPocket(pocketId: Long, walletId: Long, amount: Money): Boolean
     suspend fun withdrawFromPocket(pocketId: Long, walletId: Long, amount: Money): Boolean
 
