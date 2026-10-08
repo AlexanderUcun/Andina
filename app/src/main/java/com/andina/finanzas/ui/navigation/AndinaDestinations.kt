@@ -89,6 +89,30 @@ data object UserProfileRoute : AndinaDestination
 data object NotificationsRoute : AndinaDestination
 
 /**
+ * Gestor de Gastos e Ingresos Fijos Programables (Módulo 8).
+ */
+@Serializable
+data object RecurringRoute : AndinaDestination
+
+/**
+ * Hub de Personalización Total del Ecosistema (Módulo 9).
+ */
+@Serializable
+data object CustomizationHubRoute : AndinaDestination
+
+/**
+ * Calendario Financiero Interactivo & Flujo de Caja (Módulo 10).
+ */
+@Serializable
+data object CalendarRoute : AndinaDestination
+
+/**
+ * Exportación de Reportes PDF/CSV y Respaldos Locales (Módulo 6).
+ */
+@Serializable
+data object ReportExportRoute : AndinaDestination
+
+/**
  * Definición estructurada de las 4 pestañas de navegación inferior de Andina.
  *
  * Distribución simétrica aprobada:

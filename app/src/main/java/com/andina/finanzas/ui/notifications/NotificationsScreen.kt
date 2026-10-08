@@ -1,6 +1,7 @@
 package com.andina.finanzas.ui.notifications
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -62,9 +63,18 @@ data class AndinaAlert(
 fun NotificationsScreen(
     onNavigateBack: () -> Unit,
     onShowSnackbar: (String) -> Unit,
+    onNavigateToRecurring: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val alerts = listOf(
+        AndinaAlert(
+            id = "0",
+            title = "🗓️ Confirmación de Quincena",
+            message = "¿Recibiste tu salario programado hoy? Toca para confirmar o editar antes de abonarlo.",
+            timeAgo = "Pendiente hoy",
+            icon = Icons.Default.Savings,
+            color = AndeanPrimary
+        ),
         AndinaAlert(
             id = "1",
             title = "Aviso de Presupuesto",
@@ -131,6 +141,54 @@ fun NotificationsScreen(
                 .padding(horizontal = 20.dp, vertical = 16.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
+            item {
+                Card(
+                    shape = RoundedCornerShape(16.dp),
+                    colors = CardDefaults.cardColors(containerColor = AndeanPrimary.copy(alpha = 0.12f)),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { onNavigateToRecurring() }
+                ) {
+                    Row(
+                        modifier = Modifier.padding(16.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.weight(1f)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Savings,
+                                contentDescription = null,
+                                tint = AndeanPrimary,
+                                modifier = Modifier.size(24.dp)
+                            )
+                            Spacer(modifier = Modifier.width(12.dp))
+                            Column {
+                                Text(
+                                    text = "Movimientos Fijos & Recurrentes",
+                                    fontSize = 14.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                                Text(
+                                    text = "Administrar pagos con confirmación a 1 tap",
+                                    fontSize = 12.sp,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                        }
+                        Text(
+                            text = "Ver",
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 13.sp,
+                            color = AndeanPrimary
+                        )
+                    }
+                }
+            }
+
             items(alerts, key = { it.id }) { alert ->
                 Card(
                     shape = RoundedCornerShape(16.dp),

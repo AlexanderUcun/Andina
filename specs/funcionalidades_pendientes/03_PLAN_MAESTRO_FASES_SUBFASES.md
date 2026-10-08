@@ -162,8 +162,8 @@
 ### 📍 Sub-fase 5.1: Gestor de Presupuesto Mensual Adaptativo (Módulo 4) [COMPLETADA]
 - **Archivos:** `BudgetScreen.kt`, `BudgetViewModel.kt`. (Definición de tope global y por categoría con alertas al 75% y 90%).
 
-### 📍 Sub-fase 5.2: Gastos e Ingresos Fijos Programables con Autorización (Módulo 8)
-- **Archivos:** `RecurringTransactionsManager.kt`. (Notificación flotante de confirmación quincenal con botón *"Editar Monto/Fecha"*).
+### 📍 Sub-fase 5.2: Gastos e Ingresos Fijos Programables con Autorización (Módulo 8) [COMPLETADA]
+- **Archivos:** `RecurringManagerScreen.kt`, `NotificationsScreen.kt`, `AndinaAppShell.kt`. (Confirmación a 1 tap, edición previa de monto/fecha y regla de cero abonos a ciegas).
 
 ### 📍 Sub-fase 5.3: Centro de Notificaciones, Hub de Personalización, Calendario y Exportación (Módulos 5, 9, 10 y 6)
 - **Archivos:** `NotificationsScreen.kt`, `CustomizationHubScreen.kt`, `CalendarScreen.kt`, `ReportExporter.kt` (Generación de PDF/CSV y Backup cifrado SQLite).

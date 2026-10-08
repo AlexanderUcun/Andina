@@ -164,6 +164,13 @@ class AndinaAppState(
     }
 
     /**
+     * Navega al Gestor de Movimientos Programables / Recurrentes (Módulo 8).
+     */
+    fun navigateToRecurring() {
+        navController.navigate(RecurringRoute)
+    }
+
+    /**
      * Retrocede en la pila de navegación de forma segura.
      */
     fun navigateUp() {
@@ -374,6 +381,15 @@ fun AndinaAppShell(
             // Pantalla de Centro de Notificaciones y Alertas (Módulo 5)
             composable<NotificationsRoute> {
                 com.andina.finanzas.ui.notifications.NotificationsScreen(
+                    onNavigateBack = { appState.navigateUp() },
+                    onShowSnackbar = { msg -> appState.showSnackbar(msg) },
+                    onNavigateToRecurring = { appState.navigateToRecurring() }
+                )
+            }
+
+            // Pantalla de Gastos e Ingresos Fijos Programables (Módulo 8)
+            composable<RecurringRoute> {
+                com.andina.finanzas.ui.recurring.RecurringTransactionsScreen(
                     onNavigateBack = { appState.navigateUp() },
                     onShowSnackbar = { msg -> appState.showSnackbar(msg) }
                 )
