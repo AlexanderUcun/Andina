@@ -26,17 +26,18 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -56,6 +57,7 @@ import com.andina.finanzas.ui.components.muggy.MuggyAvatar
 import com.andina.finanzas.ui.components.muggy.MuggyPose
 import com.andina.finanzas.ui.help.AntExpenseMirrorCard
 import com.andina.finanzas.ui.help.PocketSimulatorCard
+import com.andina.finanzas.ui.theme.AndeanPrimary
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -90,27 +92,27 @@ fun ConsultorioScreen(
 
     Scaffold(
         topBar = {
-            CenterAlignedTopAppBar(
+            androidx.compose.material3.TopAppBar(
                 title = {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Column {
                         Text(
                             text = "Consultorio de Muggy",
                             fontWeight = FontWeight.Bold,
                             fontSize = 18.sp,
-                            color = Color(0xFF1D1B19)
+                            color = MaterialTheme.colorScheme.onSurface
                         )
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Icon(
                                 imageVector = Icons.Default.Lock,
                                 contentDescription = null,
                                 modifier = Modifier.size(11.dp),
-                                tint = Color(0xFF435C3C)
+                                tint = AndeanPrimary
                             )
                             Spacer(modifier = Modifier.width(4.dp))
                             Text(
                                 text = "100% Offline · Local & Privado",
                                 fontSize = 11.sp,
-                                color = Color(0xFF435C3C),
+                                color = AndeanPrimary,
                                 fontWeight = FontWeight.SemiBold
                             )
                         }
@@ -120,17 +122,16 @@ fun ConsultorioScreen(
                     IconButton(onClick = onNavigateBack) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Regresar",
-                            tint = Color(0xFF1D1B19)
+                            contentDescription = "Regresar"
                         )
                     }
                 },
-                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                    containerColor = Color(0xFFF5F3EF)
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.surface
                 )
             )
         },
-        containerColor = Color(0xFFF5F3EF),
+        containerColor = MaterialTheme.colorScheme.background,
         modifier = modifier
     ) { innerPadding ->
         Column(
@@ -174,7 +175,7 @@ fun ConsultorioScreen(
                                     }
                                 },
                                 shape = RoundedCornerShape(12.dp),
-                                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF435C3C)),
+                                colors = ButtonDefaults.buttonColors(containerColor = AndeanPrimary),
                                 modifier = Modifier.fillMaxWidth()
                             ) {
                                 Text(diagnosis.insight.actionButtonText, fontSize = 13.sp, color = Color.White)
@@ -186,47 +187,55 @@ fun ConsultorioScreen(
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            // 3. Selector de Pestañas / Herramientas Interactivas
-            Row(
+            // 3. Selector de Pestañas / Herramientas Interactivas (LazyRow horizontal anti-colapso)
+            androidx.compose.foundation.lazy.LazyRow(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 modifier = Modifier.fillMaxWidth()
             ) {
-                FilterChip(
-                    selected = uiState.selectedTab == ConsultorioTab.DIAGNOSTICO,
-                    onClick = { viewModel.onEvent(ConsultorioEvent.SelectTab(ConsultorioTab.DIAGNOSTICO)) },
-                    label = { Text("Resumen", fontSize = 12.sp) },
-                    colors = FilterChipDefaults.filterChipColors(
-                        selectedContainerColor = Color(0xFF435C3C),
-                        selectedLabelColor = Color.White
+                item {
+                    FilterChip(
+                        selected = uiState.selectedTab == ConsultorioTab.DIAGNOSTICO,
+                        onClick = { viewModel.onEvent(ConsultorioEvent.SelectTab(ConsultorioTab.DIAGNOSTICO)) },
+                        label = { Text("Resumen", fontSize = 12.sp, maxLines = 1) },
+                        colors = FilterChipDefaults.filterChipColors(
+                            selectedContainerColor = AndeanPrimary,
+                            selectedLabelColor = Color.White
+                        )
                     )
-                )
-                FilterChip(
-                    selected = uiState.selectedTab == ConsultorioTab.ESPEJO_HORMIGA,
-                    onClick = { viewModel.onEvent(ConsultorioEvent.SelectTab(ConsultorioTab.ESPEJO_HORMIGA)) },
-                    label = { Text("🐜 Hormiga", fontSize = 12.sp) },
-                    colors = FilterChipDefaults.filterChipColors(
-                        selectedContainerColor = Color(0xFF435C3C),
-                        selectedLabelColor = Color.White
+                }
+                item {
+                    FilterChip(
+                        selected = uiState.selectedTab == ConsultorioTab.ESPEJO_HORMIGA,
+                        onClick = { viewModel.onEvent(ConsultorioEvent.SelectTab(ConsultorioTab.ESPEJO_HORMIGA)) },
+                        label = { Text("🐜 Hormiga", fontSize = 12.sp, maxLines = 1) },
+                        colors = FilterChipDefaults.filterChipColors(
+                            selectedContainerColor = AndeanPrimary,
+                            selectedLabelColor = Color.White
+                        )
                     )
-                )
-                FilterChip(
-                    selected = uiState.selectedTab == ConsultorioTab.SIMULADOR_BOLSILLO,
-                    onClick = { viewModel.onEvent(ConsultorioEvent.SelectTab(ConsultorioTab.SIMULADOR_BOLSILLO)) },
-                    label = { Text("🌱 Simulador", fontSize = 12.sp) },
-                    colors = FilterChipDefaults.filterChipColors(
-                        selectedContainerColor = Color(0xFF435C3C),
-                        selectedLabelColor = Color.White
+                }
+                item {
+                    FilterChip(
+                        selected = uiState.selectedTab == ConsultorioTab.SIMULADOR_BOLSILLO,
+                        onClick = { viewModel.onEvent(ConsultorioEvent.SelectTab(ConsultorioTab.SIMULADOR_BOLSILLO)) },
+                        label = { Text("🌱 Simulador", fontSize = 12.sp, maxLines = 1) },
+                        colors = FilterChipDefaults.filterChipColors(
+                            selectedContainerColor = AndeanPrimary,
+                            selectedLabelColor = Color.White
+                        )
                     )
-                )
-                FilterChip(
-                    selected = uiState.selectedTab == ConsultorioTab.SMS_PARSER,
-                    onClick = { viewModel.onEvent(ConsultorioEvent.SelectTab(ConsultorioTab.SMS_PARSER)) },
-                    label = { Text("📩 SMS", fontSize = 12.sp) },
-                    colors = FilterChipDefaults.filterChipColors(
-                        selectedContainerColor = Color(0xFF435C3C),
-                        selectedLabelColor = Color.White
+                }
+                item {
+                    FilterChip(
+                        selected = uiState.selectedTab == ConsultorioTab.SMS_PARSER,
+                        onClick = { viewModel.onEvent(ConsultorioEvent.SelectTab(ConsultorioTab.SMS_PARSER)) },
+                        label = { Text("📩 SMS", fontSize = 12.sp, maxLines = 1) },
+                        colors = FilterChipDefaults.filterChipColors(
+                            selectedContainerColor = AndeanPrimary,
+                            selectedLabelColor = Color.White
+                        )
                     )
-                )
+                }
             }
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -291,8 +300,8 @@ private fun HeroConsultorioCard(
 
     Card(
         shape = RoundedCornerShape(26.dp),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFFFAF8F5)),
-        elevation = CardDefaults.cardElevation(defaultElevation = 3.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
         modifier = Modifier.fillMaxWidth()
     ) {
         Row(
@@ -303,14 +312,14 @@ private fun HeroConsultorioCard(
             Box(
                 contentAlignment = Alignment.Center,
                 modifier = Modifier
-                    .size(80.dp)
+                    .size(76.dp)
                     .clip(CircleShape)
                     .background(levelColor.copy(alpha = 0.14f))
             ) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Text(
                         text = "$score",
-                        fontSize = 28.sp,
+                        fontSize = 26.sp,
                         fontWeight = FontWeight.ExtraBold,
                         color = levelColor
                     )
@@ -346,21 +355,17 @@ private fun HeroConsultorioCard(
                     text = "$oxygenDays Días de Autonomía Financiera 🛡️",
                     fontSize = 15.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color(0xFF1D1B19)
+                    color = MaterialTheme.colorScheme.onSurface
                 )
+
+                Spacer(modifier = Modifier.height(2.dp))
 
                 Text(
-                    text = "Gasto diario: ~${Money(dailyBurnRate).formatCop()}",
+                    text = "Gasto diario estimado: ~${Money(dailyBurnRate).formatCop()}",
                     fontSize = 12.sp,
-                    color = Color(0xFF6B655D)
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
-
-            MuggyAvatar(
-                size = 64.dp,
-                pose = pose,
-                isInteractive = true
-            )
         }
     }
 }

@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -20,16 +19,16 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.AutoAwesome
 import androidx.compose.material.icons.filled.CalendarMonth
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.Description
-import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Palette
-import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Payments
 import androidx.compose.material.icons.filled.Shield
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -59,12 +58,15 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.andina.finanzas.ui.components.AndinaButton
 import com.andina.finanzas.ui.theme.AndinaMossGreen
 import com.andina.finanzas.ui.theme.AndeanPrimary
 
 /**
  * Pantalla de Perfil de Usuario y Preferencias del Páramo (Módulo 1).
+ * Conectada al UserProfileRepository reactivo y persistido.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -74,20 +76,14 @@ fun UserProfileScreen(
     onNavigateToCustomization: () -> Unit = {},
     onNavigateToCalendar: () -> Unit = {},
     onNavigateToReportExport: () -> Unit = {},
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    viewModel: UserProfileViewModel = hiltViewModel()
 ) {
-    var userName by remember { mutableStateOf("Viajero del Páramo") }
-    var userNickname by remember { mutableStateOf("Guardián del Frailejón") }
-    var selectedAvatarIndex by remember { mutableStateOf(0) }
-    var isBiometricEnabled by remember { mutableStateOf(true) }
-    var isPrivacyByDefault by remember { mutableStateOf(false) }
+    val userProfile by viewModel.userProfile.collectAsStateWithLifecycle()
 
     var showEditNameDialog by remember { mutableStateOf(false) }
     var tempNameInput by remember { mutableStateOf("") }
     var tempNicknameInput by remember { mutableStateOf("") }
-
-    var isHighPerformanceMode by remember { mutableStateOf(true) }
-    var currencyFormat by remember { mutableStateOf("COP ($)") }
 
     val avatarList = listOf(
         Pair("🐻", "Muggy"),
@@ -99,7 +95,7 @@ fun UserProfileScreen(
     )
 
     val nicknamePresets = listOf(
-        "Guardián del Páramo",
+        "Guardián del Frailejón",
         "Frailejón Mayor",
         "Explorador Andino",
         "Caminante de Niebla"
@@ -160,7 +156,7 @@ fun UserProfileScreen(
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            text = avatarList[selectedAvatarIndex].first,
+                            text = userProfile.avatarEmoji,
                             fontSize = 42.sp
                         )
                     }
@@ -168,7 +164,7 @@ fun UserProfileScreen(
                     Spacer(modifier = Modifier.height(14.dp))
 
                     Text(
-                        text = userName,
+                        text = userProfile.name,
                         style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
                         color = MaterialTheme.colorScheme.onSurface
                     )
@@ -180,7 +176,7 @@ fun UserProfileScreen(
                         color = AndinaMossGreen.copy(alpha = 0.15f)
                     ) {
                         Text(
-                            text = userNickname,
+                            text = userProfile.nickname,
                             style = MaterialTheme.typography.labelMedium.copy(
                                 fontWeight = FontWeight.SemiBold,
                                 color = AndeanPrimary
@@ -202,15 +198,18 @@ fun UserProfileScreen(
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        avatarList.forEachIndexed { index, (avatar, label) ->
-                            val isSelected = index == selectedAvatarIndex
+                        avatarList.forEach { (avatar, label) ->
+                            val isSelected = avatar == userProfile.avatarEmoji
                             Surface(
                                 shape = CircleShape,
                                 color = if (isSelected) AndeanPrimary.copy(alpha = 0.25f) else MaterialTheme.colorScheme.surface,
                                 modifier = Modifier
                                     .size(44.dp)
                                     .clip(CircleShape)
-                                    .clickable { selectedAvatarIndex = index }
+                                    .clickable {
+                                        viewModel.updateAvatar(avatar, label)
+                                        onShowSnackbar("Avatar actualizado a $label")
+                                    }
                             ) {
                                 Box(contentAlignment = Alignment.Center) {
                                     Text(text = avatar, fontSize = 22.sp)
@@ -224,8 +223,8 @@ fun UserProfileScreen(
                     AndinaButton(
                         text = "Editar Nombre y Apodo",
                         onClick = {
-                            tempNameInput = userName
-                            tempNicknameInput = userNickname
+                            tempNameInput = userProfile.name
+                            tempNicknameInput = userProfile.nickname
                             showEditNameDialog = true
                         },
                         modifier = Modifier.fillMaxWidth()
@@ -252,7 +251,7 @@ fun UserProfileScreen(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
-                    // Formato Moneda
+                    // Formato Moneda con icono de pagos
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically,
@@ -260,7 +259,7 @@ fun UserProfileScreen(
                     ) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Icon(
-                                imageVector = Icons.Default.Palette,
+                                imageVector = Icons.Default.Payments,
                                 contentDescription = null,
                                 tint = AndeanPrimary,
                                 modifier = Modifier.size(22.dp)
@@ -280,21 +279,26 @@ fun UserProfileScreen(
                             }
                         }
                         Text(
-                            text = currencyFormat,
+                            text = userProfile.currencyFormat,
                             style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold, color = AndeanPrimary)
                         )
                     }
 
                     HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp), thickness = 0.5.dp)
 
-                    // Switch Alto Rendimiento
+                    // Switch Alto Rendimiento con icono de destellos AutoAwesome
                     PreferenceSwitchRow(
-                        icon = Icons.Default.DarkMode,
+                        icon = Icons.Default.AutoAwesome,
                         title = "Modo Gráficos 4K",
                         subtitle = "Animaciones botánicas y efectos de páramo vivos",
-                        checked = isHighPerformanceMode,
+                        checked = userProfile.isHighPerformanceMode,
                         onCheckedChange = {
-                            isHighPerformanceMode = it
+                            viewModel.updatePreferences(
+                                isBiometric = userProfile.isBiometricEnabled,
+                                isPrivacyDefault = userProfile.isPrivacyByDefault,
+                                isHighPerformance = it,
+                                currencyFormat = userProfile.currencyFormat
+                            )
                             onShowSnackbar(if (it) "Modo 4K Completo activado" else "Modo ahorro de batería activado")
                         }
                     )
@@ -325,9 +329,14 @@ fun UserProfileScreen(
                         icon = Icons.Default.Lock,
                         title = "Bloqueo Biométrico",
                         subtitle = "Solicitar huella o rostro al abrir la app",
-                        checked = isBiometricEnabled,
+                        checked = userProfile.isBiometricEnabled,
                         onCheckedChange = {
-                            isBiometricEnabled = it
+                            viewModel.updatePreferences(
+                                isBiometric = it,
+                                isPrivacyDefault = userProfile.isPrivacyByDefault,
+                                isHighPerformance = userProfile.isHighPerformanceMode,
+                                currencyFormat = userProfile.currencyFormat
+                            )
                             onShowSnackbar(if (it) "Seguridad biométrica activada" else "Seguridad biométrica desactivada")
                         }
                     )
@@ -339,9 +348,14 @@ fun UserProfileScreen(
                         icon = Icons.Default.Shield,
                         title = "Modo Oculto por Defecto",
                         subtitle = "Ocultar saldos automáticamente al iniciar",
-                        checked = isPrivacyByDefault,
+                        checked = userProfile.isPrivacyByDefault,
                         onCheckedChange = {
-                            isPrivacyByDefault = it
+                            viewModel.updatePreferences(
+                                isBiometric = userProfile.isBiometricEnabled,
+                                isPrivacyDefault = it,
+                                isHighPerformance = userProfile.isHighPerformanceMode,
+                                currencyFormat = userProfile.currencyFormat
+                            )
                             onShowSnackbar(if (it) "Modo incógnito activado por defecto" else "Saldos visibles al iniciar")
                         }
                     )
@@ -486,22 +500,25 @@ fun UserProfileScreen(
                 }
             },
             confirmButton = {
-                TextButton(
+                Button(
                     onClick = {
                         if (tempNameInput.isNotBlank()) {
-                            userName = tempNameInput.trim()
-                            userNickname = tempNicknameInput.trim().ifEmpty { "Guardián del Páramo" }
+                            val newName = tempNameInput.trim()
+                            val newNickname = tempNicknameInput.trim().ifEmpty { "Guardián del Frailejón" }
+                            viewModel.updateIdentity(newName, newNickname)
                             showEditNameDialog = false
                             onShowSnackbar("Perfil actualizado con éxito")
                         }
-                    }
+                    },
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = AndeanPrimary)
                 ) {
-                    Text("Guardar", fontWeight = FontWeight.Bold, color = AndeanPrimary)
+                    Text("Guardar", fontWeight = FontWeight.Bold)
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showEditNameDialog = false }) {
-                    Text("Cancelar")
+                    Text("Cancelar", color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
         )

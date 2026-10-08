@@ -84,8 +84,8 @@ fun CategoryChipsSelector(
         ) {
             items(categories, key = { it.id }) { category ->
                 val isSelected = category.id == selectedCategoryId
-                val categoryColor = parseCategoryColor(category.colorHex)
-                val icon = getCategoryIcon(category.icon)
+                val categoryColor = com.andina.finanzas.ui.components.CategoryIconHelper.parseColor(category.colorHex)
+                val icon = com.andina.finanzas.ui.components.CategoryIconHelper.getIcon(category.icon)
 
                 val chipBg = if (isSelected) {
                     if (isDark) categoryColor.copy(alpha = 0.32f) else categoryColor.copy(alpha = 0.14f)
@@ -143,25 +143,5 @@ fun CategoryChipsSelector(
                 }
             }
         }
-    }
-}
-
-private fun parseCategoryColor(hex: String): Color {
-    return runCatching {
-        val clean = hex.removePrefix("#")
-        Color(android.graphics.Color.parseColor("#$clean"))
-    }.getOrDefault(Color(0xFF4A6B47))
-}
-
-private fun getCategoryIcon(iconName: String): ImageVector {
-    return when (iconName.lowercase()) {
-        "restaurant", "fastfood", "food" -> Icons.Default.Fastfood
-        "directions_bus", "transport" -> Icons.Default.DirectionsBus
-        "receipt", "bill", "services" -> Icons.Default.Receipt
-        "shopping_bag", "shop" -> Icons.Default.ShoppingBag
-        "local_hospital", "health" -> Icons.Default.LocalHospital
-        "school", "education" -> Icons.Default.School
-        "local_atm", "salary", "income" -> Icons.Default.LocalAtm
-        else -> Icons.Default.Category
     }
 }

@@ -62,6 +62,9 @@ class RegisterViewModel @Inject constructor(
     private val initialWalletId: Long? = savedStateHandle.get<Long>("preselectedWalletId")
         ?: savedStateHandle.get<Long>(KEY_WALLET_ID)
 
+    // Cache de todas las categorías recibidas del repositorio para permitir cambio reactivo entre tipos
+    private var allCategoriesCache: List<Category> = emptyList()
+
     private val _state = MutableStateFlow(
         RegisterUiState(
             type = initialType,
@@ -92,13 +95,18 @@ class RegisterViewModel @Inject constructor(
             ) { walletsList, categoriesList ->
                 Pair(walletsList, categoriesList)
             }.collectLatest { (walletsList, categoriesList) ->
+                allCategoriesCache = categoriesList
                 _state.update { current ->
                     val resolvedWalletId = current.walletId ?: walletsList.firstOrNull()?.id
                     val selectedWallet = walletsList.find { it.id == resolvedWalletId }
                     val toWallet = walletsList.find { it.id == current.toWalletId }
 
                     val filteredCategories = filterCategoriesForType(categoriesList, current.type)
-                    val resolvedCategoryId = current.categoryId ?: filteredCategories.firstOrNull()?.id
+                    val resolvedCategoryId = if (current.categoryId != null && filteredCategories.any { it.id == current.categoryId }) {
+                        current.categoryId
+                    } else {
+                        filteredCategories.firstOrNull()?.id
+                    }
                     val selectedCategory = filteredCategories.find { it.id == resolvedCategoryId }
 
                     current.copy(
@@ -164,12 +172,19 @@ class RegisterViewModel @Inject constructor(
     private fun handleTypeChanged(newType: TransactionType) {
         savedStateHandle[KEY_TYPE] = newType.name
         _state.update { current ->
-            val filtered = filterCategoriesForType(current.categories, newType)
-            val newCategoryId = if (newType == TransactionType.TRANSFERENCIA) null else filtered.firstOrNull()?.id
+            val filtered = filterCategoriesForType(allCategoriesCache, newType)
+            val newCategoryId = if (newType == TransactionType.TRANSFERENCIA) {
+                null
+            } else if (current.categoryId != null && filtered.any { it.id == current.categoryId }) {
+                current.categoryId
+            } else {
+                filtered.firstOrNull()?.id
+            }
             val newCategory = filtered.find { it.id == newCategoryId }
 
             current.copy(
                 type = newType,
+                categories = filtered,
                 categoryId = newCategoryId,
                 selectedCategory = newCategory,
                 isAntCandidate = newCategory?.isAntCandidate ?: false
@@ -185,6 +200,9 @@ class RegisterViewModel @Inject constructor(
         if (currentDigits.isEmpty() && digit == '0') return
         if (currentDigits.length >= MAX_DIGITS_LENGTH) return
 
+        val potentialAmount = (currentDigits + digit).toLongOrNull() ?: 0L
+        if (potentialAmount > MAX_AMOUNT_COP) return
+
         val newDigits = currentDigits + digit
         savedStateHandle[KEY_AMOUNT_DIGITS] = newDigits
 
@@ -199,7 +217,12 @@ class RegisterViewModel @Inject constructor(
 
     private fun handleAmountDigitsChanged(digits: String) {
         val cleanDigits = digits.filter { it.isDigit() }.take(MAX_DIGITS_LENGTH)
-        val finalDigits = cleanDigits.trimStart('0')
+        val num = cleanDigits.toLongOrNull() ?: 0L
+        val finalDigits = if (num > MAX_AMOUNT_COP) {
+            MAX_AMOUNT_COP.toString()
+        } else {
+            cleanDigits.trimStart('0')
+        }
         savedStateHandle[KEY_AMOUNT_DIGITS] = finalDigits
         _state.update {
             it.copy(

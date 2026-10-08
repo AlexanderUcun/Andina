@@ -24,7 +24,7 @@ val AndeanSurface = Color(0xFFFFF8F4)
 val AndeanOnSurface = Color(0xFF1D1B19) // Carbón Mineral
 val AndeanSurfaceContainer = Color(0xFFF3EDE9)
 val AndeanSurfaceContainerHigh = Color(0xFFEDE7E3)
-val AndeanOnSurfaceVariant = Color(0xFF434840) // Tinta Atenuada
+val AndeanOnSurfaceVariant = Color(0xFF383E35) // Tinta Atenuada Alto Contraste (WCAG AA)
 
 // Bordes y Delineados
 val AndeanOutline = Color(0xFF74796F)

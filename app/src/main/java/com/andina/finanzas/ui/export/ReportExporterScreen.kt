@@ -183,6 +183,7 @@ fun ReportExporterScreen(
                         title = "Restaurar Copia de Seguridad",
                         subtitle = "Importa un archivo .andina desde tu almacenamiento",
                         buttonText = "Restaurar",
+                        isOutlined = true,
                         onClick = { showRestorePinDialog = true }
                     )
                 }
@@ -223,7 +224,7 @@ fun ReportExporterScreen(
                 }
             },
             confirmButton = {
-                TextButton(
+                Button(
                     onClick = {
                         if (backupPinInput.length >= 4) {
                             showBackupPinDialog = false
@@ -232,9 +233,11 @@ fun ReportExporterScreen(
                         } else {
                             onShowSnackbar("El PIN debe tener al menos 4 dígitos")
                         }
-                    }
+                    },
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = AndeanPrimary)
                 ) {
-                    Text("Cifrar y Guardar", fontWeight = FontWeight.Bold, color = AndeanPrimary)
+                    Text("Cifrar y Guardar", fontWeight = FontWeight.Bold)
                 }
             },
             dismissButton = {
@@ -245,20 +248,26 @@ fun ReportExporterScreen(
         )
     }
 
-    // Modal Restaurar Backup
+    // Modal Restaurar Backup (con advertencia de sobrescritura de datos)
     if (showRestorePinDialog) {
         AlertDialog(
             onDismissRequest = { showRestorePinDialog = false },
             title = {
                 Text(
-                    text = "Descifrar Copia de Seguridad",
+                    text = "Restaurar Base de Datos",
                     style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
                 )
             },
             text = {
                 Column(modifier = Modifier.fillMaxWidth()) {
                     Text(
-                        text = "Ingresa el PIN con el que creaste el archivo .andina para restaurar el libro mayor:",
+                        text = "⚠️ Advertencia: Esta acción reemplazará todos los movimientos y billeteras actuales con los del archivo de respaldo.",
+                        style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.SemiBold),
+                        color = Color(0xFFBA1A1A)
+                    )
+                    Spacer(modifier = Modifier.height(10.dp))
+                    Text(
+                        text = "Ingresa el PIN de 4 a 6 dígitos del archivo .andina para continuar:",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -276,16 +285,17 @@ fun ReportExporterScreen(
                 }
             },
             confirmButton = {
-                TextButton(
+                OutlinedButton(
                     onClick = {
                         if (restorePinInput.isNotBlank()) {
                             showRestorePinDialog = false
                             restorePinInput = ""
                             onShowSnackbar("✅ ¡Base de datos restaurada con éxito!")
                         }
-                    }
+                    },
+                    shape = RoundedCornerShape(12.dp)
                 ) {
-                    Text("Descifrar", fontWeight = FontWeight.Bold, color = AndeanPrimary)
+                    Text("Sobrescribir y Restaurar", fontWeight = FontWeight.Bold, color = Color(0xFFBA1A1A))
                 }
             },
             dismissButton = {
@@ -304,6 +314,7 @@ private fun ExportActionRow(
     title: String,
     subtitle: String,
     buttonText: String,
+    isOutlined: Boolean = false,
     onClick: () -> Unit
 ) {
     Row(
@@ -344,12 +355,21 @@ private fun ExportActionRow(
             }
         }
         Spacer(modifier = Modifier.width(8.dp))
-        Button(
-            onClick = onClick,
-            shape = RoundedCornerShape(10.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = AndeanPrimary)
-        ) {
-            Text(buttonText, fontSize = 12.sp, color = Color.White)
+        if (isOutlined) {
+            OutlinedButton(
+                onClick = onClick,
+                shape = RoundedCornerShape(10.dp)
+            ) {
+                Text(buttonText, fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface)
+            }
+        } else {
+            Button(
+                onClick = onClick,
+                shape = RoundedCornerShape(10.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = AndeanPrimary)
+            ) {
+                Text(buttonText, fontSize = 12.sp, color = Color.White)
+            }
         }
     }
 }

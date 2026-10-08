@@ -21,10 +21,8 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.PieChart
-import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -43,7 +41,6 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -56,56 +53,38 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.andina.finanzas.ui.components.AndinaButton
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.andina.finanzas.ui.components.CategoryIconHelper
+import com.andina.finanzas.ui.components.muggy.MuggyPose
+import com.andina.finanzas.ui.components.muggy.MuggySpeechBubble
 import com.andina.finanzas.ui.theme.AndeanAntExpenseAmber
 import com.andina.finanzas.ui.theme.AndeanError
 import com.andina.finanzas.ui.theme.AndeanPrimary
 import java.text.NumberFormat
 import java.util.Locale
 
-data class CategoryBudgetItem(
-    val name: String,
-    var spent: Long,
-    var limit: Long,
-    val color: Color
-)
-
 /**
  * Pantalla de Gestión de Presupuesto Mensual Adaptativo (Módulo 4).
+ * Conectada 100% a la base de datos Room y al perfil persistido del usuario.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BudgetScreen(
     onNavigateBack: () -> Unit,
     onShowSnackbar: (String) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    viewModel: BudgetViewModel = hiltViewModel()
 ) {
-    var monthlyBudgetLimit by remember { mutableLongStateOf(2_500_000L) }
+    val state by viewModel.state.collectAsStateWithLifecycle()
+
     var showEditBudgetDialog by remember { mutableStateOf(false) }
     var tempBudgetInput by remember { mutableStateOf("") }
-
-    var categoryList by remember {
-        mutableStateOf(
-            listOf(
-                CategoryBudgetItem("Alimentación & Mercado", 620_000L, 900_000L, Color(0xFFE57373)),
-                CategoryBudgetItem("Transporte & Movilidad", 280_000L, 400_000L, Color(0xFF64B5F6)),
-                CategoryBudgetItem("Servicios & Hogar", 350_000L, 500_000L, Color(0xFFFFB74D)),
-                CategoryBudgetItem("Ocio & Entretenimiento", 170_000L, 300_000L, Color(0xFF81C784)),
-                CategoryBudgetItem("Salud & Bienestar", 50_000L, 200_000L, Color(0xFFBA68C8))
-            )
-        )
-    }
 
     var selectedCategoryForEdit by remember { mutableStateOf<CategoryBudgetItem?>(null) }
     var tempCategoryLimitInput by remember { mutableStateOf("") }
 
-    val currentSpent = categoryList.sumOf { it.spent }
-
-    val percentage = if (monthlyBudgetLimit > 0) {
-        (currentSpent.toFloat() / monthlyBudgetLimit.toFloat()).coerceIn(0f, 1f)
-    } else 0f
-
-    val remaining = (monthlyBudgetLimit - currentSpent).coerceAtLeast(0L)
+    val percentage = state.progress
     val animatedProgress by animateFloatAsState(targetValue = percentage, label = "budgetProgress")
 
     val progressColor = when {
@@ -167,7 +146,7 @@ fun BudgetScreen(
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                             Text(
-                                text = formatPesos(monthlyBudgetLimit),
+                                text = formatPesos(state.monthlyBudgetLimit),
                                 style = MaterialTheme.typography.headlineMedium.copy(
                                     fontWeight = FontWeight.ExtraBold,
                                     fontSize = 26.sp
@@ -177,7 +156,7 @@ fun BudgetScreen(
                         }
                         IconButton(
                             onClick = {
-                                tempBudgetInput = monthlyBudgetLimit.toString()
+                                tempBudgetInput = state.monthlyBudgetLimit.toString()
                                 showEditBudgetDialog = true
                             },
                             modifier = Modifier
@@ -221,7 +200,7 @@ fun BudgetScreen(
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                             Text(
-                                text = formatPesos(currentSpent),
+                                text = formatPesos(state.totalExecutedSpent),
                                 style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
                                 color = MaterialTheme.colorScheme.onSurface
                             )
@@ -233,7 +212,7 @@ fun BudgetScreen(
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                             Text(
-                                text = formatPesos(remaining),
+                                text = formatPesos(state.remainingBudget),
                                 style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
                                 color = progressColor
                             )
@@ -242,10 +221,38 @@ fun BudgetScreen(
                 }
             }
 
+            // Indicador de Saldo sin asignar a categorías
+            if (state.unallocatedBudget > 0L) {
+                Spacer(modifier = Modifier.height(12.dp))
+                Surface(
+                    shape = RoundedCornerShape(12.dp),
+                    color = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.35f),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Row(
+                        modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Info,
+                            contentDescription = null,
+                            tint = AndeanPrimary,
+                            modifier = Modifier.size(18.dp)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = "Saldo sin asignar a categorías: ${formatPesos(state.unallocatedBudget)}",
+                            style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.SemiBold),
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                    }
+                }
+            }
+
             Spacer(modifier = Modifier.height(16.dp))
 
             // 2. Diagnóstico Inteligente de Muggy
-            com.andina.finanzas.ui.components.muggy.MuggySpeechBubble(
+            MuggySpeechBubble(
                 title = when {
                     percentage >= 0.90f -> "¡Cuidado con el caudal!"
                     percentage >= 0.75f -> "Atención al consumo"
@@ -254,19 +261,19 @@ fun BudgetScreen(
                 greeting = "Ritmo del mes: ${(percentage * 100).toInt()}% ejecutado",
                 text = when {
                     percentage >= 0.90f -> "Has consumido más del 90% de tu tope. Te sugiero posponer compras no esenciales para cerrar el mes en positivo."
-                    percentage >= 0.75f -> "Vas en el 75% del presupuesto asignado. Modera los gastos variables en las próximas semanas."
-                    else -> "Tu caudal fluye de manera controlada. Mantén este ritmo para asegurar tus metas de ahorro en los frailejones."
+                    percentage >= 0.75f -> "Vas en el ${(percentage * 100).toInt()}% del presupuesto asignado. Modera los gastos variables en las próximas semanas."
+                    else -> "Tu caudal fluye de manera controlada sobre la base de datos real. Mantén este ritmo para asegurar tus metas de ahorro."
                 },
                 pose = when {
-                    percentage >= 0.90f -> com.andina.finanzas.ui.components.muggy.MuggyPose.REFLECTIVE
-                    percentage >= 0.75f -> com.andina.finanzas.ui.components.muggy.MuggyPose.OBSERVING
-                    else -> com.andina.finanzas.ui.components.muggy.MuggyPose.SERENE
+                    percentage >= 0.90f -> MuggyPose.REFLECTIVE
+                    percentage >= 0.75f -> MuggyPose.OBSERVING
+                    else -> MuggyPose.SERENE
                 }
             )
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            // 3. Desglose y Control por Categorías
+            // 3. Desglose y Control por Categorías desde Room
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -293,18 +300,19 @@ fun BudgetScreen(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
-                    categoryList.forEachIndexed { index, item ->
+                    state.categories.forEachIndexed { index, item ->
                         BudgetCategoryRow(
                             name = item.name,
+                            icon = item.icon,
+                            colorHex = item.colorHex,
                             spent = item.spent,
                             limit = item.limit,
-                            color = item.color,
                             onClick = {
                                 selectedCategoryForEdit = item
                                 tempCategoryLimitInput = item.limit.toString()
                             }
                         )
-                        if (index < categoryList.size - 1) {
+                        if (index < state.categories.size - 1) {
                             HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp), thickness = 0.5.dp)
                         }
                     }
@@ -350,7 +358,7 @@ fun BudgetScreen(
                     onClick = {
                         val parsed = tempBudgetInput.toLongOrNull()
                         if (parsed != null && parsed > 0) {
-                            monthlyBudgetLimit = parsed
+                            viewModel.updateMonthlyBudget(parsed)
                             showEditBudgetDialog = false
                             onShowSnackbar("Presupuesto global actualizado a ${formatPesos(parsed)}")
                         }
@@ -402,10 +410,8 @@ fun BudgetScreen(
                 TextButton(
                     onClick = {
                         val parsed = tempCategoryLimitInput.toLongOrNull()
-                        if (parsed != null && parsed > 0) {
-                            categoryList = categoryList.map {
-                                if (it.name == cat.name) it.copy(limit = parsed) else it
-                            }
+                        if (parsed != null && parsed >= 0) {
+                            viewModel.updateCategoryLimit(cat.categoryId, parsed)
                             selectedCategoryForEdit = null
                             onShowSnackbar("Límite de ${cat.name} ajustado a ${formatPesos(parsed)}")
                         }
@@ -426,45 +432,71 @@ fun BudgetScreen(
 @Composable
 private fun BudgetCategoryRow(
     name: String,
+    icon: String,
+    colorHex: String,
     spent: Long,
     limit: Long,
-    color: Color,
     onClick: () -> Unit
 ) {
     val progress = if (limit > 0) (spent.toFloat() / limit.toFloat()).coerceIn(0f, 1f) else 0f
-    Column(
+    val categoryColor = CategoryIconHelper.parseColor(colorHex)
+    val categoryIconVector = CategoryIconHelper.getIcon(icon)
+
+    Row(
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(8.dp))
             .clickable { onClick() }
-            .padding(vertical = 4.dp)
+            .padding(vertical = 4.dp),
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween
+        Box(
+            modifier = Modifier
+                .size(32.dp)
+                .clip(CircleShape)
+                .background(categoryColor.copy(alpha = 0.15f)),
+            contentAlignment = Alignment.Center
         ) {
-            Text(
-                text = name,
-                style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
-                color = MaterialTheme.colorScheme.onSurface
-            )
-            Text(
-                text = "${formatPesos(spent)} / ${formatPesos(limit)}",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+            Icon(
+                imageVector = categoryIconVector,
+                contentDescription = null,
+                tint = categoryColor,
+                modifier = Modifier.size(16.dp)
             )
         }
-        Spacer(modifier = Modifier.height(6.dp))
-        LinearProgressIndicator(
-            progress = { progress },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(6.dp)
-                .clip(RoundedCornerShape(3.dp)),
-            color = color,
-            trackColor = MaterialTheme.colorScheme.surfaceVariant,
-            strokeCap = StrokeCap.Round
-        )
+
+        Spacer(modifier = Modifier.width(12.dp))
+
+        Column(modifier = Modifier.weight(1f)) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text(
+                    text = name,
+                    style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Text(
+                    text = if (limit > 0) "${formatPesos(spent)} / ${formatPesos(limit)}" else formatPesos(spent),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+            if (limit > 0) {
+                Spacer(modifier = Modifier.height(6.dp))
+                LinearProgressIndicator(
+                    progress = { progress },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(6.dp)
+                        .clip(RoundedCornerShape(3.dp)),
+                    color = categoryColor,
+                    trackColor = MaterialTheme.colorScheme.surfaceVariant,
+                    strokeCap = StrokeCap.Round
+                )
+            }
+        }
     }
 }
 

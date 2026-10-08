@@ -110,16 +110,6 @@ fun WalletsScreen(
                     containerColor = MaterialTheme.colorScheme.surface
                 )
             )
-        },
-        floatingActionButton = {
-            FloatingActionButton(
-                onClick = { viewModel.onEvent(WalletsEvent.OnOpenAddWallet) },
-                containerColor = AndeanPrimary,
-                contentColor = Color.White,
-                shape = CircleShape
-            ) {
-                Icon(imageVector = Icons.Default.Add, contentDescription = "Nueva Billetera")
-            }
         }
     ) { innerPadding ->
         if (state.isLoading) {
@@ -171,7 +161,7 @@ fun WalletsScreen(
                             )
                             Spacer(modifier = Modifier.height(6.dp))
                             Text(
-                                text = "${state.wallets.size} cuentas activas sincronizadas",
+                                text = "${state.wallets.size} cuentas activas locales",
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -188,9 +178,9 @@ fun WalletsScreen(
                     )
                 }
 
-                // Espaciador inferior para el FAB
+                // Espaciador inferior para la barra de navegación
                 item {
-                    Spacer(modifier = Modifier.height(72.dp))
+                    Spacer(modifier = Modifier.height(80.dp))
                 }
             }
         }
@@ -234,8 +224,18 @@ private fun WalletItemCard(
         WalletType.EFECTIVO -> Icons.Default.Payments
         WalletType.TARJETA_CREDITO -> Icons.Default.CreditCard
         WalletType.BANCOLOMBIA -> Icons.Default.AccountBalance
-        WalletType.NEQUI, WalletType.DAVIPLATA -> Icons.Default.AccountBalanceWallet
-        WalletType.OTRA -> Icons.Default.Savings
+        WalletType.NEQUI -> Icons.Default.AccountBalanceWallet
+        WalletType.DAVIPLATA -> Icons.Default.Savings
+        WalletType.OTRA -> Icons.Default.AccountBalanceWallet
+    }
+
+    val categorySubtitle = when (wallet.type) {
+        WalletType.EFECTIVO -> "Efectivo en Mano"
+        WalletType.NEQUI -> "Billetera Digital"
+        WalletType.DAVIPLATA -> "Billetera Digital"
+        WalletType.BANCOLOMBIA -> "Cuenta Bancaria"
+        WalletType.TARJETA_CREDITO -> "Tarjeta de Crédito"
+        WalletType.OTRA -> "Cuenta Local"
     }
 
     Card(
@@ -282,7 +282,7 @@ private fun WalletItemCard(
                         color = MaterialTheme.colorScheme.onSurface
                     )
                     Text(
-                        text = wallet.type.name.lowercase().replaceFirstChar { it.uppercase() },
+                        text = categorySubtitle,
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )

@@ -336,7 +336,8 @@ fun AndinaAppShell(
                     onShowSnackbar = { msg -> appState.showSnackbar(msg) },
                     onShowSnackbarWithAction = { msg, action, onAction ->
                         appState.showSnackbarWithAction(msg, action, onAction)
-                    }
+                    },
+                    onNavigateToCalendar = { appState.navigateToCalendar() }
                 )
             }
 

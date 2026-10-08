@@ -39,11 +39,13 @@ class HomeViewModelTest {
 
     private val testDispatcher = StandardTestDispatcher()
     private lateinit var fakeRepository: FakeFinanceRepository
+    private lateinit var fakeUserProfileRepository: FakeUserProfileRepository
 
     @Before
     fun setUp() {
         Dispatchers.setMain(testDispatcher)
         fakeRepository = FakeFinanceRepository()
+        fakeUserProfileRepository = FakeUserProfileRepository()
     }
 
     @After
@@ -54,7 +56,7 @@ class HomeViewModelTest {
     @Test
     fun `HomeViewModel inicializa y carga reactivamente el patrimonio y las billeteras`() = runTest(testDispatcher) {
         val savedState = SavedStateHandle()
-        val viewModel = HomeViewModel(savedState, fakeRepository)
+        val viewModel = HomeViewModel(savedState, fakeRepository, fakeUserProfileRepository)
         advanceUntilIdle()
 
         val state = viewModel.state.value
@@ -71,7 +73,7 @@ class HomeViewModelTest {
     @Test
     fun `modo de privacidad enmascara cifras con mascara de puntos y persiste en SavedStateHandle`() = runTest(testDispatcher) {
         val savedState = SavedStateHandle()
-        val viewModel = HomeViewModel(savedState, fakeRepository)
+        val viewModel = HomeViewModel(savedState, fakeRepository, fakeUserProfileRepository)
         advanceUntilIdle()
 
         // Estado inicial: visible
@@ -98,7 +100,7 @@ class HomeViewModelTest {
     @Test
     fun `recuperacion de SavedStateHandle restaura privacidad preexistente tras proceso muerto`() = runTest(testDispatcher) {
         val savedState = SavedStateHandle(mapOf("home_privacy_mode" to true, "home_insight_dismissed" to true))
-        val viewModel = HomeViewModel(savedState, fakeRepository)
+        val viewModel = HomeViewModel(savedState, fakeRepository, fakeUserProfileRepository)
         advanceUntilIdle()
 
         assertTrue(viewModel.state.value.isPrivacyMode)
@@ -109,7 +111,7 @@ class HomeViewModelTest {
     @Test
     fun `descartar insight oculta el banner y persiste en SavedStateHandle`() = runTest(testDispatcher) {
         val savedState = SavedStateHandle()
-        val viewModel = HomeViewModel(savedState, fakeRepository)
+        val viewModel = HomeViewModel(savedState, fakeRepository, fakeUserProfileRepository)
         advanceUntilIdle()
 
         assertFalse(viewModel.state.value.isInsightDismissed)
@@ -124,7 +126,7 @@ class HomeViewModelTest {
     @Test
     fun `acciones de navegacion emiten efectos correspondientes a detalle y pestanas`() = runTest(testDispatcher) {
         val savedState = SavedStateHandle()
-        val viewModel = HomeViewModel(savedState, fakeRepository)
+        val viewModel = HomeViewModel(savedState, fakeRepository, fakeUserProfileRepository)
         advanceUntilIdle()
 
         // Click en billetera
@@ -165,13 +167,51 @@ class HomeViewModelTest {
 
     @Test
     fun `calculo de nivel del paramo refleja la tasa de ahorro correctamente`() = runTest(testDispatcher) {
-        // En FakeFinanceRepository, ingreso = 300k, gasto = 120k -> ahorro = 180k (60% de ahorro)
-        // >= 30% corresponde a "Nivel Páramo Sagrado"
         val savedState = SavedStateHandle()
-        val viewModel = HomeViewModel(savedState, fakeRepository)
+        val viewModel = HomeViewModel(savedState, fakeRepository, fakeUserProfileRepository)
         advanceUntilIdle()
 
-        assertEquals("Nivel Páramo Sagrado", viewModel.state.value.paramoHealthLevel)
+        assertEquals("Nivel Frailejón Mayor", viewModel.state.value.paramoHealthLevel)
+    }
+}
+
+/**
+ * Repositorio simulado de perfil de usuario.
+ */
+private class FakeUserProfileRepository : com.andina.finanzas.domain.repository.UserProfileRepository {
+    private val profileFlow = MutableStateFlow(
+        com.andina.finanzas.domain.model.UserProfile(
+            name = "Valentina",
+            nickname = "Guardián del Frailejón",
+            level = "Nivel Frailejón Mayor",
+            monthlyBudgetLimit = 2_500_000L
+        )
+    )
+
+    override fun observeUserProfile(): Flow<com.andina.finanzas.domain.model.UserProfile> = profileFlow
+    override suspend fun getUserProfile(): com.andina.finanzas.domain.model.UserProfile = profileFlow.value
+    override suspend fun updateUserProfile(profile: com.andina.finanzas.domain.model.UserProfile) { profileFlow.value = profile }
+    override suspend fun updateNameAndNickname(name: String, nickname: String) {
+        profileFlow.value = profileFlow.value.copy(name = name, nickname = nickname)
+    }
+    override suspend fun updateAvatar(emoji: String, name: String) {
+        profileFlow.value = profileFlow.value.copy(avatarEmoji = emoji, avatarName = name)
+    }
+    override suspend fun updateMonthlyBudgetLimit(limit: Long) {
+        profileFlow.value = profileFlow.value.copy(monthlyBudgetLimit = limit)
+    }
+    override suspend fun updateModuleVisibility(
+        showBudget: Boolean,
+        showWallets: Boolean,
+        showMuggy: Boolean,
+        showPockets: Boolean
+    ) {
+        profileFlow.value = profileFlow.value.copy(
+            showBudgetCard = showBudget,
+            showWalletsCard = showWallets,
+            showMuggyInsight = showMuggy,
+            showPocketsCard = showPockets
+        )
     }
 }
 

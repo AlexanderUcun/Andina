@@ -48,18 +48,26 @@ private fun MetricItem(
     iconBgColor: Color,
     modifier: Modifier = Modifier
 ) {
+    // Escalamiento dinámico de fuente para evitar truncamientos en cifras millonarias
+    val dynamicFontSize = when {
+        amount.length > 15 -> 12.sp
+        amount.length > 12 -> 13.sp
+        amount.length > 9 -> 14.sp
+        else -> 16.sp
+    }
+
     FrostedGlassCard(
         modifier = modifier,
         shape = CornerMedium,
         elevation = 2.dp,
-        contentPadding = 12.dp
+        contentPadding = 10.dp
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Box(
                 modifier = Modifier
-                    .size(28.dp)
+                    .size(24.dp)
                     .clip(CircleShape)
                     .background(iconBgColor),
                 contentAlignment = Alignment.Center
@@ -68,34 +76,41 @@ private fun MetricItem(
                     imageVector = icon,
                     contentDescription = null,
                     tint = iconColor,
-                    modifier = Modifier.size(16.dp)
+                    modifier = Modifier.size(14.dp)
                 )
             }
 
-            Spacer(modifier = Modifier.size(8.dp))
+            Spacer(modifier = Modifier.size(6.dp))
 
             Text(
                 text = title,
-                style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                style = MaterialTheme.typography.labelSmall.copy(
+                    fontWeight = FontWeight.SemiBold,
+                    fontSize = 11.sp
+                ),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
             )
         }
 
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(6.dp))
 
         Text(
             text = amount,
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.Bold,
+            style = MaterialTheme.typography.titleMedium.copy(
+                fontSize = dynamicFontSize,
+                fontWeight = FontWeight.Bold,
+                fontFeatureSettings = "tnum"
+            ),
             color = MaterialTheme.colorScheme.onSurface,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis
+            maxLines = 1
         )
     }
 }
 
 /**
- * Grid de Métricas del Periodo Actual (Entró · Salió · Te queda).
+ * Grid de Métricas del Periodo Actual (Entró · Salió · Balance Neto).
  *
  * Muestra el flujo de caja del mes con respeto a la privacidad y códigos de color semánticos.
  */
@@ -109,7 +124,7 @@ fun PeriodMetricsGrid(
 ) {
     val incomeText = if (isPrivacyMode) "••••••" else periodIncome.formatCop()
     val expenseText = if (isPrivacyMode) "••••••" else periodExpense.formatCop()
-    val remainingText = if (isPrivacyMode) "••••••" else periodNetRemaining.formatCop()
+    val netBalanceText = if (isPrivacyMode) "••••••" else periodNetRemaining.formatCop()
 
     Row(
         modifier = modifier.fillMaxWidth(),
@@ -135,10 +150,10 @@ fun PeriodMetricsGrid(
             modifier = Modifier.weight(1f)
         )
 
-        // Métrica 3: Te queda (Neto)
+        // Métrica 3: Balance Neto del Mes
         MetricItem(
-            title = "Te queda",
-            amount = remainingText,
+            title = "Balance Neto",
+            amount = netBalanceText,
             icon = Icons.Default.Wallet,
             iconColor = if (periodNetRemaining.pesos >= 0L) AndeanPrimary else AndeanError,
             iconBgColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f),

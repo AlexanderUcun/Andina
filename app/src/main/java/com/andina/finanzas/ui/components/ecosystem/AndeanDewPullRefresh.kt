@@ -160,9 +160,11 @@ fun AndeanDewPullRefresh(
             .nestedScroll(nestedScrollConnection)
     ) {
         val currentOffset = animatedOffset.value
+        val isVisible = currentOffset > 1f || isRefreshing
 
-        // Indicador de Gota de Rocío en el tope
-        if (currentOffset > 0f || isRefreshing) {
+        // Indicador de Gota de Rocío en el tope (colapsado y disuelto en reposo)
+        if (isVisible) {
+            val dropAlpha = if (isRefreshing) 1f else (currentOffset / thresholdPx).coerceIn(0f, 1f)
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -239,12 +241,12 @@ fun AndeanDewPullRefresh(
                             close()
                         }
 
-                        // Gradiente translúcido de agua andina
+                        // Gradiente translúcido de agua andina con opacidad dinámica
                         val waterBrush = Brush.verticalGradient(
                             colors = listOf(
-                                Color(0x33A4C3B2),
-                                Color(0x996B9080),
-                                Color(0xDD3B6E58)
+                                Color(0x33A4C3B2).copy(alpha = 0.2f * dropAlpha),
+                                Color(0x996B9080).copy(alpha = 0.6f * dropAlpha),
+                                Color(0xDD3B6E58).copy(alpha = 0.9f * dropAlpha)
                             )
                         )
 
@@ -252,7 +254,7 @@ fun AndeanDewPullRefresh(
 
                         // Destello blanco en la gota (reflejo de sol del páramo)
                         drawCircle(
-                            color = Color.White.copy(alpha = 0.85f),
+                            color = Color.White.copy(alpha = 0.85f * dropAlpha),
                             radius = 2.5.dp.toPx(),
                             center = Offset(centerX - bulbRadius * 0.35f, bulbCenterY - bulbRadius * 0.25f)
                         )
@@ -265,7 +267,7 @@ fun AndeanDewPullRefresh(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .offset { IntOffset(x = 0, y = currentOffset.roundToInt()) }
+                .offset { IntOffset(x = 0, y = if (currentOffset > 1f) currentOffset.roundToInt() else 0) }
         ) {
             content()
         }

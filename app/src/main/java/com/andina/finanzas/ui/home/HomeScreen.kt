@@ -211,14 +211,16 @@ fun HomeScreen(
                     Spacer(modifier = Modifier.height(20.dp))
                 }
 
-                // 7. Carrusel de Bolsillos de Ahorro
-                item {
-                    HomePocketsCarousel(
-                        pockets = state.pockets,
-                        onPocketClick = { id -> viewModel.onAction(HomeAction.PocketClick(id)) },
-                        onSeeAllClick = { viewModel.onAction(HomeAction.SeeAllPocketsClick) }
-                    )
-                    Spacer(modifier = Modifier.height(20.dp))
+                // 7. Carrusel de Bolsillos de Ahorro (controlado por personalización de módulos)
+                if (state.pockets.isNotEmpty()) {
+                    item {
+                        HomePocketsCarousel(
+                            pockets = state.pockets,
+                            onPocketClick = { id -> viewModel.onAction(HomeAction.PocketClick(id)) },
+                            onSeeAllClick = { viewModel.onAction(HomeAction.SeeAllPocketsClick) }
+                        )
+                        Spacer(modifier = Modifier.height(20.dp))
+                    }
                 }
 
                 // 8. Actividad Reciente (Últimos 5 movimientos o Empty State)

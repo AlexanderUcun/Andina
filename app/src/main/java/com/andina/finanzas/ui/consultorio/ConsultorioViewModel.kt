@@ -23,7 +23,8 @@ import javax.inject.Inject
 @HiltViewModel
 class ConsultorioViewModel @Inject constructor(
     private val repository: FinanceRepository,
-    private val intelligenceCore: AndinaIntelligenceCore
+    private val intelligenceCore: AndinaIntelligenceCore,
+    private val userProfileRepository: com.andina.finanzas.domain.repository.UserProfileRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(ConsultorioUiState())
@@ -49,8 +50,9 @@ class ConsultorioViewModel @Inject constructor(
             combine(
                 repository.observeWallets(),
                 repository.observeFinancialSummary(startOfMonth, endOfMonth),
-                repository.observePockets()
-            ) { wallets: List<Wallet>, summary: FinancialSummary, pockets: List<Pocket> ->
+                repository.observePockets(),
+                userProfileRepository.observeUserProfile()
+            ) { wallets: List<Wallet>, summary: FinancialSummary, pockets: List<Pocket>, userProfile ->
                 val totalLiquid = wallets.fold(Money.ZERO) { acc, w -> acc + w.currentBalance }
                 val expenses = summary.monthlyExpense
                 val antExpenses = summary.monthlyAntExpense
@@ -67,12 +69,12 @@ class ConsultorioViewModel @Inject constructor(
                 ).filter { it > 0L }
 
                 val diagnosis = intelligenceCore.diagnose(
-                    userName = "Valentina",
+                    userName = userProfile.name,
                     liquidBalance = totalLiquid,
                     totalExpensesThisMonth = expenses,
                     antExpensesTotal = antExpenses,
                     dailyExpensesHistory = if (dailyExpenses.isNotEmpty()) dailyExpenses else listOf(10_000L),
-                    monthlyBudgetLimit = Money(totalLiquid.pesos + expenses.pesos),
+                    monthlyBudgetLimit = Money(userProfile.monthlyBudgetLimit),
                     hasActivePocketContributions = hasPockets
                 )
 
@@ -89,10 +91,10 @@ class ConsultorioViewModel @Inject constructor(
                         antExpensesTotal = Money((expenses.pesos * 0.12).toLong()),
                         diagnosis = diagnosis,
                         topCategories = listOf(
-                            Pair("Alimentación & Mercado", Money((expenses.pesos * 0.40).toLong())),
-                            Pair("Servicios Públicos", Money((expenses.pesos * 0.25).toLong())),
+                            Pair("Alimentación", Money((expenses.pesos * 0.40).toLong())),
+                            Pair("Servicios y Hogar", Money((expenses.pesos * 0.25).toLong())),
                             Pair("Transporte", Money((expenses.pesos * 0.15).toLong())),
-                            Pair("Café y Antojos (Hormiga)", Money((expenses.pesos * 0.12).toLong()))
+                            Pair("Café y Snacks (Hormiga)", Money((expenses.pesos * 0.12).toLong()))
                         ),
                         isLoading = false
                     )

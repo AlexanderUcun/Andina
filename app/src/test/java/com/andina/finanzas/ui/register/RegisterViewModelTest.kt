@@ -237,6 +237,52 @@ class RegisterViewModelTest {
         assertEquals("Mercado semanal", state.note)
         assertEquals(false, state.isAntOverride)
     }
+
+    @Test
+    fun `cambio entre Gasto e Ingreso filtra las categorias correctamente`() = runTest(testDispatcher) {
+        val savedState = SavedStateHandle()
+        val viewModel = RegisterViewModel(savedState, registerUseCase, fakeRepository)
+        advanceUntilIdle()
+
+        // Estado inicial GASTO: debe contener categorías de gasto (Café & Panadería, Transporte)
+        assertEquals(TransactionType.GASTO, viewModel.state.value.type)
+        val initialCategories = viewModel.state.value.categories
+        assertEquals(2, initialCategories.size)
+        assertTrue(initialCategories.all { it.kind == CategoryKind.GASTO })
+
+        // Cambiar a INGRESO: debe mostrar solo Salario
+        viewModel.onAction(RegisterAction.TypeChanged(TransactionType.INGRESO))
+        advanceUntilIdle()
+
+        val incomeCategories = viewModel.state.value.categories
+        assertEquals(1, incomeCategories.size)
+        assertEquals("Salario", incomeCategories.first().name)
+        assertEquals(CategoryKind.INGRESO, incomeCategories.first().kind)
+
+        // Volver a GASTO: debe recuperar las categorías de gasto de la caché
+        viewModel.onAction(RegisterAction.TypeChanged(TransactionType.GASTO))
+        advanceUntilIdle()
+
+        val restoredCategories = viewModel.state.value.categories
+        assertEquals(2, restoredCategories.size)
+        assertTrue(restoredCategories.all { it.kind == CategoryKind.GASTO })
+    }
+
+    @Test
+    fun `limite estricto de 8 digitos y tope de 99_999_999 COP se respeta`() = runTest(testDispatcher) {
+        val savedState = SavedStateHandle()
+        val viewModel = RegisterViewModel(savedState, registerUseCase, fakeRepository)
+        advanceUntilIdle()
+
+        // Intentar escribir más de 8 dígitos
+        "123456789".forEach { digit ->
+            viewModel.onAction(RegisterAction.DigitPressed(digit))
+        }
+
+        // Solo debe aceptar hasta 8 dígitos ("12345678")
+        assertEquals(8, viewModel.state.value.amountDigits.length)
+        assertEquals("12345678", viewModel.state.value.amountDigits)
+    }
 }
 
 /**

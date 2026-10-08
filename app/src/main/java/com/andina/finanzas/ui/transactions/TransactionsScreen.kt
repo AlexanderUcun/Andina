@@ -26,6 +26,7 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.BugReport
+import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material.icons.filled.FilterAlt
 import androidx.compose.material.icons.filled.Search
@@ -87,6 +88,7 @@ fun TransactionsScreen(
     onShowSnackbar: (String) -> Unit,
     onShowSnackbarWithAction: (message: String, actionLabel: String, onAction: () -> Unit) -> Unit,
     modifier: Modifier = Modifier,
+    onNavigateToCalendar: () -> Unit = {},
     viewModel: TransactionsViewModel = hiltViewModel()
 ) {
     val state by viewModel.state.collectAsState()
@@ -121,6 +123,7 @@ fun TransactionsScreen(
                 filter = filter,
                 onQueryChanged = { viewModel.onEvent(TransactionsEvent.OnQueryChanged(it)) },
                 onFilterClick = { viewModel.onEvent(TransactionsEvent.OnSetFilterSheetVisible(true)) },
+                onNavigateToCalendar = onNavigateToCalendar,
                 onQuickTypeSelected = { type ->
                     val newType = if (filter.type == type) null else type
                     viewModel.onEvent(TransactionsEvent.OnTypeSelected(newType))
@@ -165,6 +168,7 @@ fun TransactionsScreen(
                 // Estado vacío
                 pagingItems.loadState.refresh is LoadState.NotLoading && pagingItems.itemCount == 0 -> {
                     EmptyTransactionsState(
+                        filter = filter,
                         hasFilters = !filter.isDefault,
                         onResetFilters = { viewModel.onEvent(TransactionsEvent.OnResetFilters) }
                     )
@@ -256,6 +260,7 @@ private fun TransactionsTopHeader(
     filter: TransactionsFilter,
     onQueryChanged: (String) -> Unit,
     onFilterClick: () -> Unit,
+    onNavigateToCalendar: () -> Unit,
     onQuickTypeSelected: (TransactionType) -> Unit,
     onQuickToggleAnt: () -> Unit
 ) {
@@ -268,7 +273,7 @@ private fun TransactionsTopHeader(
             .statusBarsPadding()
             .padding(top = 8.dp, bottom = 4.dp)
     ) {
-        // Título de sección y contador de filtros
+        // Título de sección y accesos rápidos de acción
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -292,35 +297,56 @@ private fun TransactionsTopHeader(
                 )
             }
 
-            // Botón de filtros con badge reactivo
-            BadgedBox(
-                badge = {
-                    if (filter.activeFilterCount > 0) {
-                        Badge(
-                            containerColor = AndeanPrimary,
-                            contentColor = Color.White
-                        ) {
-                            Text(text = filter.activeFilterCount.toString())
-                        }
-                    }
-                }
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
+                // Acceso rápido al Calendario Financiero Interactivo
                 IconButton(
-                    onClick = onFilterClick,
+                    onClick = onNavigateToCalendar,
                     modifier = Modifier
                         .size(42.dp)
                         .clip(CircleShape)
-                        .background(
-                            if (filter.activeFilterCount > 0) AndeanPrimary.copy(alpha = 0.12f)
-                            else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
-                        )
+                        .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
                 ) {
                     Icon(
-                        imageVector = Icons.Default.FilterAlt,
-                        contentDescription = "Filtros avanzados",
-                        tint = if (filter.activeFilterCount > 0) AndeanPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
+                        imageVector = Icons.Default.CalendarMonth,
+                        contentDescription = "Calendario Financiero",
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.size(22.dp)
                     )
+                }
+
+                // Botón de filtros con badge reactivo
+                BadgedBox(
+                    badge = {
+                        if (filter.activeFilterCount > 0) {
+                            Badge(
+                                containerColor = AndeanPrimary,
+                                contentColor = Color.White
+                            ) {
+                                Text(text = filter.activeFilterCount.toString())
+                            }
+                        }
+                    }
+                ) {
+                    IconButton(
+                        onClick = onFilterClick,
+                        modifier = Modifier
+                            .size(42.dp)
+                            .clip(CircleShape)
+                            .background(
+                                if (filter.activeFilterCount > 0) AndeanPrimary.copy(alpha = 0.12f)
+                                else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+                            )
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.FilterAlt,
+                            contentDescription = "Filtros avanzados",
+                            tint = if (filter.activeFilterCount > 0) AndeanPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.size(22.dp)
+                        )
+                    }
                 }
             }
         }
@@ -499,6 +525,7 @@ private fun DateSectionHeader(title: String) {
  */
 @Composable
 private fun EmptyTransactionsState(
+    filter: TransactionsFilter,
     hasFilters: Boolean,
     onResetFilters: () -> Unit
 ) {
@@ -540,7 +567,7 @@ private fun EmptyTransactionsState(
 
             Text(
                 text = if (hasFilters) {
-                    "Prueba cambiando tus filtros de búsqueda, método de pago o período."
+                    "No se encontraron movimientos con los filtros seleccionados."
                 } else {
                     "Registra tu primer gasto o ingreso usando el botón central (+) para iniciar tu libro mayor."
                 },
@@ -551,7 +578,53 @@ private fun EmptyTransactionsState(
             )
 
             if (hasFilters) {
-                Spacer(modifier = Modifier.height(20.dp))
+                Spacer(modifier = Modifier.height(14.dp))
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    if (filter.query.isNotBlank()) {
+                        Surface(
+                            shape = RoundedCornerShape(8.dp),
+                            color = MaterialTheme.colorScheme.surfaceVariant
+                        ) {
+                            Text(
+                                text = "\"${filter.query}\"",
+                                style = MaterialTheme.typography.labelSmall,
+                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
+                    if (filter.type != null) {
+                        Surface(
+                            shape = RoundedCornerShape(8.dp),
+                            color = MaterialTheme.colorScheme.surfaceVariant
+                        ) {
+                            Text(
+                                text = filter.type.name,
+                                style = MaterialTheme.typography.labelSmall,
+                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
+                    if (filter.onlyAntExpense) {
+                        Surface(
+                            shape = RoundedCornerShape(8.dp),
+                            color = MaterialTheme.colorScheme.surfaceVariant
+                        ) {
+                            Text(
+                                text = "🐜 Hormiga",
+                                style = MaterialTheme.typography.labelSmall,
+                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
                 AndinaButton(
                     text = "Restablecer Filtros",
                     onClick = onResetFilters

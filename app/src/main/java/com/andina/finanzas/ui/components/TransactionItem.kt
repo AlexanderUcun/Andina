@@ -80,11 +80,18 @@ fun TransactionItem(
 
     // Color y vector del icono circular izquierdo
     val (iconBackground, iconTint, iconVector) = when {
-        isIncome -> Triple(
-            AndeanPrimary.copy(alpha = 0.12f),
-            AndeanPrimary,
-            Icons.Default.ArrowDownward
-        )
+        isIncome -> {
+            val iconVec = if (!transaction.categoryIcon.isNullOrBlank()) {
+                CategoryIconHelper.getIcon(transaction.categoryIcon)
+            } else {
+                Icons.Default.ArrowDownward
+            }
+            Triple(
+                AndeanPrimary.copy(alpha = 0.12f),
+                AndeanPrimary,
+                iconVec
+            )
+        }
         isTransfer -> Triple(
             Color(0xFF1E88E5).copy(alpha = 0.12f),
             Color(0xFF1E88E5),
@@ -95,7 +102,7 @@ fun TransactionItem(
             Triple(
                 baseColor.copy(alpha = 0.12f),
                 baseColor,
-                resolveCategoryIcon(transaction.categoryIcon)
+                CategoryIconHelper.getIcon(transaction.categoryIcon)
             )
         }
     }
@@ -151,9 +158,9 @@ fun TransactionItem(
                 ) {
                     val displayName = when {
                         transaction.note.isNotBlank() -> transaction.note
-                        transaction.categoryName != null -> transaction.categoryName
+                        !transaction.categoryName.isNullOrBlank() -> transaction.categoryName
                         isTransfer -> "Transferencia"
-                        isIncome -> "Ingreso de dinero"
+                        isIncome -> "Ingreso"
                         else -> "Gasto"
                     }
 
@@ -191,9 +198,13 @@ fun TransactionItem(
 
                 Spacer(modifier = Modifier.height(2.dp))
 
-                // Subtítulo con fecha y billetera
+                // Subtítulo con categoría, fecha y billetera
                 val dateString = formatDate(transaction.occurredAt)
+                val categoryPart = transaction.categoryName?.takeIf { it.isNotBlank() && it != transaction.note }
                 val walletContext = buildString {
+                    if (categoryPart != null) {
+                        append("$categoryPart · ")
+                    }
                     append(dateString)
                     transaction.walletName?.let { append(" · $it") }
                     if (isTransfer && transaction.toWalletName != null) {
@@ -234,20 +245,6 @@ fun TransactionItem(
 private fun formatDate(timestamp: Long): String {
     val formatter = SimpleDateFormat("d MMM, h:mm a", Locale("es", "CO"))
     return formatter.format(Date(timestamp))
-}
-
-/**
- * Mapeo de icono vectorial según identificador textual de categoría.
- */
-private fun resolveCategoryIcon(iconName: String?): ImageVector {
-    return when (iconName?.lowercase()) {
-        "coffee", "cafe" -> Icons.Default.Coffee
-        "food", "fastfood", "restaurante" -> Icons.Default.Fastfood
-        "shopping", "compras" -> Icons.Default.ShoppingBag
-        "receipt", "servicios" -> Icons.Default.Receipt
-        "atm", "cajero" -> Icons.Default.LocalAtm
-        else -> Icons.Default.Category
-    }
 }
 
 @Preview(name = "TransactionItem Previews", showBackground = true)

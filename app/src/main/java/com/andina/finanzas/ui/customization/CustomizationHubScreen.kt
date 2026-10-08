@@ -1,7 +1,6 @@
 package com.andina.finanzas.ui.customization
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -20,36 +19,26 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.DeleteOutline
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.Palette
-import androidx.compose.material.icons.filled.Visibility
-import androidx.compose.material.icons.filled.VisibilityOff
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -59,63 +48,31 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.andina.finanzas.domain.model.CategoryKind
+import com.andina.finanzas.ui.components.CategoryIconHelper
 import com.andina.finanzas.ui.components.muggy.MuggyPose
 import com.andina.finanzas.ui.components.muggy.MuggySpeechBubble
 import com.andina.finanzas.ui.theme.AndeanPrimary
 
-data class CustomCategory(
-    val id: String,
-    val name: String,
-    val emoji: String,
-    val color: Color,
-    val isExpense: Boolean,
-    var isVisible: Boolean = true
-)
-
 /**
  * Hub de Personalización Total del Ecosistema Andina (Módulo 9).
+ * Conectado a la base de datos Room y al UserProfileRepository.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CustomizationHubScreen(
     onNavigateBack: () -> Unit,
     onShowSnackbar: (String) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    viewModel: CustomizationViewModel = hiltViewModel()
 ) {
-    var showBudgetCardOnHome by remember { mutableStateOf(true) }
-    var showWalletsCardOnHome by remember { mutableStateOf(true) }
-    var showMuggyInsightOnHome by remember { mutableStateOf(true) }
-    var showPocketsCardOnHome by remember { mutableStateOf(true) }
+    val state by viewModel.state.collectAsStateWithLifecycle()
+    val profile = state.userProfile
 
-    var selectedThemeIndex by remember { mutableStateOf(0) }
+    var selectedThemeIndex by remember { mutableIntStateOf(0) }
     val themeNames = listOf("Páramo Andino 🌿", "Niebla de Cumbre 🏔️", "Laguna Esmeralda 💧", "Tarde Cafetera ☕")
-
-    var categories by remember {
-        mutableStateOf(
-            listOf(
-                CustomCategory("1", "Alimentación & Mercado", "🍔", Color(0xFFE57373), true),
-                CustomCategory("2", "Transporte & Gasolina", "🚗", Color(0xFF64B5F6), true),
-                CustomCategory("3", "Servicios del Hogar", "💡", Color(0xFFFFB74D), true),
-                CustomCategory("4", "Ocio & Restaurantes", "🍿", Color(0xFF81C784), true),
-                CustomCategory("5", "Salario & Honorarios", "💼", AndeanPrimary, false),
-                CustomCategory("6", "Rendimientos & Ahorros", "📈", Color(0xFF4DB6AC), false)
-            )
-        )
-    }
-
-    var showAddCategoryModal by remember { mutableStateOf(false) }
-    var newCatName by remember { mutableStateOf("") }
-    var newCatEmoji by remember { mutableStateOf("🛍️") }
-    var newCatIsExpense by remember { mutableStateOf(true) }
-    var newCatColor by remember { mutableStateOf(Color(0xFFE57373)) }
-
-    val paletteColors = listOf(
-        Color(0xFFE57373), Color(0xFF64B5F6), Color(0xFFFFB74D),
-        Color(0xFF81C784), Color(0xFFBA68C8), Color(0xFF4DB6AC),
-        Color(0xFF587550), Color(0xFF8D6E63)
-    )
-
-    val emojiChoices = listOf("🛍️", "🍔", "☕", "🚕", "✈️", "🎮", "💊", "📚", "🏠", "⚡", "🎁", "💼")
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
@@ -134,11 +91,6 @@ fun CustomizationHubScreen(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Regresar"
                         )
-                    }
-                },
-                actions = {
-                    IconButton(onClick = { showAddCategoryModal = true }) {
-                        Icon(imageVector = Icons.Default.Add, contentDescription = "Añadir categoría", tint = AndeanPrimary)
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -163,7 +115,7 @@ fun CustomizationHubScreen(
                 )
             }
 
-            // 1. Tarjetas Visibles en el Dashboard de Inicio
+            // 1. Tarjetas Visibles en el Dashboard de Inicio (Conectadas a UserProfileRepository)
             item {
                 Text(
                     text = "Módulos de la Pantalla de Inicio",
@@ -182,29 +134,57 @@ fun CustomizationHubScreen(
                         HomeModuleToggleRow(
                             title = "Tarjeta de Presupuesto Mensual",
                             subtitle = "Muestra la barra de gasto y alertas en Inicio",
-                            checked = showBudgetCardOnHome,
-                            onCheckedChange = { showBudgetCardOnHome = it }
+                            checked = profile.showBudgetCard,
+                            onCheckedChange = {
+                                viewModel.updateModuleVisibility(
+                                    showBudget = it,
+                                    showWallets = profile.showWalletsCard,
+                                    showMuggy = profile.showMuggyInsight,
+                                    showPockets = profile.showPocketsCard
+                                )
+                            }
                         )
                         HorizontalDivider(modifier = Modifier.padding(vertical = 10.dp), thickness = 0.5.dp)
                         HomeModuleToggleRow(
                             title = "Carrusel de Billeteras",
                             subtitle = "Muestra tus cuentas y saldos en Inicio",
-                            checked = showWalletsCardOnHome,
-                            onCheckedChange = { showWalletsCardOnHome = it }
+                            checked = profile.showWalletsCard,
+                            onCheckedChange = {
+                                viewModel.updateModuleVisibility(
+                                    showBudget = profile.showBudgetCard,
+                                    showWallets = it,
+                                    showMuggy = profile.showMuggyInsight,
+                                    showPockets = profile.showPocketsCard
+                                )
+                            }
                         )
                         HorizontalDivider(modifier = Modifier.padding(vertical = 10.dp), thickness = 0.5.dp)
                         HomeModuleToggleRow(
                             title = "Consejo de Sabiduría de Muggy",
                             subtitle = "Banner con diagnósticos y tips de IA",
-                            checked = showMuggyInsightOnHome,
-                            onCheckedChange = { showMuggyInsightOnHome = it }
+                            checked = profile.showMuggyInsight,
+                            onCheckedChange = {
+                                viewModel.updateModuleVisibility(
+                                    showBudget = profile.showBudgetCard,
+                                    showWallets = profile.showWalletsCard,
+                                    showMuggy = it,
+                                    showPockets = profile.showPocketsCard
+                                )
+                            }
                         )
                         HorizontalDivider(modifier = Modifier.padding(vertical = 10.dp), thickness = 0.5.dp)
                         HomeModuleToggleRow(
                             title = "Bolsillos de Ahorro",
                             subtitle = "Frailejones vivos y metas en progreso",
-                            checked = showPocketsCardOnHome,
-                            onCheckedChange = { showPocketsCardOnHome = it }
+                            checked = profile.showPocketsCard,
+                            onCheckedChange = {
+                                viewModel.updateModuleVisibility(
+                                    showBudget = profile.showBudgetCard,
+                                    showWallets = profile.showWalletsCard,
+                                    showMuggy = profile.showMuggyInsight,
+                                    showPockets = it
+                                )
+                            }
                         )
                     }
                 }
@@ -254,29 +234,63 @@ fun CustomizationHubScreen(
                 }
             }
 
-            // 3. Gestión de Categorías
+            // 3. Gestión de Categorías desde Room
             item {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = "Gestión de Categorías",
-                        style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                    Text(
-                        text = "+ Crear Nueva",
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = AndeanPrimary,
-                        modifier = Modifier.clickable { showAddCategoryModal = true }
-                    )
+                Column(modifier = Modifier.fillMaxWidth()) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "Gestión de Categorías",
+                            style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                        Text(
+                            text = "+ Crear Nueva",
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = AndeanPrimary,
+                            modifier = Modifier.clickable {
+                                onShowSnackbar("Para añadir nuevas categorías personalizadas, usa el módulo de categorías avanzadas.")
+                            }
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(10.dp))
+
+                    // Pestañas Gasto vs Ingreso
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        FilterChip(
+                            selected = state.selectedKind == CategoryKind.GASTO,
+                            onClick = { viewModel.selectCategoryKind(CategoryKind.GASTO) },
+                            label = { Text("Gastos") },
+                            colors = FilterChipDefaults.filterChipColors(
+                                selectedContainerColor = AndeanPrimary.copy(alpha = 0.15f),
+                                selectedLabelColor = AndeanPrimary
+                            )
+                        )
+                        FilterChip(
+                            selected = state.selectedKind == CategoryKind.INGRESO,
+                            onClick = { viewModel.selectCategoryKind(CategoryKind.INGRESO) },
+                            label = { Text("Ingresos") },
+                            colors = FilterChipDefaults.filterChipColors(
+                                selectedContainerColor = AndeanPrimary.copy(alpha = 0.15f),
+                                selectedLabelColor = AndeanPrimary
+                            )
+                        )
+                    }
                 }
             }
 
-            items(categories, key = { it.id }) { cat ->
+            items(state.filteredCategories, key = { it.id }) { cat ->
+                val categoryColor = CategoryIconHelper.parseColor(cat.colorHex)
+                val categoryIcon = CategoryIconHelper.getIcon(cat.icon)
+
                 Card(
                     shape = RoundedCornerShape(14.dp),
                     colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)),
@@ -285,6 +299,7 @@ fun CustomizationHubScreen(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
+                            .clickable { onShowSnackbar("Categoría: ${cat.name}") }
                             .padding(12.dp),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.SpaceBetween
@@ -294,10 +309,15 @@ fun CustomizationHubScreen(
                                 modifier = Modifier
                                     .size(36.dp)
                                     .clip(CircleShape)
-                                    .background(cat.color.copy(alpha = 0.18f)),
+                                    .background(categoryColor.copy(alpha = 0.18f)),
                                 contentAlignment = Alignment.Center
                             ) {
-                                Text(text = cat.emoji, fontSize = 18.sp)
+                                Icon(
+                                    imageVector = categoryIcon,
+                                    contentDescription = null,
+                                    tint = categoryColor,
+                                    modifier = Modifier.size(18.dp)
+                                )
                             }
                             Spacer(modifier = Modifier.width(10.dp))
                             Column {
@@ -308,28 +328,21 @@ fun CustomizationHubScreen(
                                     color = MaterialTheme.colorScheme.onSurface
                                 )
                                 Text(
-                                    text = if (cat.isExpense) "Gasto" else "Ingreso",
+                                    text = if (cat.kind == CategoryKind.GASTO) {
+                                        if (cat.isAntCandidate) "Gasto · Candidato Hormiga" else "Gasto"
+                                    } else "Ingreso",
                                     fontSize = 11.sp,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                             }
                         }
 
-                        IconButton(
-                            onClick = {
-                                categories = categories.map {
-                                    if (it.id == cat.id) it.copy(isVisible = !it.isVisible) else it
-                                }
-                                onShowSnackbar(if (!cat.isVisible) "Categoría activada" else "Categoría ocultada")
-                            }
-                        ) {
-                            Icon(
-                                imageVector = if (cat.isVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
-                                contentDescription = "Visibilidad",
-                                tint = if (cat.isVisible) AndeanPrimary else Color.Gray,
-                                modifier = Modifier.size(20.dp)
-                            )
-                        }
+                        Icon(
+                            imageVector = Icons.Default.Edit,
+                            contentDescription = "Editar",
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
+                            modifier = Modifier.size(18.dp)
+                        )
                     }
                 }
             }
@@ -338,119 +351,6 @@ fun CustomizationHubScreen(
                 Spacer(modifier = Modifier.height(24.dp))
             }
         }
-    }
-
-    // Modal Crear Nueva Categoría
-    if (showAddCategoryModal) {
-        AlertDialog(
-            onDismissRequest = { showAddCategoryModal = false },
-            title = {
-                Text(
-                    text = "Nueva Categoría",
-                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
-                )
-            },
-            text = {
-                Column(modifier = Modifier.fillMaxWidth()) {
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        FilterChip(
-                            selected = newCatIsExpense,
-                            onClick = { newCatIsExpense = true },
-                            label = { Text("Gasto") }
-                        )
-                        FilterChip(
-                            selected = !newCatIsExpense,
-                            onClick = { newCatIsExpense = false },
-                            label = { Text("Ingreso") }
-                        )
-                    }
-                    Spacer(modifier = Modifier.height(10.dp))
-                    OutlinedTextField(
-                        value = newCatName,
-                        onValueChange = { newCatName = it },
-                        label = { Text("Nombre de Categoría") },
-                        singleLine = true,
-                        shape = RoundedCornerShape(12.dp),
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                    Spacer(modifier = Modifier.height(12.dp))
-
-                    Text("Selecciona Ícono:", style = MaterialTheme.typography.labelSmall)
-                    Spacer(modifier = Modifier.height(6.dp))
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(6.dp),
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        emojiChoices.take(6).forEach { emoji ->
-                            Surface(
-                                shape = CircleShape,
-                                color = if (newCatEmoji == emoji) AndeanPrimary.copy(alpha = 0.25f) else MaterialTheme.colorScheme.surfaceVariant,
-                                modifier = Modifier
-                                    .size(36.dp)
-                                    .clip(CircleShape)
-                                    .clickable { newCatEmoji = emoji }
-                            ) {
-                                Box(contentAlignment = Alignment.Center) {
-                                    Text(text = emoji, fontSize = 18.sp)
-                                }
-                            }
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.height(12.dp))
-
-                    Text("Selecciona Color:", style = MaterialTheme.typography.labelSmall)
-                    Spacer(modifier = Modifier.height(6.dp))
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(6.dp),
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        paletteColors.take(6).forEach { color ->
-                            Box(
-                                modifier = Modifier
-                                    .size(32.dp)
-                                    .clip(CircleShape)
-                                    .background(color)
-                                    .border(
-                                        width = if (newCatColor == color) 3.dp else 0.dp,
-                                        color = if (newCatColor == color) Color.White else Color.Transparent,
-                                        shape = CircleShape
-                                    )
-                                    .clickable { newCatColor = color }
-                            )
-                        }
-                    }
-                }
-            },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        if (newCatName.isNotBlank()) {
-                            categories = categories + CustomCategory(
-                                id = System.currentTimeMillis().toString(),
-                                name = newCatName.trim(),
-                                emoji = newCatEmoji,
-                                color = newCatColor,
-                                isExpense = newCatIsExpense
-                            )
-                            showAddCategoryModal = false
-                            newCatName = ""
-                            onShowSnackbar("¡Categoría ${newCatName.trim()} creada con éxito!")
-                        }
-                    }
-                ) {
-                    Text("Crear", fontWeight = FontWeight.Bold, color = AndeanPrimary)
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { showAddCategoryModal = false }) {
-                    Text("Cancelar")
-                }
-            }
-        )
     }
 }
 

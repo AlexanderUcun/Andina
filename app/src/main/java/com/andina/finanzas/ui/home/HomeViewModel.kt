@@ -33,7 +33,8 @@ import javax.inject.Inject
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
-    private val repository: FinanceRepository
+    private val repository: FinanceRepository,
+    private val userProfileRepository: com.andina.finanzas.domain.repository.UserProfileRepository
 ) : ViewModel() {
 
     companion object {
@@ -71,18 +72,19 @@ class HomeViewModel @Inject constructor(
             repository.observeWallets(),
             repository.observePockets(),
             repository.observeRecentTransactions(limit = 5),
-            repository.observeFinancialSummary(fromMillis, toMillis)
-        ) { wallets, pockets, recentTxs, summary ->
-            val budgetTotal = Money(2_500_000L) // Presupuesto mensual estándar o meta de gasto
+            repository.observeFinancialSummary(fromMillis, toMillis),
+            userProfileRepository.observeUserProfile()
+        ) { wallets, pockets, recentTxs, summary, userProfile ->
+            val budgetTotal = Money(userProfile.monthlyBudgetLimit)
             val spent = summary.monthlyExpense
             val budgetProgress = if (budgetTotal.pesos > 0L) {
                 (spent.pesos.toFloat() / budgetTotal.pesos.toFloat()).coerceIn(0f, 1f)
             } else 0f
 
-            val paramoLevel = calculateParamoLevel(summary.savingsRate)
-
             _state.update { current ->
                 current.copy(
+                    userName = userProfile.name,
+                    userLevel = userProfile.level,
                     greeting = calculateGreeting(LocalTime.now().hour),
                     totalNetWorth = summary.totalNetWorth,
                     periodIncome = summary.monthlyIncome,
@@ -92,10 +94,10 @@ class HomeViewModel @Inject constructor(
                     budgetSpent = spent,
                     budgetProgress = budgetProgress,
                     wallets = wallets,
-                    pockets = pockets.take(5),
+                    pockets = if (userProfile.showPocketsCard) pockets.take(5) else emptyList(),
                     recentTransactions = recentTxs,
                     antExpensesMonthTotal = summary.monthlyAntExpense,
-                    paramoHealthLevel = paramoLevel,
+                    paramoHealthLevel = userProfile.level,
                     isLoading = false
                 )
             }
