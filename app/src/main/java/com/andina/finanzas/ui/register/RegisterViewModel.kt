@@ -130,6 +130,7 @@ class RegisterViewModel @Inject constructor(
         when (action) {
             is RegisterAction.TypeChanged -> handleTypeChanged(action.type)
             is RegisterAction.DigitPressed -> handleDigitPressed(action.digit)
+            is RegisterAction.AmountDigitsChanged -> handleAmountDigitsChanged(action.digits)
             RegisterAction.BackspacePressed -> handleBackspace()
             RegisterAction.ClearAmount -> handleClearAmount()
             is RegisterAction.AddQuickAmount -> handleAddQuickAmount(action.addition)
@@ -175,6 +176,19 @@ class RegisterViewModel @Inject constructor(
             it.copy(
                 amountDigits = newDigits,
                 lastPressedDigit = digit.digitToIntOrNull(),
+                amountError = null
+            )
+        }
+    }
+
+    private fun handleAmountDigitsChanged(digits: String) {
+        val cleanDigits = digits.filter { it.isDigit() }.take(MAX_DIGITS_LENGTH)
+        val finalDigits = cleanDigits.trimStart('0')
+        savedStateHandle[KEY_AMOUNT_DIGITS] = finalDigits
+        _state.update {
+            it.copy(
+                amountDigits = finalDigits,
+                lastPressedDigit = finalDigits.lastOrNull()?.digitToIntOrNull(),
                 amountError = null
             )
         }

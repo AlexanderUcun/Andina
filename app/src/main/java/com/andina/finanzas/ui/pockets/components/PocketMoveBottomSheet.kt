@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -17,6 +18,7 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Backspace
 import androidx.compose.material.icons.filled.AccountBalanceWallet
@@ -31,17 +33,25 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -77,9 +87,10 @@ fun PocketMoveBottomSheet(
     errorMessage: String?,
     canExecute: Boolean,
     onWalletSelected: (Long) -> Unit,
-    onDigitClicked: (Char) -> Unit,
-    onDeleteDigit: () -> Unit,
-    onClearDigits: () -> Unit,
+    onDigitClicked: (Char) -> Unit = {},
+    onDeleteDigit: () -> Unit = {},
+    onClearDigits: () -> Unit = {},
+    onAmountDigitsChanged: (String) -> Unit = {},
     onQuickAmount: (Long) -> Unit,
     onConfirmMove: () -> Unit,
     onDismiss: () -> Unit,
@@ -88,6 +99,12 @@ fun PocketMoveBottomSheet(
     if (!isVisible || pocket == null) return
 
     val view = LocalView.current
+    val focusRequester = remember { FocusRequester() }
+
+    LaunchedEffect(Unit) {
+        focusRequester.requestFocus()
+    }
+
     val currentAmount = Money(amountDigits.toLongOrNull() ?: 0L)
     val selectedWallet = wallets.find { it.id == selectedWalletId } ?: wallets.firstOrNull()
 
@@ -100,6 +117,7 @@ fun PocketMoveBottomSheet(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
+                .imePadding()
                 .padding(horizontal = 24.dp)
                 .padding(bottom = 32.dp),
             horizontalAlignment = Alignment.CenterHorizontally
@@ -206,16 +224,16 @@ fun PocketMoveBottomSheet(
                 }
             }
 
-            Spacer(modifier = Modifier.height(18.dp))
+            Spacer(modifier = Modifier.height(14.dp))
 
-            // Monto Display
+            // Monto Input con Teclado Numérico Nativo Android
             Surface(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(20.dp),
                 color = Color(0xFFF9FAFB)
             ) {
                 Column(
-                    modifier = Modifier.padding(vertical = 16.dp, horizontal = 20.dp),
+                    modifier = Modifier.padding(vertical = 12.dp, horizontal = 16.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text(
@@ -226,19 +244,47 @@ fun PocketMoveBottomSheet(
                             letterSpacing = 1.sp
                         )
                     )
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(
-                        text = currentAmount.formatCop(),
-                        style = MaterialTheme.typography.headlineLarge.copy(
+                    Spacer(modifier = Modifier.height(6.dp))
+
+                    OutlinedTextField(
+                        value = amountDigits,
+                        onValueChange = onAmountDigitsChanged,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .focusRequester(focusRequester),
+                        textStyle = MaterialTheme.typography.headlineLarge.copy(
                             fontWeight = FontWeight.ExtraBold,
                             color = AndinaDeepForest,
-                            fontSize = 34.sp
+                            fontSize = 32.sp,
+                            textAlign = TextAlign.Center
+                        ),
+                        placeholder = {
+                            Text(
+                                text = "$ 0",
+                                modifier = Modifier.fillMaxWidth(),
+                                textAlign = TextAlign.Center,
+                                style = MaterialTheme.typography.headlineLarge.copy(
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 30.sp,
+                                    color = Color(0xFF9CA3AF).copy(alpha = 0.5f)
+                                )
+                            )
+                        },
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Number,
+                            imeAction = ImeAction.Done
+                        ),
+                        shape = RoundedCornerShape(16.dp),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = if (moveType == PocketMoveType.CONTRIBUTION) AndinaMossGreen else AndinaAmber,
+                            unfocusedBorderColor = Color(0xFFE5E7EB)
                         )
                     )
 
                     // Previsualización de impacto
                     if (currentAmount.isPositive && selectedWallet != null) {
-                        Spacer(modifier = Modifier.height(6.dp))
+                        Spacer(modifier = Modifier.height(8.dp))
                         val impactText = when (moveType) {
                             PocketMoveType.CONTRIBUTION -> {
                                 val remainingInWallet = selectedWallet.currentBalance - currentAmount
@@ -346,25 +392,7 @@ fun PocketMoveBottomSheet(
                 }
             }
 
-            Spacer(modifier = Modifier.height(14.dp))
-
-            // Teclado numérico compacto
-            CompactMoveKeypad(
-                onDigit = {
-                    view.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
-                    onDigitClicked(it)
-                },
-                onDelete = {
-                    view.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP)
-                    onDeleteDigit()
-                },
-                onClear = {
-                    view.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS)
-                    onClearDigits()
-                }
-            )
-
-            Spacer(modifier = Modifier.height(18.dp))
+            Spacer(modifier = Modifier.height(20.dp))
 
             // Botón de confirmación CTA
             Button(
@@ -402,75 +430,6 @@ fun PocketMoveBottomSheet(
                             color = Color.White
                         )
                     )
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun CompactMoveKeypad(
-    onDigit: (Char) -> Unit,
-    onDelete: () -> Unit,
-    onClear: () -> Unit
-) {
-    val rows = listOf(
-        listOf('1', '2', '3'),
-        listOf('4', '5', '6'),
-        listOf('7', '8', '9'),
-        listOf('C', '0', '<')
-    )
-
-    Column(
-        modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(6.dp)
-    ) {
-        rows.forEach { row ->
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(6.dp)
-            ) {
-                row.forEach { key ->
-                    Surface(
-                        modifier = Modifier
-                            .weight(1f)
-                            .height(44.dp)
-                            .clip(RoundedCornerShape(12.dp))
-                            .clickable {
-                                when (key) {
-                                    'C' -> onClear()
-                                    '<' -> onDelete()
-                                    else -> onDigit(key)
-                                }
-                            },
-                        shape = RoundedCornerShape(12.dp),
-                        color = Color(0xFFF9FAFB)
-                    ) {
-                        Box(contentAlignment = Alignment.Center) {
-                            when (key) {
-                                '<' -> Icon(
-                                    imageVector = Icons.AutoMirrored.Filled.Backspace,
-                                    contentDescription = "Borrar",
-                                    tint = Color(0xFF4B5563),
-                                    modifier = Modifier.size(18.dp)
-                                )
-                                'C' -> Text(
-                                    text = "C",
-                                    style = MaterialTheme.typography.titleMedium.copy(
-                                        fontWeight = FontWeight.Bold,
-                                        color = AndinaErrorRed
-                                    )
-                                )
-                                else -> Text(
-                                    text = key.toString(),
-                                    style = MaterialTheme.typography.titleMedium.copy(
-                                        fontWeight = FontWeight.Bold,
-                                        color = AndinaDeepForest
-                                    )
-                                )
-                            }
-                        }
-                    }
                 }
             }
         }

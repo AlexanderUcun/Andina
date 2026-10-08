@@ -125,9 +125,7 @@ fun PocketsScreen(
         errorMessage = state.moveError,
         canExecute = state.canExecuteMove,
         onWalletSelected = { viewModel.processAction(PocketsAction.SelectMoveWallet(it)) },
-        onDigitClicked = { viewModel.processAction(PocketsAction.InputMoveDigit(it)) },
-        onDeleteDigit = { viewModel.processAction(PocketsAction.DeleteMoveDigit) },
-        onClearDigits = { viewModel.processAction(PocketsAction.ClearMoveAmount) },
+        onAmountDigitsChanged = { viewModel.processAction(PocketsAction.UpdateMoveAmountDigits(it)) },
         onQuickAmount = { viewModel.processAction(PocketsAction.SetMoveAmount(it)) },
         onConfirmMove = { viewModel.processAction(PocketsAction.ExecuteMove) },
         onDismiss = { viewModel.processAction(PocketsAction.DismissMoveSheet) }

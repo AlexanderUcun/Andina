@@ -93,6 +93,7 @@ data class RegisterUiState(
 sealed interface RegisterAction {
     data class TypeChanged(val type: TransactionType) : RegisterAction
     data class DigitPressed(val digit: Char) : RegisterAction
+    data class AmountDigitsChanged(val digits: String) : RegisterAction
     data object BackspacePressed : RegisterAction
     data object ClearAmount : RegisterAction
     data class AddQuickAmount(val addition: Long) : RegisterAction

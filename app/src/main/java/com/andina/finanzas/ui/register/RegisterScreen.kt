@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -23,7 +24,12 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.BugReport
 import androidx.compose.material.icons.filled.Close
@@ -119,6 +125,11 @@ fun RegisterScreen(
     val haptic = LocalHapticFeedback.current
     val isDark = isSystemInDarkTheme()
     val scrollState = rememberScrollState()
+    val focusRequester = remember { FocusRequester() }
+
+    LaunchedEffect(Unit) {
+        focusRequester.requestFocus()
+    }
 
     var showNoteField by remember { mutableStateOf(state.note.isNotEmpty()) }
 
@@ -152,6 +163,7 @@ fun RegisterScreen(
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
+                        .imePadding()
                         .verticalScroll(scrollState)
                         .padding(horizontal = 20.dp, vertical = 12.dp)
                         .navigationBarsPadding(),
@@ -192,29 +204,55 @@ fun RegisterScreen(
                         onTypeSelected = { onAction(RegisterAction.TypeChanged(it)) }
                     )
 
-                    Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(14.dp))
 
-                    // 4. Hero Display de Monto
+                    // 4. Input Nativo de Monto con Teclado Numérico Android
                     val heroColor = when {
                         state.amountError != null -> MaterialTheme.colorScheme.error
                         state.type == TransactionType.INGRESO -> Color(0xFF2E6316)
                         else -> MaterialTheme.colorScheme.onSurface
                     }
 
-                    Text(
-                        text = state.amountFormatted,
-                        style = MaterialTheme.typography.displaySmall.copy(
+                    OutlinedTextField(
+                        value = state.amountDigits,
+                        onValueChange = { onAction(RegisterAction.AmountDigitsChanged(it)) },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .focusRequester(focusRequester),
+                        textStyle = MaterialTheme.typography.displaySmall.copy(
                             fontWeight = FontWeight.ExtraBold,
-                            fontSize = 36.sp,
-                            fontFeatureSettings = "tnum"
+                            fontSize = 32.sp,
+                            fontFeatureSettings = "tnum",
+                            textAlign = TextAlign.Center,
+                            color = heroColor
                         ),
-                        color = heroColor,
-                        textAlign = TextAlign.Center
+                        placeholder = {
+                            Text(
+                                text = "$ 0 COP",
+                                modifier = Modifier.fillMaxWidth(),
+                                textAlign = TextAlign.Center,
+                                style = MaterialTheme.typography.displaySmall.copy(
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 30.sp,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.45f)
+                                )
+                            )
+                        },
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Number,
+                            imeAction = ImeAction.Done
+                        ),
+                        shape = RoundedCornerShape(18.dp),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = AndeanPrimary,
+                            unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
+                        )
                     )
 
                     // Confirmación en palabras (ej. "Cincuenta mil pesos")
                     if (state.amountInWords.isNotEmpty()) {
-                        Spacer(modifier = Modifier.height(2.dp))
+                        Spacer(modifier = Modifier.height(4.dp))
                         Text(
                             text = state.amountInWords,
                             style = MaterialTheme.typography.bodyMedium.copy(
@@ -236,7 +274,63 @@ fun RegisterScreen(
                         )
                     }
 
-                    Spacer(modifier = Modifier.height(14.dp))
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    // Chips de atajos rápidos de dinero
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
+                        listOf(10_000L, 20_000L, 50_000L, 100_000L).forEach { quick ->
+                            Surface(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .clip(RoundedCornerShape(10.dp))
+                                    .clickable {
+                                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                        onAction(RegisterAction.AddQuickAmount(quick))
+                                    },
+                                shape = RoundedCornerShape(10.dp),
+                                color = if (isDark) Color(0xFF222520) else Color(0xFFF1EEE8)
+                            ) {
+                                Text(
+                                    text = "+$${quick / 1000}k",
+                                    modifier = Modifier.padding(vertical = 6.dp),
+                                    textAlign = TextAlign.Center,
+                                    style = MaterialTheme.typography.labelMedium.copy(
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 11.sp,
+                                        color = MaterialTheme.colorScheme.onSurface
+                                    )
+                                )
+                            }
+                        }
+
+                        // Botón limpiar monto
+                        if (state.amountDigits.isNotEmpty()) {
+                            Surface(
+                                modifier = Modifier
+                                    .clip(RoundedCornerShape(10.dp))
+                                    .clickable {
+                                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                        onAction(RegisterAction.ClearAmount)
+                                    },
+                                shape = RoundedCornerShape(10.dp),
+                                color = MaterialTheme.colorScheme.error.copy(alpha = 0.12f)
+                            ) {
+                                Text(
+                                    text = "Limpiar",
+                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 6.dp),
+                                    textAlign = TextAlign.Center,
+                                    style = MaterialTheme.typography.labelMedium.copy(
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 11.sp,
+                                        color = MaterialTheme.colorScheme.error
+                                    )
+                                )
+                            }
+                        }
+                    }
 
                     // 5. Selector de Billetera Origen
                     PaymentWalletSelector(
@@ -370,17 +464,7 @@ fun RegisterScreen(
                         }
                     }
 
-                    Spacer(modifier = Modifier.height(14.dp))
-
-                    // 8. Teclado Numérico Táctil
-                    NumericKeypad(
-                        onDigitClick = { onAction(RegisterAction.DigitPressed(it)) },
-                        onBackspaceClick = { onAction(RegisterAction.BackspacePressed) },
-                        onClearClick = { onAction(RegisterAction.ClearAmount) },
-                        onQuickAmountClick = { onAction(RegisterAction.AddQuickAmount(it)) }
-                    )
-
-                    Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(20.dp))
 
                     // 9. Botón Principal CTA [ Guardar Gasto ]
                     val ctaText = when (state.type) {

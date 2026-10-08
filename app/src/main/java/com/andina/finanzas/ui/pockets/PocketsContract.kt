@@ -73,6 +73,7 @@ sealed interface PocketsAction {
 
     data class SelectMoveWallet(val walletId: Long) : PocketsAction
     data class SetMoveAmount(val amount: Long) : PocketsAction
+    data class UpdateMoveAmountDigits(val digits: String) : PocketsAction
     data class InputMoveDigit(val digit: Char) : PocketsAction
     data object DeleteMoveDigit : PocketsAction
     data object ClearMoveAmount : PocketsAction

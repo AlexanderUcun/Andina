@@ -127,6 +127,10 @@ class PocketsViewModel @Inject constructor(
                 val digits = if (action.amount > 0L) action.amount.toString() else ""
                 _state.update { it.copy(moveAmountDigits = digits, moveError = null) }
             }
+            is PocketsAction.UpdateMoveAmountDigits -> {
+                val clean = action.digits.filter { it.isDigit() }.take(12).trimStart('0')
+                _state.update { it.copy(moveAmountDigits = clean, moveError = null) }
+            }
             is PocketsAction.InputMoveDigit -> {
                 handleDigitInput(action.digit)
             }
