@@ -30,6 +30,7 @@ import androidx.compose.material.icons.filled.Payments
 import androidx.compose.material.icons.filled.Smartphone
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -71,42 +72,55 @@ fun PaymentWalletSelector(
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         // Título de la sección
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 4.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+        Text(
+            text = labelTitle,
+            style = MaterialTheme.typography.labelLarge.copy(
+                fontWeight = FontWeight.SemiBold
+            ),
+            color = MaterialTheme.colorScheme.onSurface,
+            modifier = Modifier.padding(horizontal = 4.dp)
+        )
+
+        // Previsualización de saldo proyectado en caja independiente y limpia
+        AnimatedVisibility(
+            visible = selectedWallet != null && projectedRemainingBalance != null,
+            enter = fadeIn(),
+            exit = fadeOut()
         ) {
-            Text(
-                text = labelTitle,
-                style = MaterialTheme.typography.labelLarge.copy(
-                    fontWeight = FontWeight.SemiBold
-                ),
-                color = MaterialTheme.colorScheme.onSurface
-            )
+            if (selectedWallet != null && projectedRemainingBalance != null) {
+                val isNegative = projectedRemainingBalance.isNegative
+                val bgColor = if (isNegative) {
+                    MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.4f)
+                } else {
+                    MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.35f)
+                }
+                val textColor = if (isNegative) {
+                    MaterialTheme.colorScheme.error
+                } else {
+                    MaterialTheme.colorScheme.primary
+                }
 
-            // Previsualización en vivo: "Te quedarán $45.000 en Nequi"
-            AnimatedVisibility(
-                visible = selectedWallet != null && projectedRemainingBalance != null,
-                enter = fadeIn(),
-                exit = fadeOut()
-            ) {
-                if (selectedWallet != null && projectedRemainingBalance != null) {
-                    val remainingColor = if (projectedRemainingBalance.isNegative) {
-                        MaterialTheme.colorScheme.error
-                    } else {
-                        MaterialTheme.colorScheme.primary
+                Surface(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 2.dp),
+                    shape = RoundedCornerShape(10.dp),
+                    color = bgColor
+                ) {
+                    Row(
+                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = if (isNegative) "⚠️ Advertencia: Saldo insuficiente. Quedarían ${projectedRemainingBalance.formatCop()} en ${selectedWallet.name}"
+                            else "Te quedarán ${projectedRemainingBalance.formatCop()} en ${selectedWallet.name}",
+                            style = MaterialTheme.typography.bodySmall.copy(
+                                fontWeight = FontWeight.SemiBold,
+                                fontSize = 12.sp
+                            ),
+                            color = textColor
+                        )
                     }
-
-                    Text(
-                        text = "Te quedarán ${projectedRemainingBalance.formatCop()} en ${selectedWallet.name}",
-                        style = MaterialTheme.typography.bodySmall.copy(
-                            fontWeight = FontWeight.SemiBold,
-                            fontSize = 12.sp
-                        ),
-                        color = remainingColor
-                    )
                 }
             }
         }

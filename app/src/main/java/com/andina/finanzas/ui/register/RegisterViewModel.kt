@@ -47,8 +47,10 @@ class RegisterViewModel @Inject constructor(
         private const val KEY_IS_ANT_OVERRIDE = "reg_is_ant_override"
         private const val KEY_RECEIPT_URI = "reg_receipt_uri"
 
-        // Límite de 12 dígitos ($999.999.999.999 COP) para evitar overflow en Long
-        private const val MAX_DIGITS_LENGTH = 12
+        // Límite de 8 dígitos ($99.999.999 COP) para integridad contable y control de topes
+        private const val MAX_DIGITS_LENGTH = 8
+        private const val MAX_AMOUNT_COP = 99_999_999L
+        private const val HIGH_AMOUNT_THRESHOLD_COP = 10_000_000L
     }
 
     // Inicializar estado recuperando variables de SavedStateHandle o argumentos de navegación
@@ -141,6 +143,13 @@ class RegisterViewModel @Inject constructor(
             is RegisterAction.DateChanged -> handleDateChanged(action.timestamp)
             RegisterAction.ToggleAntExpense -> handleToggleAntExpense()
             is RegisterAction.ReceiptAttached -> handleReceiptAttached(action.uri)
+            RegisterAction.ConfirmHighAmount -> {
+                _state.update { it.copy(showHighAmountConfirmation = false) }
+                executeSave()
+            }
+            RegisterAction.DismissHighAmount -> {
+                _state.update { it.copy(showHighAmountConfirmation = false) }
+            }
             RegisterAction.Save -> save()
         }
     }
@@ -222,7 +231,7 @@ class RegisterViewModel @Inject constructor(
 
     private fun handleAddQuickAmount(addition: Long) {
         val currentAmount = _state.value.amountDigits.toLongOrNull() ?: 0L
-        val newAmount = (currentAmount + addition).coerceAtMost(999_999_999_999L)
+        val newAmount = (currentAmount + addition).coerceAtMost(MAX_AMOUNT_COP)
         val newDigits = newAmount.toString()
         savedStateHandle[KEY_AMOUNT_DIGITS] = newDigits
 
@@ -305,6 +314,17 @@ class RegisterViewModel @Inject constructor(
             return
         }
 
+        // Alerta de confirmación a 2 pasos si la cifra supera los $10.000.000 COP
+        if (current.amountMoney.pesos > HIGH_AMOUNT_THRESHOLD_COP && !current.showHighAmountConfirmation) {
+            _state.update { it.copy(showHighAmountConfirmation = true) }
+            return
+        }
+
+        executeSave()
+    }
+
+    private fun executeSave() {
+        val current = _state.value
         val walletId = current.walletId ?: return
 
         _state.update { it.copy(isSaving = true, amountError = null) }

@@ -27,6 +27,7 @@ data class RegisterUiState(
     val selectedCategory: Category? = null,
     val toWallet: Wallet? = null,
     val amountError: String? = null,
+    val showHighAmountConfirmation: Boolean = false,
     val isSaving: Boolean = false,
     val lastPressedDigit: Int? = null,
     val receiptUri: String? = null,
@@ -104,6 +105,8 @@ sealed interface RegisterAction {
     data class DateChanged(val timestamp: Long) : RegisterAction
     data object ToggleAntExpense : RegisterAction
     data class ReceiptAttached(val uri: String?) : RegisterAction
+    data object ConfirmHighAmount : RegisterAction
+    data object DismissHighAmount : RegisterAction
     data object Save : RegisterAction
 }
 

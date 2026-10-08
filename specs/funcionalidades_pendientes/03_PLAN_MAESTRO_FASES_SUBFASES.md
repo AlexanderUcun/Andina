@@ -6,9 +6,9 @@
 ---
 
 ## 📌 REGISTRO DE ESTADO Y RETROALIMENTACIÓN EN TIEMPO REAL
-> **Estado Actual:** `FASE 1: Completada al 100% | FASE 2: Pendiente de Inicio`  
-> **Último Commit Local:** `feat(refresh): optimizar disolución de gota de rocío en pull-to-refresh`  
-> **Última Sub-fase Validada:** Sub-fase 1.3  
+> **Estado Actual:** `FASE 2: Sub-fase 2.2 (Pendiente de Inicio)`  
+> **Último Commit Local:** `feat(limits): tope monetario $99.999.999 COP, alerta > $10.000.000 COP y layout ordenado`  
+> **Última Sub-fase Validada:** Sub-fase 2.1  
 
 ```text
 [x] FASE 1: ARQUITECTURA DE INSETS, NAVEGACIÓN BASE Y TECLADO NATIVO
@@ -16,7 +16,7 @@
     [x] Sub-fase 1.2: Remoción de Teclado Custom e Integración del Teclado Nativo (Módulos 18 y 2)
     [x] Sub-fase 1.3: Reparación del Componente Gota de Rocío / Pull-To-Refresh (Módulo 15)
 [ ] FASE 2: INTEGRIDAD CONTABLE, CONTROL DE SALDOS Y EDICIÓN COMPLETA
-    [ ] Sub-fase 2.1: Tope Monetario Máximo ($99.999.999 COP) y Alerta Inteligente (Módulo 13)
+    [x] Sub-fase 2.1: Tope Monetario Máximo ($99.999.999 COP) y Alerta Inteligente (Módulo 13)
     [ ] Sub-fase 2.2: Control de Saldos Negativos y Capacidad de Deuda (Módulo 14)
     [ ] Sub-fase 2.3: Edición Integral de Movimientos (Módulo 19)
 [ ] FASE 3: ENRUTAMIENTO REAL, FORMULARIOS Y CATEGORÍAS EN GRID
