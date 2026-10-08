@@ -171,6 +171,27 @@ class AndinaAppState(
     }
 
     /**
+     * Navega al Hub de Personalización Total (Módulo 9).
+     */
+    fun navigateToCustomization() {
+        navController.navigate(CustomizationHubRoute)
+    }
+
+    /**
+     * Navega al Calendario Financiero Interactivo (Módulo 10).
+     */
+    fun navigateToCalendar() {
+        navController.navigate(CalendarRoute)
+    }
+
+    /**
+     * Navega a la Exportación de Reportes y Respaldos (Módulo 6).
+     */
+    fun navigateToReportExport() {
+        navController.navigate(ReportExportRoute)
+    }
+
+    /**
      * Retrocede en la pila de navegación de forma segura.
      */
     fun navigateUp() {
@@ -366,7 +387,10 @@ fun AndinaAppShell(
             composable<UserProfileRoute> {
                 com.andina.finanzas.ui.profile.UserProfileScreen(
                     onNavigateBack = { appState.navigateUp() },
-                    onShowSnackbar = { msg -> appState.showSnackbar(msg) }
+                    onShowSnackbar = { msg -> appState.showSnackbar(msg) },
+                    onNavigateToCustomization = { appState.navigateToCustomization() },
+                    onNavigateToCalendar = { appState.navigateToCalendar() },
+                    onNavigateToReportExport = { appState.navigateToReportExport() }
                 )
             }
 
@@ -390,6 +414,30 @@ fun AndinaAppShell(
             // Pantalla de Gastos e Ingresos Fijos Programables (Módulo 8)
             composable<RecurringRoute> {
                 com.andina.finanzas.ui.recurring.RecurringTransactionsScreen(
+                    onNavigateBack = { appState.navigateUp() },
+                    onShowSnackbar = { msg -> appState.showSnackbar(msg) }
+                )
+            }
+
+            // Pantalla de Hub de Personalización Total (Módulo 9)
+            composable<CustomizationHubRoute> {
+                com.andina.finanzas.ui.customization.CustomizationHubScreen(
+                    onNavigateBack = { appState.navigateUp() },
+                    onShowSnackbar = { msg -> appState.showSnackbar(msg) }
+                )
+            }
+
+            // Pantalla de Calendario Financiero Interactivo (Módulo 10)
+            composable<CalendarRoute> {
+                com.andina.finanzas.ui.calendar.CalendarScreen(
+                    onNavigateBack = { appState.navigateUp() },
+                    onShowSnackbar = { msg -> appState.showSnackbar(msg) }
+                )
+            }
+
+            // Pantalla de Exportación de Reportes y Respaldos (Módulo 6)
+            composable<ReportExportRoute> {
+                com.andina.finanzas.ui.export.ReportExporterScreen(
                     onNavigateBack = { appState.navigateUp() },
                     onShowSnackbar = { msg -> appState.showSnackbar(msg) }
                 )

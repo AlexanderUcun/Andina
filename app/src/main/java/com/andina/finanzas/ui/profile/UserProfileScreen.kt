@@ -20,8 +20,10 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.DarkMode
+import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Palette
@@ -69,6 +71,9 @@ import com.andina.finanzas.ui.theme.AndeanPrimary
 fun UserProfileScreen(
     onNavigateBack: () -> Unit,
     onShowSnackbar: (String) -> Unit,
+    onNavigateToCustomization: () -> Unit = {},
+    onNavigateToCalendar: () -> Unit = {},
+    onNavigateToReportExport: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     var userName by remember { mutableStateOf("Viajero del Páramo") }
@@ -340,6 +345,79 @@ fun UserProfileScreen(
                             onShowSnackbar(if (it) "Modo incógnito activado por defecto" else "Saldos visibles al iniciar")
                         }
                     )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            // 4. Sección de Herramientas del Ecosistema
+            Text(
+                text = "Herramientas Avanzadas",
+                style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.fillMaxWidth()
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Card(
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
+                ),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { onNavigateToCustomization() }
+                            .padding(vertical = 6.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(imageVector = Icons.Default.Palette, contentDescription = null, tint = AndeanPrimary, modifier = Modifier.size(20.dp))
+                            Spacer(modifier = Modifier.width(10.dp))
+                            Text("Personalizar Categorías y Módulos", fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
+                        }
+                        Text(">", fontWeight = FontWeight.Bold, color = AndeanPrimary)
+                    }
+
+                    HorizontalDivider(modifier = Modifier.padding(vertical = 10.dp), thickness = 0.5.dp)
+
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { onNavigateToCalendar() }
+                            .padding(vertical = 6.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(imageVector = Icons.Default.CalendarMonth, contentDescription = null, tint = AndeanPrimary, modifier = Modifier.size(20.dp))
+                            Spacer(modifier = Modifier.width(10.dp))
+                            Text("Calendario Financiero Interactivo", fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
+                        }
+                        Text(">", fontWeight = FontWeight.Bold, color = AndeanPrimary)
+                    }
+
+                    HorizontalDivider(modifier = Modifier.padding(vertical = 10.dp), thickness = 0.5.dp)
+
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { onNavigateToReportExport() }
+                            .padding(vertical = 6.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(imageVector = Icons.Default.Description, contentDescription = null, tint = AndeanPrimary, modifier = Modifier.size(20.dp))
+                            Spacer(modifier = Modifier.width(10.dp))
+                            Text("Exportar PDF / CSV & Respaldo Cifrado", fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
+                        }
+                        Text(">", fontWeight = FontWeight.Bold, color = AndeanPrimary)
+                    }
                 }
             }
 
