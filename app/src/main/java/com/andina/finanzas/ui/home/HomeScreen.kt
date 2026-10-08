@@ -15,10 +15,21 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material.icons.filled.CalendarMonth
+import androidx.compose.material.icons.filled.Description
+import androidx.compose.material.icons.filled.MarkEmailUnread
 import androidx.compose.material.icons.filled.NotificationsNone
+import androidx.compose.material.icons.filled.PieChart
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.Tune
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -32,6 +43,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -49,16 +61,6 @@ import com.andina.finanzas.ui.theme.AndeanPrimary
 
 /**
  * Pantalla Principal de Inicio (Master Dashboard) de Andina Finanzas.
- *
- * Cumple con todas las especificaciones de diseño "Andean Mist & Moss":
- * - Gradiente orgánico vertical de fondo.
- * - Cabecera editorial con saludo horario y nivel de salud financiera.
- * - Tarjeta Hero de Patrimonio con odómetro numérico y ojo de privacidad.
- * - Métricas del periodo (Entró, Salió, Te queda).
- * - Barra animada de presupuesto mensual.
- * - Carrusel de billeteras activas y bolsillos de ahorro.
- * - Gota de rocío andino (AndeanDewPullRefresh) en pull-to-refresh.
- * - Últimos movimientos y estado vacío de Muggy.
  */
 @Composable
 fun HomeScreen(
@@ -73,6 +75,9 @@ fun HomeScreen(
     onNavigateToRegister: () -> Unit = {},
     onNavigateToSettings: () -> Unit = {},
     onNavigateToBudgets: () -> Unit = {},
+    onNavigateToCalendar: () -> Unit = {},
+    onNavigateToReportExport: () -> Unit = {},
+    onNavigateToCustomization: () -> Unit = {},
     onNavigateToNotifications: () -> Unit = {},
     onNavigateToConsultorio: () -> Unit = {},
     onShowSnackbar: (String) -> Unit = {}
@@ -93,6 +98,10 @@ fun HomeScreen(
                 is HomeEffect.NavigateToRegister -> onNavigateToRegister()
                 is HomeEffect.NavigateToSettings -> onNavigateToSettings()
                 is HomeEffect.NavigateToBudgets -> onNavigateToBudgets()
+                is HomeEffect.NavigateToCalendar -> onNavigateToCalendar()
+                is HomeEffect.NavigateToReportExport -> onNavigateToReportExport()
+                is HomeEffect.NavigateToCustomization -> onNavigateToCustomization()
+                is HomeEffect.NavigateToConsultorioSms -> onNavigateToConsultorio()
                 is HomeEffect.NavigateToAntExpenses -> onNavigateToConsultorio()
                 is HomeEffect.NavigateToNotifications -> onNavigateToNotifications()
                 is HomeEffect.ShowSnackbar -> onShowSnackbar(effect.message)
@@ -128,7 +137,7 @@ fun HomeScreen(
         ) {
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(bottom = 96.dp)
+                contentPadding = PaddingValues(bottom = 110.dp)
             ) {
                 // Espacio de la barra de estado
                 item {
@@ -142,6 +151,7 @@ fun HomeScreen(
                         greeting = state.greeting,
                         userName = state.userName,
                         userLevel = state.userLevel,
+                        avatarEmoji = state.avatarEmoji,
                         onProfileClick = { viewModel.onAction(HomeAction.ProfileClick) },
                         onNotificationsClick = { viewModel.onAction(HomeAction.NotificationsClick) }
                     )
@@ -162,7 +172,18 @@ fun HomeScreen(
                     Spacer(modifier = Modifier.height(14.dp))
                 }
 
-                // 3. Grid de Periodo (Entró · Salió · Te queda)
+                // 2.1. Fila de Acciones Rápidas (Quick Actions)
+                item {
+                    HomeQuickActionsRow(
+                        onSmsClick = { viewModel.onAction(HomeAction.SmsClick) },
+                        onBudgetClick = { viewModel.onAction(HomeAction.BudgetClick) },
+                        onCalendarClick = { viewModel.onAction(HomeAction.CalendarClick) },
+                        onExportClick = { viewModel.onAction(HomeAction.ExportClick) }
+                    )
+                    Spacer(modifier = Modifier.height(14.dp))
+                }
+
+                // 3. Grid de Periodo (Entró · Salió · Flujo Neto)
                 item {
                     Box(modifier = Modifier.padding(horizontal = 16.dp)) {
                         PeriodMetricsGrid(
@@ -176,17 +197,19 @@ fun HomeScreen(
                 }
 
                 // 4. Barra de Presupuesto Mensual
-                item {
-                    Box(modifier = Modifier.padding(horizontal = 16.dp)) {
-                        HomeBudgetContent(
-                            budgetTotal = state.budgetTotal,
-                            budgetSpent = state.budgetSpent,
-                            budgetProgress = state.budgetProgress,
-                            isPrivacyMode = state.isPrivacyMode,
-                            onClick = { viewModel.onAction(HomeAction.BudgetClick) }
-                        )
+                if (state.showBudgetCard) {
+                    item {
+                        Box(modifier = Modifier.padding(horizontal = 16.dp)) {
+                            HomeBudgetContent(
+                                budgetTotal = state.budgetTotal,
+                                budgetSpent = state.budgetSpent,
+                                budgetProgress = state.budgetProgress,
+                                isPrivacyMode = state.isPrivacyMode,
+                                onClick = { viewModel.onAction(HomeAction.BudgetClick) }
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(14.dp))
                     }
-                    Spacer(modifier = Modifier.height(14.dp))
                 }
 
                 // 5. Banner de Sabiduría de Muggy (si no ha sido descartado)
@@ -212,7 +235,7 @@ fun HomeScreen(
                 }
 
                 // 7. Carrusel de Bolsillos de Ahorro (controlado por personalización de módulos)
-                if (state.pockets.isNotEmpty()) {
+                if (state.showPocketsCard && state.pockets.isNotEmpty()) {
                     item {
                         HomePocketsCarousel(
                             pockets = state.pockets,
@@ -231,8 +254,148 @@ fun HomeScreen(
                         onSeeAllClick = { viewModel.onAction(HomeAction.SeeAllTransactionsClick) },
                         onQuickRegisterClick = { viewModel.onAction(HomeAction.QuickRegisterClick) }
                     )
+                    Spacer(modifier = Modifier.height(16.dp))
+                }
+
+                // 9. Acceso directo a Personalización de Módulos y Tema
+                item {
+                    Box(modifier = Modifier.padding(horizontal = 16.dp)) {
+                        Card(
+                            onClick = { viewModel.onAction(HomeAction.CustomizationClick) },
+                            shape = RoundedCornerShape(16.dp),
+                            colors = CardDefaults.cardColors(
+                                containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f)
+                            ),
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 16.dp, vertical = 14.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Box(
+                                        modifier = Modifier
+                                            .size(36.dp)
+                                            .clip(CircleShape)
+                                            .background(AndeanPrimary.copy(alpha = 0.12f)),
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.Tune,
+                                            contentDescription = null,
+                                            tint = AndeanPrimary,
+                                            modifier = Modifier.size(18.dp)
+                                        )
+                                    }
+                                    Spacer(modifier = Modifier.width(12.dp))
+                                    Column {
+                                        Text(
+                                            text = "Personalizar Módulos y Tema",
+                                            style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
+                                            color = MaterialTheme.colorScheme.onSurface
+                                        )
+                                        Text(
+                                            text = "Ajusta tarjetas visibles y paleta del páramo",
+                                            style = MaterialTheme.typography.bodySmall,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
+                                    }
+                                }
+                                Icon(
+                                    imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    modifier = Modifier.size(18.dp)
+                                )
+                            }
+                        }
+                    }
                 }
             }
+        }
+    }
+}
+
+/**
+ * Fila de 4 Acciones Rápidas debajo del Saldo Maestro.
+ */
+@Composable
+private fun HomeQuickActionsRow(
+    onSmsClick: () -> Unit,
+    onBudgetClick: () -> Unit,
+    onCalendarClick: () -> Unit,
+    onExportClick: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        QuickActionButton(
+            label = "Leer SMS",
+            icon = Icons.Default.MarkEmailUnread,
+            onClick = onSmsClick,
+            modifier = Modifier.weight(1f)
+        )
+        QuickActionButton(
+            label = "Presupuesto",
+            icon = Icons.Default.PieChart,
+            onClick = onBudgetClick,
+            modifier = Modifier.weight(1f)
+        )
+        QuickActionButton(
+            label = "Calendario",
+            icon = Icons.Default.CalendarMonth,
+            onClick = onCalendarClick,
+            modifier = Modifier.weight(1f)
+        )
+        QuickActionButton(
+            label = "Exportar",
+            icon = Icons.Default.Description,
+            onClick = onExportClick,
+            modifier = Modifier.weight(1f)
+        )
+    }
+}
+
+@Composable
+private fun QuickActionButton(
+    label: String,
+    icon: ImageVector,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Surface(
+        onClick = onClick,
+        shape = RoundedCornerShape(14.dp),
+        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.45f),
+        modifier = modifier
+    ) {
+        Column(
+            modifier = Modifier.padding(vertical = 10.dp, horizontal = 4.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = label,
+                tint = AndeanPrimary,
+                modifier = Modifier.size(20.dp)
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = label,
+                style = MaterialTheme.typography.labelSmall.copy(
+                    fontWeight = FontWeight.SemiBold,
+                    fontSize = 10.sp
+                ),
+                color = MaterialTheme.colorScheme.onSurface,
+                maxLines = 1
+            )
         }
     }
 }
@@ -245,6 +408,7 @@ private fun HomeTopBar(
     greeting: String,
     userName: String,
     userLevel: String,
+    avatarEmoji: String,
     onProfileClick: () -> Unit,
     onNotificationsClick: () -> Unit,
     modifier: Modifier = Modifier
@@ -258,21 +422,40 @@ private fun HomeTopBar(
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.clickable(onClick = onProfileClick)
+            modifier = Modifier
+                .clip(RoundedCornerShape(16.dp))
+                .clickable(onClick = onProfileClick)
+                .padding(vertical = 4.dp, horizontal = 4.dp)
         ) {
-            // Avatar Circular con Inicial
-            Surface(
-                shape = CircleShape,
-                color = AndeanPrimary,
-                modifier = Modifier.size(44.dp)
-            ) {
-                Box(contentAlignment = Alignment.Center) {
-                    Text(
-                        text = userName.firstOrNull()?.toString() ?: "V",
-                        style = MaterialTheme.typography.titleMedium,
-                        color = Color.White,
-                        fontWeight = FontWeight.Bold
-                    )
+            // Avatar Circular con Emoji del Páramo y badge de ajuste
+            Box {
+                Surface(
+                    shape = CircleShape,
+                    color = AndeanPrimary.copy(alpha = 0.16f),
+                    modifier = Modifier.size(46.dp)
+                ) {
+                    Box(contentAlignment = Alignment.Center) {
+                        Text(
+                            text = avatarEmoji.ifBlank { "🦅" },
+                            fontSize = 22.sp
+                        )
+                    }
+                }
+                Surface(
+                    shape = CircleShape,
+                    color = AndeanPrimary,
+                    modifier = Modifier
+                        .size(16.dp)
+                        .align(Alignment.BottomEnd)
+                ) {
+                    Box(contentAlignment = Alignment.Center) {
+                        Icon(
+                            imageVector = Icons.Default.Settings,
+                            contentDescription = "Ajustes",
+                            tint = Color.White,
+                            modifier = Modifier.size(10.dp)
+                        )
+                    }
                 }
             }
 
@@ -310,3 +493,4 @@ private fun HomeTopBar(
         }
     }
 }
+

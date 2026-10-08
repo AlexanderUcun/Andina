@@ -128,7 +128,7 @@ fun PaymentWalletSelector(
         // Carrusel horizontal de chips de billeteras
         LazyRow(
             modifier = Modifier.fillMaxWidth(),
-            contentPadding = PaddingValues(horizontal = 2.dp),
+            contentPadding = PaddingValues(horizontal = 4.dp),
             horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             items(wallets, key = { it.id }) { wallet ->
@@ -137,7 +137,7 @@ fun PaymentWalletSelector(
                 val icon = getWalletIcon(wallet.type)
 
                 val cardBg = if (isSelected) {
-                    if (isDark) brandColor.copy(alpha = 0.28f) else brandColor.copy(alpha = 0.12f)
+                    if (isDark) brandColor.copy(alpha = 0.32f) else brandColor.copy(alpha = 0.16f)
                 } else {
                     if (isDark) Color(0xFF1E211D) else Color(0xFFF1EEE8)
                 }
@@ -146,11 +146,11 @@ fun PaymentWalletSelector(
 
                 Row(
                     modifier = Modifier
-                        .height(48.dp)
+                        .height(50.dp)
                         .clip(RoundedCornerShape(16.dp))
                         .background(cardBg)
                         .border(
-                            width = if (isSelected) 1.5.dp else 0.dp,
+                            width = if (isSelected) 2.dp else 0.dp,
                             color = borderColor,
                             shape = RoundedCornerShape(16.dp)
                         )

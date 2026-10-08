@@ -187,55 +187,39 @@ fun ConsultorioScreen(
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            // 3. Selector de Pestañas / Herramientas Interactivas (LazyRow horizontal anti-colapso)
-            androidx.compose.foundation.lazy.LazyRow(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                modifier = Modifier.fillMaxWidth()
+            // 3. Selector de Pestañas / Herramientas Interactivas (Distribución equilibrada sin recortes)
+            androidx.compose.material3.PrimaryTabRow(
+                selectedTabIndex = when (uiState.selectedTab) {
+                    ConsultorioTab.DIAGNOSTICO -> 0
+                    ConsultorioTab.ESPEJO_HORMIGA -> 1
+                    ConsultorioTab.SIMULADOR_BOLSILLO -> 2
+                    ConsultorioTab.SMS_PARSER -> 3
+                },
+                containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(16.dp))
             ) {
-                item {
-                    FilterChip(
-                        selected = uiState.selectedTab == ConsultorioTab.DIAGNOSTICO,
-                        onClick = { viewModel.onEvent(ConsultorioEvent.SelectTab(ConsultorioTab.DIAGNOSTICO)) },
-                        label = { Text("Resumen", fontSize = 12.sp, maxLines = 1) },
-                        colors = FilterChipDefaults.filterChipColors(
-                            selectedContainerColor = AndeanPrimary,
-                            selectedLabelColor = Color.White
-                        )
-                    )
-                }
-                item {
-                    FilterChip(
-                        selected = uiState.selectedTab == ConsultorioTab.ESPEJO_HORMIGA,
-                        onClick = { viewModel.onEvent(ConsultorioEvent.SelectTab(ConsultorioTab.ESPEJO_HORMIGA)) },
-                        label = { Text("🐜 Hormiga", fontSize = 12.sp, maxLines = 1) },
-                        colors = FilterChipDefaults.filterChipColors(
-                            selectedContainerColor = AndeanPrimary,
-                            selectedLabelColor = Color.White
-                        )
-                    )
-                }
-                item {
-                    FilterChip(
-                        selected = uiState.selectedTab == ConsultorioTab.SIMULADOR_BOLSILLO,
-                        onClick = { viewModel.onEvent(ConsultorioEvent.SelectTab(ConsultorioTab.SIMULADOR_BOLSILLO)) },
-                        label = { Text("🌱 Simulador", fontSize = 12.sp, maxLines = 1) },
-                        colors = FilterChipDefaults.filterChipColors(
-                            selectedContainerColor = AndeanPrimary,
-                            selectedLabelColor = Color.White
-                        )
-                    )
-                }
-                item {
-                    FilterChip(
-                        selected = uiState.selectedTab == ConsultorioTab.SMS_PARSER,
-                        onClick = { viewModel.onEvent(ConsultorioEvent.SelectTab(ConsultorioTab.SMS_PARSER)) },
-                        label = { Text("📩 SMS", fontSize = 12.sp, maxLines = 1) },
-                        colors = FilterChipDefaults.filterChipColors(
-                            selectedContainerColor = AndeanPrimary,
-                            selectedLabelColor = Color.White
-                        )
-                    )
-                }
+                androidx.compose.material3.Tab(
+                    selected = uiState.selectedTab == ConsultorioTab.DIAGNOSTICO,
+                    onClick = { viewModel.onEvent(ConsultorioEvent.SelectTab(ConsultorioTab.DIAGNOSTICO)) },
+                    text = { Text("Resumen", fontSize = 11.sp, fontWeight = FontWeight.SemiBold, maxLines = 1) }
+                )
+                androidx.compose.material3.Tab(
+                    selected = uiState.selectedTab == ConsultorioTab.ESPEJO_HORMIGA,
+                    onClick = { viewModel.onEvent(ConsultorioEvent.SelectTab(ConsultorioTab.ESPEJO_HORMIGA)) },
+                    text = { Text("🐜 Hormiga", fontSize = 11.sp, fontWeight = FontWeight.SemiBold, maxLines = 1) }
+                )
+                androidx.compose.material3.Tab(
+                    selected = uiState.selectedTab == ConsultorioTab.SIMULADOR_BOLSILLO,
+                    onClick = { viewModel.onEvent(ConsultorioEvent.SelectTab(ConsultorioTab.SIMULADOR_BOLSILLO)) },
+                    text = { Text("🌱 Simulador", fontSize = 11.sp, fontWeight = FontWeight.SemiBold, maxLines = 1) }
+                )
+                androidx.compose.material3.Tab(
+                    selected = uiState.selectedTab == ConsultorioTab.SMS_PARSER,
+                    onClick = { viewModel.onEvent(ConsultorioEvent.SelectTab(ConsultorioTab.SMS_PARSER)) },
+                    text = { Text("📩 SMS", fontSize = 11.sp, fontWeight = FontWeight.SemiBold, maxLines = 1) }
+                )
             }
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -335,24 +319,42 @@ private fun HeroConsultorioCard(
             Spacer(modifier = Modifier.width(16.dp))
 
             Column(modifier = Modifier.weight(1f)) {
-                Box(
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(8.dp))
-                        .background(levelColor.copy(alpha = 0.15f))
-                        .padding(horizontal = 8.dp, vertical = 3.dp)
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    Text(
-                        text = levelBadgeText,
-                        fontSize = 11.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = levelColor
-                    )
+                    Box(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(levelColor.copy(alpha = 0.15f))
+                            .padding(horizontal = 8.dp, vertical = 3.dp)
+                    ) {
+                        Text(
+                            text = levelBadgeText,
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = levelColor
+                        )
+                    }
+
+                    androidx.compose.material3.Surface(
+                        shape = RoundedCornerShape(8.dp),
+                        color = AndeanPrimary.copy(alpha = 0.12f)
+                    ) {
+                        Text(
+                            text = "🛡️ $oxygenDays días",
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = AndeanPrimary,
+                            modifier = Modifier.padding(horizontal = 6.dp, vertical = 3.dp)
+                        )
+                    }
                 }
 
                 Spacer(modifier = Modifier.height(6.dp))
 
                 Text(
-                    text = "$oxygenDays Días de Autonomía Financiera 🛡️",
+                    text = "Autonomía Financiera",
                     fontSize = 15.sp,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurface

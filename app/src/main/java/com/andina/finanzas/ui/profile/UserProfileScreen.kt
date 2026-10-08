@@ -134,7 +134,7 @@ fun UserProfileScreen(
                 .padding(horizontal = 20.dp, vertical = 16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // 1. Tarjeta Avatar Hero
+            // 1. Tarjeta Avatar Hero con Identidad y Progreso del Páramo
             Card(
                 shape = RoundedCornerShape(24.dp),
                 colors = CardDefaults.cardColors(
@@ -156,7 +156,7 @@ fun UserProfileScreen(
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            text = userProfile.avatarEmoji,
+                            text = userProfile.avatarEmoji.ifBlank { "🦅" },
                             fontSize = 42.sp
                         )
                     }
@@ -182,6 +182,50 @@ fun UserProfileScreen(
                                 color = AndeanPrimary
                             ),
                             modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp)
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(14.dp))
+
+                    // Barra de Progreso de Nivel (XP Financiero)
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(14.dp))
+                            .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.6f))
+                            .padding(12.dp)
+                    ) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = "Progreso del Rango",
+                                style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                            Text(
+                                text = "Nivel 3 · 680 / 1000 XP",
+                                style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
+                                color = AndeanPrimary
+                            )
+                        }
+                        Spacer(modifier = Modifier.height(6.dp))
+                        androidx.compose.material3.LinearProgressIndicator(
+                            progress = { 0.68f },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(8.dp)
+                                .clip(RoundedCornerShape(4.dp)),
+                            color = AndeanPrimary,
+                            trackColor = MaterialTheme.colorScheme.surfaceVariant
+                        )
+                        Spacer(modifier = Modifier.height(6.dp))
+                        Text(
+                            text = "Registra tus gastos diarios y mantén tu presupuesto bajo control para avanzar al siguiente rango.",
+                            style = MaterialTheme.typography.bodySmall.copy(fontSize = 11.sp),
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
 
@@ -228,6 +272,61 @@ fun UserProfileScreen(
                             showEditNameDialog = true
                         },
                         modifier = Modifier.fillMaxWidth()
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(18.dp))
+
+            // 1.1. Cuadrícula Bento 2x2 de Herramientas Clave
+            Text(
+                text = "Accesos Rápidos del Páramo",
+                style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
+                color = MaterialTheme.colorScheme.onSurface,
+                modifier = Modifier.fillMaxWidth()
+            )
+            Spacer(modifier = Modifier.height(10.dp))
+
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    BentoToolCard(
+                        title = "Tema y Módulos",
+                        subtitle = "Personalizar Inicio",
+                        icon = Icons.Default.Palette,
+                        onClick = onNavigateToCustomization,
+                        modifier = Modifier.weight(1f)
+                    )
+                    BentoToolCard(
+                        title = "Mis Categorías",
+                        subtitle = "Gastos e Ingresos",
+                        icon = Icons.Default.AutoAwesome,
+                        onClick = onNavigateToCustomization,
+                        modifier = Modifier.weight(1f)
+                    )
+                }
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    BentoToolCard(
+                        title = "Reportes PDF/CSV",
+                        subtitle = "Exportar Extractos",
+                        icon = Icons.Default.Description,
+                        onClick = onNavigateToReportExport,
+                        modifier = Modifier.weight(1f)
+                    )
+                    BentoToolCard(
+                        title = "Copia de Seguridad",
+                        subtitle = "Respaldo Cifrado",
+                        icon = Icons.Default.Lock,
+                        onClick = onNavigateToReportExport,
+                        modifier = Modifier.weight(1f)
                     )
                 }
             }
@@ -362,77 +461,83 @@ fun UserProfileScreen(
                 }
             }
 
-            Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(24.dp))
 
-            // 4. Sección de Herramientas del Ecosistema
-            Text(
-                text = "Herramientas Avanzadas",
-                style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
-                color = MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier.fillMaxWidth()
-            )
-            Spacer(modifier = Modifier.height(8.dp))
+            // 4. Zona de Reinicio de Datos Demo
+            var showResetConfirmationDialog by remember { mutableStateOf(false) }
+            var showFinalConfirmDialog by remember { mutableStateOf(false) }
 
-            Card(
-                shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
+            androidx.compose.material3.OutlinedButton(
+                onClick = { showResetConfirmationDialog = true },
+                shape = RoundedCornerShape(14.dp),
+                colors = androidx.compose.material3.ButtonDefaults.outlinedButtonColors(
+                    contentColor = Color(0xFFBA1A1A)
                 ),
+                border = androidx.compose.foundation.BorderStroke(1.dp, Color(0xFFBA1A1A).copy(alpha = 0.5f)),
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Column(modifier = Modifier.padding(16.dp)) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable { onNavigateToCustomization() }
-                            .padding(vertical = 6.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(imageVector = Icons.Default.Palette, contentDescription = null, tint = AndeanPrimary, modifier = Modifier.size(20.dp))
-                            Spacer(modifier = Modifier.width(10.dp))
-                            Text("Personalizar Categorías y Módulos", fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
+                Icon(
+                    imageVector = Icons.Default.AutoAwesome,
+                    contentDescription = null,
+                    tint = Color(0xFFBA1A1A),
+                    modifier = Modifier.size(18.dp)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text("Reiniciar Datos de Demostración", fontWeight = FontWeight.Bold)
+            }
+
+            if (showResetConfirmationDialog) {
+                AlertDialog(
+                    onDismissRequest = { showResetConfirmationDialog = false },
+                    title = { Text("¿Reiniciar Datos de Demostración?", fontWeight = FontWeight.Bold) },
+                    text = {
+                        Text("Esta acción eliminará todos los movimientos de prueba y dejará las billeteras listas en $0 COP para que inicies tu contabilidad real. ¿Deseas continuar?")
+                    },
+                    confirmButton = {
+                        Button(
+                            onClick = {
+                                showResetConfirmationDialog = false
+                                showFinalConfirmDialog = true
+                            },
+                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFBA1A1A))
+                        ) {
+                            Text("Continuar", fontWeight = FontWeight.Bold)
                         }
-                        Text(">", fontWeight = FontWeight.Bold, color = AndeanPrimary)
-                    }
-
-                    HorizontalDivider(modifier = Modifier.padding(vertical = 10.dp), thickness = 0.5.dp)
-
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable { onNavigateToCalendar() }
-                            .padding(vertical = 6.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(imageVector = Icons.Default.CalendarMonth, contentDescription = null, tint = AndeanPrimary, modifier = Modifier.size(20.dp))
-                            Spacer(modifier = Modifier.width(10.dp))
-                            Text("Calendario Financiero Interactivo", fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
+                    },
+                    dismissButton = {
+                        TextButton(onClick = { showResetConfirmationDialog = false }) {
+                            Text("Cancelar")
                         }
-                        Text(">", fontWeight = FontWeight.Bold, color = AndeanPrimary)
                     }
+                )
+            }
 
-                    HorizontalDivider(modifier = Modifier.padding(vertical = 10.dp), thickness = 0.5.dp)
-
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .clickable { onNavigateToReportExport() }
-                            .padding(vertical = 6.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Icon(imageVector = Icons.Default.Description, contentDescription = null, tint = AndeanPrimary, modifier = Modifier.size(20.dp))
-                            Spacer(modifier = Modifier.width(10.dp))
-                            Text("Exportar PDF / CSV & Respaldo Cifrado", fontSize = 14.sp, fontWeight = FontWeight.SemiBold)
+            if (showFinalConfirmDialog) {
+                AlertDialog(
+                    onDismissRequest = { showFinalConfirmDialog = false },
+                    title = { Text("Confirmación Definitiva", fontWeight = FontWeight.Bold, color = Color(0xFFBA1A1A)) },
+                    text = {
+                        Text("Confirma por favor: ¿Deseas borrar definitivamente las transacciones de prueba?")
+                    },
+                    confirmButton = {
+                        Button(
+                            onClick = {
+                                showFinalConfirmDialog = false
+                                viewModel.resetDemoData {
+                                    onShowSnackbar("Datos de demostración reiniciados. ¡Bienvenido a tu contabilidad real!")
+                                }
+                            },
+                            colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFBA1A1A))
+                        ) {
+                            Text("Borrar y Reiniciar", fontWeight = FontWeight.Bold)
                         }
-                        Text(">", fontWeight = FontWeight.Bold, color = AndeanPrimary)
+                    },
+                    dismissButton = {
+                        TextButton(onClick = { showFinalConfirmDialog = false }) {
+                            Text("Cancelar")
+                        }
                     }
-                }
+                )
             }
 
             Spacer(modifier = Modifier.height(28.dp))
@@ -570,5 +675,57 @@ private fun PreferenceSwitchRow(
                 checkedTrackColor = AndeanPrimary
             )
         )
+    }
+}
+
+@Composable
+private fun BentoToolCard(
+    title: String,
+    subtitle: String,
+    icon: ImageVector,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Card(
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.45f)
+        ),
+        modifier = modifier
+            .clip(RoundedCornerShape(16.dp))
+            .clickable(onClick = onClick)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(14.dp)
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(36.dp)
+                    .clip(CircleShape)
+                    .background(AndeanPrimary.copy(alpha = 0.15f)),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = icon,
+                    contentDescription = null,
+                    tint = AndeanPrimary,
+                    modifier = Modifier.size(20.dp)
+                )
+            }
+            Spacer(modifier = Modifier.height(10.dp))
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            Spacer(modifier = Modifier.height(2.dp))
+            Text(
+                text = subtitle,
+                style = MaterialTheme.typography.bodySmall.copy(fontSize = 11.sp),
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        }
     }
 }

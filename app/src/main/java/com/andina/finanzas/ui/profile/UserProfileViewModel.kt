@@ -3,6 +3,7 @@ package com.andina.finanzas.ui.profile
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.andina.finanzas.domain.model.UserProfile
+import com.andina.finanzas.domain.repository.FinanceRepository
 import com.andina.finanzas.domain.repository.UserProfileRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -15,7 +16,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class UserProfileViewModel @Inject constructor(
-    private val repository: UserProfileRepository
+    private val repository: UserProfileRepository,
+    private val financeRepository: FinanceRepository
 ) : ViewModel() {
 
     private val _userProfile = MutableStateFlow(UserProfile())
@@ -55,6 +57,13 @@ class UserProfileViewModel @Inject constructor(
                     currencyFormat = currencyFormat
                 )
             )
+        }
+    }
+
+    fun resetDemoData(onComplete: () -> Unit) {
+        viewModelScope.launch {
+            financeRepository.resetDemoData()
+            onComplete()
         }
     }
 }

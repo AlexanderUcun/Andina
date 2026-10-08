@@ -43,6 +43,7 @@ class RegisterViewModelTest {
     private lateinit var fakeRepository: FakeFinanceRepository
     private lateinit var antDetector: DetectAntExpensesUseCase
     private lateinit var registerUseCase: RegisterTransactionUseCase
+    private lateinit var intelligenceCore: com.andina.finanzas.core.intelligence.AndinaIntelligenceCore
 
     @Before
     fun setUp() {
@@ -50,6 +51,7 @@ class RegisterViewModelTest {
         fakeRepository = FakeFinanceRepository()
         antDetector = DetectAntExpensesUseCase()
         registerUseCase = RegisterTransactionUseCase(fakeRepository, antDetector)
+        intelligenceCore = com.andina.finanzas.core.intelligence.AndinaIntelligenceCore()
     }
 
     @After
@@ -71,7 +73,7 @@ class RegisterViewModelTest {
     @Test
     fun `digitacion progresiva forma el monto correcto y evita ceros a la izquierda`() = runTest(testDispatcher) {
         val savedState = SavedStateHandle()
-        val viewModel = RegisterViewModel(savedState, registerUseCase, fakeRepository)
+        val viewModel = RegisterViewModel(savedState, registerUseCase, fakeRepository, intelligenceCore)
         advanceUntilIdle()
 
         // Digitar '0' al inicio debe ser ignorado
@@ -96,7 +98,7 @@ class RegisterViewModelTest {
     @Test
     fun `backspace y clear limpian los digitos correctamente`() = runTest(testDispatcher) {
         val savedState = SavedStateHandle(mapOf("reg_amount_digits" to "15000"))
-        val viewModel = RegisterViewModel(savedState, registerUseCase, fakeRepository)
+        val viewModel = RegisterViewModel(savedState, registerUseCase, fakeRepository, intelligenceCore)
         advanceUntilIdle()
 
         assertEquals("15000", viewModel.state.value.amountDigits)
@@ -112,7 +114,7 @@ class RegisterViewModelTest {
     @Test
     fun `atajos rapidos de incremento suman al monto actual`() = runTest(testDispatcher) {
         val savedState = SavedStateHandle()
-        val viewModel = RegisterViewModel(savedState, registerUseCase, fakeRepository)
+        val viewModel = RegisterViewModel(savedState, registerUseCase, fakeRepository, intelligenceCore)
         advanceUntilIdle()
 
         viewModel.onAction(RegisterAction.AddQuickAmount(10_000L))
@@ -126,7 +128,7 @@ class RegisterViewModelTest {
     @Test
     fun `proyeccion de saldo restante se calcula en tiempo real para la billetera`() = runTest(testDispatcher) {
         val savedState = SavedStateHandle()
-        val viewModel = RegisterViewModel(savedState, registerUseCase, fakeRepository)
+        val viewModel = RegisterViewModel(savedState, registerUseCase, fakeRepository, intelligenceCore)
         advanceUntilIdle()
 
         // Seleccionar Nequi (saldo $100.000)
@@ -146,7 +148,7 @@ class RegisterViewModelTest {
     @Test
     fun `deteccion y toggle de gasto hormiga operan adecuadamente`() = runTest(testDispatcher) {
         val savedState = SavedStateHandle()
-        val viewModel = RegisterViewModel(savedState, registerUseCase, fakeRepository)
+        val viewModel = RegisterViewModel(savedState, registerUseCase, fakeRepository, intelligenceCore)
         advanceUntilIdle()
 
         // Categoría café/panadería es candidata a hormiga (ID 1)
@@ -168,7 +170,7 @@ class RegisterViewModelTest {
     @Test
     fun `canSave valida que el formulario este completo antes de permitir guardar`() = runTest(testDispatcher) {
         val savedState = SavedStateHandle()
-        val viewModel = RegisterViewModel(savedState, registerUseCase, fakeRepository)
+        val viewModel = RegisterViewModel(savedState, registerUseCase, fakeRepository, intelligenceCore)
         advanceUntilIdle()
 
         // Sin monto -> canSave = false
@@ -196,7 +198,7 @@ class RegisterViewModelTest {
     @Test
     fun `guardado exitoso registra la transaccion y emite efecto Saved`() = runTest(testDispatcher) {
         val savedState = SavedStateHandle()
-        val viewModel = RegisterViewModel(savedState, registerUseCase, fakeRepository)
+        val viewModel = RegisterViewModel(savedState, registerUseCase, fakeRepository, intelligenceCore)
         advanceUntilIdle()
 
         viewModel.onAction(RegisterAction.WalletSelected(1L))
@@ -227,7 +229,7 @@ class RegisterViewModelTest {
             )
         )
 
-        val viewModel = RegisterViewModel(savedState, registerUseCase, fakeRepository)
+        val viewModel = RegisterViewModel(savedState, registerUseCase, fakeRepository, intelligenceCore)
         advanceUntilIdle()
 
         val state = viewModel.state.value
@@ -241,7 +243,7 @@ class RegisterViewModelTest {
     @Test
     fun `cambio entre Gasto e Ingreso filtra las categorias correctamente`() = runTest(testDispatcher) {
         val savedState = SavedStateHandle()
-        val viewModel = RegisterViewModel(savedState, registerUseCase, fakeRepository)
+        val viewModel = RegisterViewModel(savedState, registerUseCase, fakeRepository, intelligenceCore)
         advanceUntilIdle()
 
         // Estado inicial GASTO: debe contener categorías de gasto (Café & Panadería, Transporte)
@@ -271,7 +273,7 @@ class RegisterViewModelTest {
     @Test
     fun `limite estricto de 8 digitos y tope de 99_999_999 COP se respeta`() = runTest(testDispatcher) {
         val savedState = SavedStateHandle()
-        val viewModel = RegisterViewModel(savedState, registerUseCase, fakeRepository)
+        val viewModel = RegisterViewModel(savedState, registerUseCase, fakeRepository, intelligenceCore)
         advanceUntilIdle()
 
         // Intentar escribir más de 8 dígitos
@@ -341,4 +343,8 @@ private class FakeFinanceRepository : FinanceRepository {
     }
 
     override suspend fun getCategoryById(id: Long): Category? = categories.find { it.id == id }
+    override suspend fun createCategory(category: Category): Long = 1L
+    override suspend fun updateCategory(category: Category) {}
+    override suspend fun resetDemoData() {}
 }
+

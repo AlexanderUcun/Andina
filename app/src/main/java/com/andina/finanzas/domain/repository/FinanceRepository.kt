@@ -59,4 +59,10 @@ interface FinanceRepository {
     // --- Categorías ---
     fun observeCategories(kind: CategoryKind? = null): Flow<List<Category>>
     suspend fun getCategoryById(id: Long): Category?
+    suspend fun createCategory(category: Category): Long
+    suspend fun updateCategory(category: Category)
+
+    // --- Reinicio y Mantenimiento ---
+    suspend fun resetDemoData()
 }
+

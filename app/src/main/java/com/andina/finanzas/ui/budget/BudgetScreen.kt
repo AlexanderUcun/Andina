@@ -252,24 +252,37 @@ fun BudgetScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             // 2. Diagnóstico Inteligente de Muggy
-            MuggySpeechBubble(
-                title = when {
-                    percentage >= 0.90f -> "¡Cuidado con el caudal!"
-                    percentage >= 0.75f -> "Atención al consumo"
-                    else -> "Presupuesto Saludable"
-                },
-                greeting = "Ritmo del mes: ${(percentage * 100).toInt()}% ejecutado",
-                text = when {
-                    percentage >= 0.90f -> "Has consumido más del 90% de tu tope. Te sugiero posponer compras no esenciales para cerrar el mes en positivo."
-                    percentage >= 0.75f -> "Vas en el ${(percentage * 100).toInt()}% del presupuesto asignado. Modera los gastos variables en las próximas semanas."
-                    else -> "Tu caudal fluye de manera controlada sobre la base de datos real. Mantén este ritmo para asegurar tus metas de ahorro."
-                },
-                pose = when {
-                    percentage >= 0.90f -> MuggyPose.REFLECTIVE
-                    percentage >= 0.75f -> MuggyPose.OBSERVING
-                    else -> MuggyPose.SERENE
-                }
-            )
+            val exceededCategories = state.categories.filter { it.limit > 0 && it.spent > it.limit }
+            val mostExceeded = exceededCategories.maxByOrNull { it.spent - it.limit }
+
+            if (mostExceeded != null) {
+                val overAmount = mostExceeded.spent - mostExceeded.limit
+                MuggySpeechBubble(
+                    title = "¡Atención en el sendero!",
+                    greeting = "Tope superado en ${mostExceeded.name}",
+                    text = "Has superado el tope de ${mostExceeded.name} en ${formatPesos(overAmount)}. Modera este gasto en las próximas semanas para evitar desajustar tu caudal.",
+                    pose = MuggyPose.REFLECTIVE
+                )
+            } else {
+                MuggySpeechBubble(
+                    title = when {
+                        percentage >= 0.90f -> "¡Cuidado con el caudal!"
+                        percentage >= 0.75f -> "Atención al consumo"
+                        else -> "Presupuesto Saludable"
+                    },
+                    greeting = "Ritmo del mes: ${(percentage * 100).toInt()}% ejecutado",
+                    text = when {
+                        percentage >= 0.90f -> "Has consumido más del 90% de tu tope. Te sugiero posponer compras no esenciales para cerrar el mes en positivo."
+                        percentage >= 0.75f -> "Vas en el ${(percentage * 100).toInt()}% del presupuesto asignado. Modera los gastos variables en las próximas semanas."
+                        else -> "Tu caudal fluye de manera controlada sobre la base de datos real. Mantén este ritmo para asegurar tus metas de ahorro."
+                    },
+                    pose = when {
+                        percentage >= 0.90f -> MuggyPose.REFLECTIVE
+                        percentage >= 0.75f -> MuggyPose.OBSERVING
+                        else -> MuggyPose.SERENE
+                    }
+                )
+            }
 
             Spacer(modifier = Modifier.height(20.dp))
 
@@ -309,7 +322,7 @@ fun BudgetScreen(
                             limit = item.limit,
                             onClick = {
                                 selectedCategoryForEdit = item
-                                tempCategoryLimitInput = item.limit.toString()
+                                tempCategoryLimitInput = if (item.limit > 0) item.limit.toString() else ""
                             }
                         )
                         if (index < state.categories.size - 1) {
@@ -354,7 +367,7 @@ fun BudgetScreen(
                 }
             },
             confirmButton = {
-                TextButton(
+                androidx.compose.material3.Button(
                     onClick = {
                         val parsed = tempBudgetInput.toLongOrNull()
                         if (parsed != null && parsed > 0) {
@@ -362,9 +375,14 @@ fun BudgetScreen(
                             showEditBudgetDialog = false
                             onShowSnackbar("Presupuesto global actualizado a ${formatPesos(parsed)}")
                         }
-                    }
+                    },
+                    colors = androidx.compose.material3.ButtonDefaults.buttonColors(
+                        containerColor = AndeanPrimary,
+                        contentColor = Color.White
+                    ),
+                    shape = RoundedCornerShape(12.dp)
                 ) {
-                    Text("Guardar", fontWeight = FontWeight.Bold, color = AndeanPrimary)
+                    Text("Guardar", fontWeight = FontWeight.Bold)
                 }
             },
             dismissButton = {
@@ -398,6 +416,7 @@ fun BudgetScreen(
                         value = tempCategoryLimitInput,
                         onValueChange = { tempCategoryLimitInput = it.filter { ch -> ch.isDigit() }.take(8) },
                         label = { Text("Límite en COP") },
+                        placeholder = { Text("0 = Sin tope") },
                         prefix = { Text("$ ") },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         singleLine = true,
@@ -407,17 +426,24 @@ fun BudgetScreen(
                 }
             },
             confirmButton = {
-                TextButton(
+                androidx.compose.material3.Button(
                     onClick = {
-                        val parsed = tempCategoryLimitInput.toLongOrNull()
-                        if (parsed != null && parsed >= 0) {
-                            viewModel.updateCategoryLimit(cat.categoryId, parsed)
-                            selectedCategoryForEdit = null
+                        val parsed = tempCategoryLimitInput.toLongOrNull() ?: 0L
+                        viewModel.updateCategoryLimit(cat.categoryId, parsed)
+                        selectedCategoryForEdit = null
+                        if (parsed > 0) {
                             onShowSnackbar("Límite de ${cat.name} ajustado a ${formatPesos(parsed)}")
+                        } else {
+                            onShowSnackbar("Tope de ${cat.name} eliminado")
                         }
-                    }
+                    },
+                    colors = androidx.compose.material3.ButtonDefaults.buttonColors(
+                        containerColor = AndeanPrimary,
+                        contentColor = Color.White
+                    ),
+                    shape = RoundedCornerShape(12.dp)
                 ) {
-                    Text("Guardar", fontWeight = FontWeight.Bold, color = AndeanPrimary)
+                    Text("Guardar", fontWeight = FontWeight.Bold)
                 }
             },
             dismissButton = {
@@ -438,21 +464,22 @@ private fun BudgetCategoryRow(
     limit: Long,
     onClick: () -> Unit
 ) {
+    val isOverLimit = limit > 0 && spent > limit
     val progress = if (limit > 0) (spent.toFloat() / limit.toFloat()).coerceIn(0f, 1f) else 0f
-    val categoryColor = CategoryIconHelper.parseColor(colorHex)
+    val categoryColor = if (isOverLimit) AndeanError else CategoryIconHelper.parseColor(colorHex)
     val categoryIconVector = CategoryIconHelper.getIcon(icon)
 
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(8.dp))
+            .clip(RoundedCornerShape(12.dp))
             .clickable { onClick() }
-            .padding(vertical = 4.dp),
+            .padding(vertical = 6.dp, horizontal = 4.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Box(
             modifier = Modifier
-                .size(32.dp)
+                .size(36.dp)
                 .clip(CircleShape)
                 .background(categoryColor.copy(alpha = 0.15f)),
             contentAlignment = Alignment.Center
@@ -461,7 +488,7 @@ private fun BudgetCategoryRow(
                 imageVector = categoryIconVector,
                 contentDescription = null,
                 tint = categoryColor,
-                modifier = Modifier.size(16.dp)
+                modifier = Modifier.size(18.dp)
             )
         }
 
@@ -470,18 +497,62 @@ private fun BudgetCategoryRow(
         Column(modifier = Modifier.weight(1f)) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Text(
-                    text = name,
-                    style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-                Text(
-                    text = if (limit > 0) "${formatPesos(spent)} / ${formatPesos(limit)}" else formatPesos(spent),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
+                    Text(
+                        text = name,
+                        style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    if (isOverLimit) {
+                        Surface(
+                            shape = RoundedCornerShape(6.dp),
+                            color = AndeanError.copy(alpha = 0.15f)
+                        ) {
+                            Text(
+                                text = "Excedido",
+                                style = MaterialTheme.typography.labelSmall.copy(
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 10.sp
+                                ),
+                                color = AndeanError,
+                                modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                            )
+                        }
+                    }
+                }
+
+                if (limit > 0) {
+                    Text(
+                        text = "${formatPesos(spent)} / ${formatPesos(limit)}",
+                        style = MaterialTheme.typography.bodySmall.copy(
+                            fontWeight = if (isOverLimit) FontWeight.Bold else FontWeight.Normal
+                        ),
+                        color = if (isOverLimit) AndeanError else MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                } else {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        Text(
+                            text = "${formatPesos(spent)} · Sin tope asignado · Editar >",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = AndeanPrimary
+                        )
+                        Icon(
+                            imageVector = Icons.Default.Edit,
+                            contentDescription = "Asignar tope",
+                            tint = AndeanPrimary,
+                            modifier = Modifier.size(12.dp)
+                        )
+                    }
+                }
             }
             if (limit > 0) {
                 Spacer(modifier = Modifier.height(6.dp))
@@ -497,6 +568,14 @@ private fun BudgetCategoryRow(
                 )
             }
         }
+
+        Spacer(modifier = Modifier.width(8.dp))
+        Icon(
+            imageVector = Icons.Default.Edit,
+            contentDescription = "Editar límite",
+            tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
+            modifier = Modifier.size(16.dp)
+        )
     }
 }
 
@@ -505,3 +584,4 @@ private fun formatPesos(amount: Long): String {
     format.maximumFractionDigits = 0
     return format.format(amount)
 }
+

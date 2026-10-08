@@ -160,7 +160,7 @@ fun AndeanDewPullRefresh(
             .nestedScroll(nestedScrollConnection)
     ) {
         val currentOffset = animatedOffset.value
-        val isVisible = currentOffset > 1f || isRefreshing
+        val isVisible = (currentOffset > 8f && !isRefreshing) || (isRefreshing && currentOffset > 0f)
 
         // Indicador de Gota de Rocío en el tope (colapsado y disuelto en reposo)
         if (isVisible) {

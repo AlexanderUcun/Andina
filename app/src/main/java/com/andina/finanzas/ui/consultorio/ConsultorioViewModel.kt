@@ -13,6 +13,7 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
@@ -37,6 +38,14 @@ class ConsultorioViewModel @Inject constructor(
         loadDataAndDiagnose()
     }
 
+    private data class CombinedData(
+        val wallets: List<Wallet>,
+        val summary: FinancialSummary,
+        val pockets: List<Pocket>,
+        val categories: List<com.andina.finanzas.domain.model.Category>,
+        val recentTxs: List<com.andina.finanzas.domain.model.Transaction>
+    )
+
     private fun loadDataAndDiagnose() {
         val calendar = Calendar.getInstance()
         calendar.set(Calendar.DAY_OF_MONTH, 1)
@@ -47,26 +56,50 @@ class ConsultorioViewModel @Inject constructor(
         val endOfMonth = System.currentTimeMillis()
 
         viewModelScope.launch {
-            combine(
+            val baseFlow = combine(
                 repository.observeWallets(),
                 repository.observeFinancialSummary(startOfMonth, endOfMonth),
                 repository.observePockets(),
-                userProfileRepository.observeUserProfile()
-            ) { wallets: List<Wallet>, summary: FinancialSummary, pockets: List<Pocket>, userProfile ->
+                repository.observeCategories(com.andina.finanzas.domain.model.CategoryKind.GASTO),
+                repository.observeRecentTransactions(limit = 100)
+            ) { wallets, summary, pockets, categories, recentTxs ->
+                CombinedData(wallets, summary, pockets, categories, recentTxs)
+            }
+
+            baseFlow.combine(userProfileRepository.observeUserProfile()) { data, userProfile ->
+                val wallets = data.wallets
+                val summary = data.summary
+                val pockets = data.pockets
+                val categories = data.categories
+                val recentTxs = data.recentTxs
+
                 val totalLiquid = wallets.fold(Money.ZERO) { acc, w -> acc + w.currentBalance }
                 val expenses = summary.monthlyExpense
                 val antExpenses = summary.monthlyAntExpense
                 val hasPockets = pockets.any { it.currentBalance.pesos > 0L }
 
-                val dailyExpenses = listOf(
-                    (expenses.pesos * 0.12).toLong(),
-                    (expenses.pesos * 0.15).toLong(),
-                    (expenses.pesos * 0.10).toLong(),
-                    (expenses.pesos * 0.18).toLong(),
-                    (expenses.pesos * 0.14).toLong(),
-                    (expenses.pesos * 0.16).toLong(),
-                    (expenses.pesos * 0.15).toLong()
-                ).filter { it > 0L }
+                val spendPerCategory = recentTxs
+                    .filter { it.type == com.andina.finanzas.domain.model.TransactionType.GASTO && it.categoryId != null && it.occurredAt >= startOfMonth }
+                    .groupBy { it.categoryId!! }
+                    .mapValues { (_, txList) -> txList.sumOf { it.amount.pesos } }
+
+                val realTopCategories = categories.map { cat ->
+                    val spent = spendPerCategory[cat.id] ?: 0L
+                    Pair(cat.name, Money(spent))
+                }.filter { it.second.pesos > 0L }.sortedByDescending { it.second.pesos }
+
+                val finalCategories = if (realTopCategories.isNotEmpty()) {
+                    realTopCategories
+                } else {
+                    categories.take(4).map { Pair(it.name, Money.ZERO) }
+                }
+
+                val dailyExpenses = recentTxs
+                    .filter { it.type == com.andina.finanzas.domain.model.TransactionType.GASTO && it.occurredAt >= startOfMonth }
+                    .groupBy { java.time.Instant.ofEpochMilli(it.occurredAt).atZone(java.time.ZoneId.systemDefault()).toLocalDate() }
+                    .values
+                    .map { dayList -> dayList.sumOf { it.amount.pesos } }
+                    .filter { it > 0L }
 
                 val diagnosis = intelligenceCore.diagnose(
                     userName = userProfile.name,
@@ -78,30 +111,20 @@ class ConsultorioViewModel @Inject constructor(
                     hasActivePocketContributions = hasPockets
                 )
 
-                Triple(totalLiquid, expenses, diagnosis)
-            }.collect { result: Triple<Money, Money, com.andina.finanzas.core.intelligence.CompleteFinancialDiagnosis> ->
-                val totalLiquid = result.first
-                val expenses = result.second
-                val diagnosis = result.third
-
                 _uiState.update { current ->
                     current.copy(
                         totalBalance = totalLiquid,
                         totalExpensesThisMonth = expenses,
-                        antExpensesTotal = Money((expenses.pesos * 0.12).toLong()),
+                        antExpensesTotal = antExpenses,
                         diagnosis = diagnosis,
-                        topCategories = listOf(
-                            Pair("Alimentación", Money((expenses.pesos * 0.40).toLong())),
-                            Pair("Servicios y Hogar", Money((expenses.pesos * 0.25).toLong())),
-                            Pair("Transporte", Money((expenses.pesos * 0.15).toLong())),
-                            Pair("Café y Snacks (Hormiga)", Money((expenses.pesos * 0.12).toLong()))
-                        ),
+                        topCategories = finalCategories,
                         isLoading = false
                     )
                 }
-            }
+            }.collect()
         }
     }
+
 
     fun onEvent(event: ConsultorioEvent) {
         when (event) {

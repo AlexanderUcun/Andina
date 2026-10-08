@@ -150,9 +150,9 @@ fun PeriodMetricsGrid(
             modifier = Modifier.weight(1f)
         )
 
-        // Métrica 3: Balance Neto del Mes
+        // Métrica 3: Flujo Neto del Mes
         MetricItem(
-            title = "Balance Neto",
+            title = "Flujo Neto",
             amount = netBalanceText,
             icon = Icons.Default.Wallet,
             iconColor = if (periodNetRemaining.pesos >= 0L) AndeanPrimary else AndeanError,

@@ -4,6 +4,7 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -28,6 +29,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.BugReport
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Clear
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.FilterAlt
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.automirrored.outlined.ReceiptLong
@@ -242,8 +244,10 @@ fun TransactionsScreen(
         TransactionsFilterBottomSheet(
             filter = filter,
             availableWallets = state.availableWallets,
+            availableCategories = state.availableCategories,
             onTypeSelected = { viewModel.onEvent(TransactionsEvent.OnTypeSelected(it)) },
             onWalletSelected = { viewModel.onEvent(TransactionsEvent.OnWalletSelected(it)) },
+            onCategorySelected = { viewModel.onEvent(TransactionsEvent.OnCategorySelected(it)) },
             onToggleAntExpense = { viewModel.onEvent(TransactionsEvent.OnToggleAntExpense(it)) },
             onDatePresetSelected = { viewModel.onEvent(TransactionsEvent.OnDatePresetSelected(it)) },
             onResetFilters = { viewModel.onEvent(TransactionsEvent.OnResetFilters) },
@@ -253,7 +257,7 @@ fun TransactionsScreen(
 }
 
 /**
- * Cabecera superior con barra de búsqueda y chips de filtro rápido.
+ * Cabecera superior con selector de vista (Lista | Calendario), búsqueda y chips de filtro.
  */
 @Composable
 private fun TransactionsTopHeader(
@@ -273,7 +277,7 @@ private fun TransactionsTopHeader(
             .statusBarsPadding()
             .padding(top = 8.dp, bottom = 4.dp)
     ) {
-        // Título de sección y accesos rápidos de acción
+        // Título de sección y selector segmentado
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -291,7 +295,7 @@ private fun TransactionsTopHeader(
                     color = MaterialTheme.colorScheme.onSurface
                 )
                 Text(
-                    text = "Libro mayor y auditoría de gastos",
+                    text = "Libro mayor y auditoría de caudal",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -301,20 +305,39 @@ private fun TransactionsTopHeader(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                // Acceso rápido al Calendario Financiero Interactivo
-                IconButton(
-                    onClick = onNavigateToCalendar,
-                    modifier = Modifier
-                        .size(42.dp)
-                        .clip(CircleShape)
-                        .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+                // Selector Segmentado de Vista (Lista / Calendario)
+                Surface(
+                    shape = RoundedCornerShape(12.dp),
+                    color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.CalendarMonth,
-                        contentDescription = "Calendario Financiero",
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.size(22.dp)
-                    )
+                    Row(modifier = Modifier.padding(3.dp)) {
+                        Surface(
+                            shape = RoundedCornerShape(9.dp),
+                            color = AndeanPrimary,
+                            modifier = Modifier.padding(end = 2.dp)
+                        ) {
+                            Text(
+                                text = "📋 Lista",
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color.White,
+                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                            )
+                        }
+                        Surface(
+                            shape = RoundedCornerShape(9.dp),
+                            color = Color.Transparent,
+                            modifier = Modifier.clickable(onClick = onNavigateToCalendar)
+                        ) {
+                            Text(
+                                text = "📅 Calendario",
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.Medium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                            )
+                        }
+                    }
                 }
 
                 // Botón de filtros con badge reactivo
@@ -333,7 +356,7 @@ private fun TransactionsTopHeader(
                     IconButton(
                         onClick = onFilterClick,
                         modifier = Modifier
-                            .size(42.dp)
+                            .size(38.dp)
                             .clip(CircleShape)
                             .background(
                                 if (filter.activeFilterCount > 0) AndeanPrimary.copy(alpha = 0.12f)
@@ -344,7 +367,7 @@ private fun TransactionsTopHeader(
                             imageVector = Icons.Default.FilterAlt,
                             contentDescription = "Filtros avanzados",
                             tint = if (filter.activeFilterCount > 0) AndeanPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.size(22.dp)
+                            modifier = Modifier.size(20.dp)
                         )
                     }
                 }
@@ -359,7 +382,7 @@ private fun TransactionsTopHeader(
             onValueChange = onQueryChanged,
             placeholder = {
                 Text(
-                    text = "Buscar por nota, negocio o descripción...",
+                    text = "Buscar por nota, negocio o categoría...",
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
                 )
@@ -395,7 +418,7 @@ private fun TransactionsTopHeader(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp)
-                .height(52.dp)
+                .height(50.dp)
         )
 
         Spacer(modifier = Modifier.height(8.dp))
@@ -413,7 +436,7 @@ private fun TransactionsTopHeader(
                 selected = filter.type == null && !filter.onlyAntExpense,
                 onClick = {
                     if (filter.type != null || filter.onlyAntExpense) {
-                        onQuickTypeSelected(TransactionType.GASTO) // Reset
+                        onQuickTypeSelected(TransactionType.GASTO)
                     }
                 },
                 label = { Text("Todos") },
@@ -491,7 +514,7 @@ private fun TransactionsTopHeader(
  * Cabecera de sección para agrupar movimientos por temporalidad (Hoy, Ayer, Mes actual).
  */
 @Composable
-private fun DateSectionHeader(title: String) {
+private fun DateSectionHeader(title: String, dayNetBalance: String? = null) {
     Surface(
         color = MaterialTheme.colorScheme.background,
         modifier = Modifier.fillMaxWidth()
@@ -500,29 +523,37 @@ private fun DateSectionHeader(title: String) {
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp, vertical = 10.dp),
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Text(
-                text = title,
-                style = MaterialTheme.typography.labelLarge.copy(
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 13.sp
-                ),
-                color = AndinaMossGreen
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            HorizontalDivider(
-                thickness = 0.5.dp,
-                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.2f),
-                modifier = Modifier.weight(1f)
-            )
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.labelLarge.copy(
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 13.sp
+                    ),
+                    color = AndinaMossGreen
+                )
+            }
+            if (dayNetBalance != null) {
+                Text(
+                    text = dayNetBalance,
+                    style = MaterialTheme.typography.labelSmall.copy(
+                        fontWeight = FontWeight.SemiBold,
+                        fontSize = 11.sp
+                    ),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
         }
     }
 }
 
 /**
- * Estado vacío cuando no se encuentran movimientos.
+ * Estado vacío cuando no se encuentran movimientos, con InputChips interactivos para remover filtros.
  */
+@OptIn(androidx.compose.material3.ExperimentalMaterial3Api::class)
 @Composable
 private fun EmptyTransactionsState(
     filter: TransactionsFilter,
@@ -567,7 +598,7 @@ private fun EmptyTransactionsState(
 
             Text(
                 text = if (hasFilters) {
-                    "No se encontraron movimientos con los filtros seleccionados."
+                    "No se encontraron movimientos con los filtros seleccionados. Toca un filtro para quitarlo o restablece la búsqueda."
                 } else {
                     "Registra tu primer gasto o ingreso usando el botón central (+) para iniciar tu libro mayor."
                 },
@@ -578,49 +609,52 @@ private fun EmptyTransactionsState(
             )
 
             if (hasFilters) {
-                Spacer(modifier = Modifier.height(14.dp))
+                Spacer(modifier = Modifier.height(16.dp))
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(6.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     if (filter.query.isNotBlank()) {
-                        Surface(
-                            shape = RoundedCornerShape(8.dp),
-                            color = MaterialTheme.colorScheme.surfaceVariant
-                        ) {
-                            Text(
-                                text = "\"${filter.query}\"",
-                                style = MaterialTheme.typography.labelSmall,
-                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
+                        androidx.compose.material3.InputChip(
+                            selected = true,
+                            onClick = onResetFilters,
+                            label = { Text("\"${filter.query}\"") },
+                            trailingIcon = {
+                                Icon(
+                                    imageVector = Icons.Default.Close,
+                                    contentDescription = "Quitar filtro",
+                                    modifier = Modifier.size(14.dp)
+                                )
+                            }
+                        )
                     }
                     if (filter.type != null) {
-                        Surface(
-                            shape = RoundedCornerShape(8.dp),
-                            color = MaterialTheme.colorScheme.surfaceVariant
-                        ) {
-                            Text(
-                                text = filter.type.name,
-                                style = MaterialTheme.typography.labelSmall,
-                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
+                        androidx.compose.material3.InputChip(
+                            selected = true,
+                            onClick = onResetFilters,
+                            label = { Text(filter.type.name) },
+                            trailingIcon = {
+                                Icon(
+                                    imageVector = Icons.Default.Close,
+                                    contentDescription = "Quitar filtro",
+                                    modifier = Modifier.size(14.dp)
+                                )
+                            }
+                        )
                     }
                     if (filter.onlyAntExpense) {
-                        Surface(
-                            shape = RoundedCornerShape(8.dp),
-                            color = MaterialTheme.colorScheme.surfaceVariant
-                        ) {
-                            Text(
-                                text = "🐜 Hormiga",
-                                style = MaterialTheme.typography.labelSmall,
-                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
+                        androidx.compose.material3.InputChip(
+                            selected = true,
+                            onClick = onResetFilters,
+                            label = { Text("🐜 Hormiga") },
+                            trailingIcon = {
+                                Icon(
+                                    imageVector = Icons.Default.Close,
+                                    contentDescription = "Quitar filtro",
+                                    modifier = Modifier.size(14.dp)
+                                )
+                            }
+                        )
                     }
                 }
 

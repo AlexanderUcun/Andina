@@ -86,6 +86,8 @@ fun WalletsScreen(
         }
     }
 
+    var selectedWalletForDetail by remember { mutableStateOf<Wallet?>(null) }
+
     Scaffold(
         modifier = modifier.fillMaxSize(),
         containerColor = MaterialTheme.colorScheme.background,
@@ -173,6 +175,7 @@ fun WalletsScreen(
                 items(state.wallets, key = { it.id }) { wallet ->
                     WalletItemCard(
                         wallet = wallet,
+                        onClick = { selectedWalletForDetail = wallet },
                         onEdit = { viewModel.onEvent(WalletsEvent.OnOpenEditWallet(wallet)) },
                         onArchive = { viewModel.onEvent(WalletsEvent.OnArchiveWallet(wallet.id)) }
                     )
@@ -181,6 +184,137 @@ fun WalletsScreen(
                 // Espaciador inferior para la barra de navegación
                 item {
                     Spacer(modifier = Modifier.height(80.dp))
+                }
+            }
+        }
+    }
+
+    // Modal de Detalle de Billetera
+    selectedWalletForDetail?.let { wallet ->
+        androidx.compose.material3.ModalBottomSheet(
+            onDismissRequest = { selectedWalletForDetail = null },
+            sheetState = androidx.compose.material3.rememberModalBottomSheetState(skipPartiallyExpanded = true),
+            containerColor = MaterialTheme.colorScheme.surface
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 24.dp)
+                    .padding(bottom = 36.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                val detailColor = try {
+                    Color(android.graphics.Color.parseColor(wallet.colorHex))
+                } catch (_: Exception) {
+                    AndeanPrimary
+                }
+
+                Box(
+                    modifier = Modifier
+                        .size(64.dp)
+                        .clip(RoundedCornerShape(18.dp))
+                        .background(detailColor.copy(alpha = 0.16f)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = when (wallet.type) {
+                            WalletType.EFECTIVO -> Icons.Default.Payments
+                            WalletType.TARJETA_CREDITO -> Icons.Default.CreditCard
+                            WalletType.BANCOLOMBIA -> Icons.Default.AccountBalance
+                            WalletType.NEQUI -> Icons.Default.AccountBalanceWallet
+                            WalletType.DAVIPLATA -> Icons.Default.Savings
+                            WalletType.OTRA -> Icons.Default.AccountBalanceWallet
+                        },
+                        contentDescription = null,
+                        tint = detailColor,
+                        modifier = Modifier.size(34.dp)
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(14.dp))
+
+                Text(
+                    text = wallet.name,
+                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+
+                Text(
+                    text = when (wallet.type) {
+                        WalletType.EFECTIVO -> "Efectivo en Mano"
+                        WalletType.NEQUI -> "Billetera Digital Nequi"
+                        WalletType.DAVIPLATA -> "Billetera Digital Daviplata"
+                        WalletType.BANCOLOMBIA -> "Cuenta Bancaria Bancolombia"
+                        WalletType.TARJETA_CREDITO -> "Tarjeta de Crédito"
+                        WalletType.OTRA -> "Cuenta Local"
+                    },
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+
+                Spacer(modifier = Modifier.height(14.dp))
+
+                Surface(
+                    shape = RoundedCornerShape(16.dp),
+                    color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.45f),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Column(
+                        modifier = Modifier.padding(16.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(
+                            text = "Saldo Disponible",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(
+                            text = formatPesos(wallet.currentBalance.pesos),
+                            style = MaterialTheme.typography.headlineMedium.copy(
+                                fontWeight = FontWeight.ExtraBold,
+                                fontFeatureSettings = "tnum"
+                            ),
+                            color = if (wallet.currentBalance.pesos < 0) Color(0xFFBA1A1A) else AndeanPrimary
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(20.dp))
+
+                // Acciones Rápidas del Detalle
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    androidx.compose.material3.OutlinedButton(
+                        onClick = {
+                            selectedWalletForDetail = null
+                            viewModel.onEvent(WalletsEvent.OnOpenEditWallet(wallet))
+                        },
+                        modifier = Modifier.weight(1f),
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Edit,
+                            contentDescription = null,
+                            modifier = Modifier.size(16.dp)
+                        )
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text("Cuadrar Saldo", fontSize = 12.sp)
+                    }
+
+                    androidx.compose.material3.Button(
+                        onClick = {
+                            selectedWalletForDetail = null
+                            viewModel.onEvent(WalletsEvent.OnOpenEditWallet(wallet))
+                        },
+                        modifier = Modifier.weight(1f),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = androidx.compose.material3.ButtonDefaults.buttonColors(containerColor = AndeanPrimary)
+                    ) {
+                        Text("Editar Cuenta", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                    }
                 }
             }
         }
@@ -209,6 +343,7 @@ fun WalletsScreen(
 @Composable
 private fun WalletItemCard(
     wallet: Wallet,
+    onClick: () -> Unit,
     onEdit: () -> Unit,
     onArchive: () -> Unit
 ) {
@@ -245,7 +380,7 @@ private fun WalletItemCard(
         ),
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { onEdit() }
+            .clickable { onClick() }
     ) {
         Row(
             modifier = Modifier

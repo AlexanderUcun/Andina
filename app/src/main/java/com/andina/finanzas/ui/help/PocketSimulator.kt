@@ -3,6 +3,7 @@ package com.andina.finanzas.ui.help
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -11,11 +12,18 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Savings
+import androidx.compose.material.icons.rounded.TrendingUp
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -24,18 +32,18 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.andina.finanzas.domain.model.Money
 import com.andina.finanzas.ui.components.ecosystem.FrailejonView
-import com.andina.finanzas.ui.components.muggy.MuggyAvatar
-import com.andina.finanzas.ui.components.muggy.MuggyPose
+import com.andina.finanzas.ui.theme.AndeanPrimary
 import kotlin.math.ceil
 
 /**
- * "La Vara del Páramo": Simulador visual e interactivo de proyección de ahorro (AYUDAS_INTERACTIVAS.md §2.2).
+ * "La Vara del Páramo": Simulador visual e interactivo de proyección de ahorro.
  */
 @Composable
 fun PocketSimulatorCard(
@@ -57,35 +65,44 @@ fun PocketSimulatorCard(
 
     Card(
         shape = RoundedCornerShape(24.dp),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFFF6F4EF)),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.45f)),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
         modifier = modifier.fillMaxWidth()
     ) {
         Column(modifier = Modifier.padding(20.dp)) {
-            // Cabecera con Muggy y título
+            // Cabecera con icono limpio y título
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween,
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
-                    MuggyAvatar(
-                        size = 44.dp,
-                        pose = if (weeksNeeded <= 4) MuggyPose.CELEBRATING else MuggyPose.OBSERVING,
-                        isInteractive = false
-                    )
-                    Spacer(modifier = Modifier.width(10.dp))
+                    Box(
+                        modifier = Modifier
+                            .size(42.dp)
+                            .clip(CircleShape)
+                            .background(AndeanPrimary.copy(alpha = 0.15f)),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Rounded.TrendingUp,
+                            contentDescription = null,
+                            tint = AndeanPrimary,
+                            modifier = Modifier.size(24.dp)
+                        )
+                    }
+                    Spacer(modifier = Modifier.width(12.dp))
                     Column {
                         Text(
                             text = "Simulador de Fondo",
                             fontSize = 16.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Color(0xFF2C241E)
+                            color = MaterialTheme.colorScheme.onSurface
                         )
                         Text(
-                            text = "Proyección dinámica para \"$pocketName\"",
+                            text = "Proyección para \"$pocketName\"",
                             fontSize = 12.sp,
-                            color = Color(0xFF6B655D)
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                 }
@@ -93,11 +110,11 @@ fun PocketSimulatorCard(
                 // Frailejón vivo proporcional al progreso
                 FrailejonView(
                     progress = progressFraction,
-                    modifier = Modifier.size(48.dp)
+                    modifier = Modifier.size(44.dp)
                 )
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(18.dp))
 
             // Control deslizante interactivo de ahorro semanal
             Row(
@@ -107,13 +124,13 @@ fun PocketSimulatorCard(
                 Text(
                     text = "Ahorro semanal propuesto:",
                     fontSize = 13.sp,
-                    color = Color(0xFF4A453E)
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 Text(
                     text = Money(weeklySavingsLong).formatCop(),
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color(0xFF435C3C)
+                    color = AndeanPrimary
                 )
             }
 
@@ -123,41 +140,64 @@ fun PocketSimulatorCard(
                 valueRange = 10_000f..300_000f,
                 steps = 28,
                 colors = SliderDefaults.colors(
-                    thumbColor = Color(0xFF435C3C),
-                    activeTrackColor = Color(0xFF435C3C),
-                    inactiveTrackColor = Color(0xFFD6CEBD)
+                    thumbColor = AndeanPrimary,
+                    activeTrackColor = AndeanPrimary,
+                    inactiveTrackColor = MaterialTheme.colorScheme.surfaceVariant
                 ),
                 modifier = Modifier.fillMaxWidth()
             )
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(10.dp))
 
-            // Diálogo y revelación de proyección
+            // Proyección limpia sin duplicar avatar
             AnimatedContent(
                 targetState = weeksNeeded,
                 label = "WeeksNeededAnimation"
             ) { targetWeeks ->
-                if (targetWeeks == 0) {
-                    com.andina.finanzas.ui.components.muggy.MuggySpeechBubble(
-                        title = "¡Meta Cumplida!",
-                        text = "Tu páramo está en plenitud 🌿 Todo el caudal reservado está listo para su propósito.",
-                        pose = MuggyPose.CELEBRATING,
-                        avatarSize = 44.dp
-                    )
-                } else {
-                    com.andina.finanzas.ui.components.muggy.MuggySpeechBubble(
-                        title = "¡Alcanzas la meta en $targetWeeks semanas!",
-                        greeting = "~$monthsNeeded meses al ritmo actual",
-                        text = if (targetWeeks <= 6) {
-                            "Con este ritmo rápido y constante, tu meta florecerá muy pronto."
+                Surface(
+                    shape = RoundedCornerShape(16.dp),
+                    color = AndeanPrimary.copy(alpha = 0.10f),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        if (targetWeeks == 0) {
+                            Text(
+                                text = "🎉 ¡Meta Cumplida!",
+                                style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
+                                color = AndeanPrimary
+                            )
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Text(
+                                text = "Tu páramo está en plenitud 🌿 Todo el caudal reservado está listo para su propósito.",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
                         } else {
-                            "Paso a paso y con constancia montañera, las cumbres se conquistan con firmeza."
-                        },
-                        pose = if (targetWeeks <= 6) MuggyPose.CELEBRATING else MuggyPose.OBSERVING,
-                        avatarSize = 44.dp
-                    )
+                            Text(
+                                text = "⏱️ ¡Alcanzas la meta en $targetWeeks semanas!",
+                                style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
+                                color = AndeanPrimary
+                            )
+                            Text(
+                                text = "~$monthsNeeded meses al ritmo actual de ahorro",
+                                style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.SemiBold),
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                            Spacer(modifier = Modifier.height(4.dp))
+                            Text(
+                                text = if (targetWeeks <= 6) {
+                                    "Con este ritmo rápido y constante, tu meta florecerá muy pronto."
+                                } else {
+                                    "Paso a paso y con constancia montañera, las cumbres se conquistan con firmeza."
+                                },
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                        }
+                    }
                 }
             }
         }
     }
 }
+

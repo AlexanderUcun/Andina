@@ -26,16 +26,24 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.BugReport
+import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.EditNote
+import androidx.compose.material.icons.filled.Mail
+import androidx.compose.material.icons.filled.Sms
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -44,6 +52,7 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -71,6 +80,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.andina.finanzas.domain.model.CategoryKind
 import com.andina.finanzas.domain.model.TransactionType
 import com.andina.finanzas.ui.components.AndinaButton
 import com.andina.finanzas.ui.components.AndinaButtonVariant
@@ -81,18 +91,20 @@ import com.andina.finanzas.ui.register.components.RegisterTypeSelector
 import com.andina.finanzas.ui.theme.AndeanAntExpenseAmber
 import com.andina.finanzas.ui.theme.AndeanDragHandle
 import com.andina.finanzas.ui.theme.AndeanPrimary
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 /**
- * VisualTransformation para formateo monetario COP con puntos separadores de miles y prefijo $.
- * Mantiene la correspondencia biunívoca exacta de posiciones de cursor.
+ * VisualTransformation para formateo numérico con puntos separadores de miles.
+ * Mantiene la correspondencia biunívoca exacta de posiciones de cursor sin interferir con prefijos/sufijos de UI.
  */
-class CopAmountVisualTransformation : VisualTransformation {
+class CopDigitsVisualTransformation : VisualTransformation {
     override fun filter(text: AnnotatedString): TransformedText {
         val raw = text.text
         if (raw.isEmpty()) {
             return TransformedText(AnnotatedString(""), OffsetMapping.Identity)
         }
-        val prefix = "$ "
         val formatted = StringBuilder()
         val totalDigits = raw.length
         for (i in 0 until totalDigits) {
@@ -102,8 +114,7 @@ class CopAmountVisualTransformation : VisualTransformation {
                 formatted.append('.')
             }
         }
-        val outString = prefix + formatted.toString()
-        val transformed = AnnotatedString(outString)
+        val transformed = AnnotatedString(formatted.toString())
 
         val offsetMapping = object : OffsetMapping {
             override fun originalToTransformed(offset: Int): Int {
@@ -115,13 +126,13 @@ class CopAmountVisualTransformation : VisualTransformation {
                         dots++
                     }
                 }
-                return (prefix.length + clampedOffset + dots).coerceAtMost(transformed.length)
+                return (clampedOffset + dots).coerceAtMost(transformed.length)
             }
 
             override fun transformedToOriginal(offset: Int): Int {
-                if (offset <= prefix.length) return 0
+                if (offset <= 0) return 0
                 if (offset >= transformed.length) return totalDigits
-                val sub = transformed.text.substring(prefix.length, offset)
+                val sub = transformed.text.substring(0, offset)
                 val digitCount = sub.count { it.isDigit() }
                 return digitCount.coerceIn(0, totalDigits)
             }
@@ -173,7 +184,7 @@ fun RegisterRoute(
  * Pantalla completa de Registro Rápido con Muggy asomado,
  * teclado nativo de Android, confirmación verbal y previsualización de saldo.
  */
-@OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class)
+@OptIn(androidx.compose.foundation.layout.ExperimentalLayoutApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun RegisterScreen(
     state: RegisterUiState,
@@ -193,6 +204,13 @@ fun RegisterScreen(
     }
 
     var showNoteField by remember { mutableStateOf(state.note.isNotEmpty()) }
+    var showDatePicker by remember { mutableStateOf(false) }
+    var showSmsPasteDialog by remember { mutableStateOf(false) }
+    var smsInputText by remember { mutableStateOf("") }
+    var showAddCategoryDialog by remember { mutableStateOf(false) }
+    var newCategoryName by remember { mutableStateOf("") }
+
+    val datePickerState = rememberDatePickerState(initialSelectedDateMillis = state.occurredAt)
 
     val cardBackground = if (isDark) Color(0xFF161914) else Color.White
     val topBackdrop = if (isDark) Color(0xFF0F110E) else Color(0xFFEFECE5)
@@ -230,39 +248,93 @@ fun RegisterScreen(
                 Column(
                     modifier = Modifier.fillMaxSize()
                 ) {
-                    // Manija de arrastre y botón de cerrar fijo en cabecera
-                    Box(
+                    // Manija de arrastre y barra de utilidades superior (Fecha + Pegar SMS + Cerrar)
+                    Row(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(horizontal = 16.dp, vertical = 8.dp),
-                        contentAlignment = Alignment.Center
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        // Drag handle
-                        Box(
+                        // Chip de Selector de Fecha
+                        val formattedDate = formatShortDate(state.occurredAt)
+                        Surface(
+                            shape = RoundedCornerShape(12.dp),
+                            color = if (isDark) Color(0xFF222620) else Color(0xFFF1EEE8),
                             modifier = Modifier
-                                .width(40.dp)
-                                .height(4.dp)
-                                .clip(RoundedCornerShape(2.dp))
-                                .background(AndeanDragHandle)
-                        )
+                                .clip(RoundedCornerShape(12.dp))
+                                .clickable { showDatePicker = true }
+                        ) {
+                            Row(
+                                modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.CalendarMonth,
+                                    contentDescription = null,
+                                    tint = AndeanPrimary,
+                                    modifier = Modifier.size(15.dp)
+                                )
+                                Spacer(modifier = Modifier.width(5.dp))
+                                Text(
+                                    text = formattedDate,
+                                    style = MaterialTheme.typography.labelSmall.copy(
+                                        fontWeight = FontWeight.SemiBold,
+                                        fontSize = 12.sp
+                                    ),
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                            }
+                        }
+
+                        // Botón de Decodificar / Pegar SMS
+                        Surface(
+                            shape = RoundedCornerShape(12.dp),
+                            color = AndeanPrimary.copy(alpha = 0.12f),
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(12.dp))
+                                .clickable { showSmsPasteDialog = true }
+                        ) {
+                            Row(
+                                modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Sms,
+                                    contentDescription = "Pegar SMS",
+                                    tint = AndeanPrimary,
+                                    modifier = Modifier.size(15.dp)
+                                )
+                                Spacer(modifier = Modifier.width(5.dp))
+                                Text(
+                                    text = "📩 Pegar SMS",
+                                    style = MaterialTheme.typography.labelSmall.copy(
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 12.sp,
+                                        color = AndeanPrimary
+                                    )
+                                )
+                            }
+                        }
 
                         // Botón cerrar (X)
                         IconButton(
                             onClick = onClose,
-                            modifier = Modifier.align(Alignment.CenterEnd)
+                            modifier = Modifier.size(36.dp)
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Close,
                                 contentDescription = "Cerrar",
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.size(20.dp)
                             )
                         }
                     }
 
-                    // Contenido scrollable del formulario
+                    // Contenido scrollable del formulario (NUNCA se ocultan billeteras ni categorías)
                     Column(
                         modifier = Modifier
-                            .weight(1f)
+                            .weight(1f, fill = false)
                             .fillMaxWidth()
                             .verticalScroll(scrollState)
                             .padding(horizontal = 20.dp),
@@ -296,19 +368,35 @@ fun RegisterScreen(
                                 textAlign = TextAlign.Center,
                                 color = heroColor
                             ),
+                            prefix = {
+                                Text(
+                                    text = "$ ",
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 24.sp,
+                                    color = heroColor
+                                )
+                            },
+                            suffix = {
+                                Text(
+                                    text = " COP",
+                                    fontWeight = FontWeight.SemiBold,
+                                    fontSize = 14.sp,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.55f)
+                                )
+                            },
                             placeholder = {
                                 Text(
-                                    text = "$ 0 COP",
+                                    text = "0",
                                     modifier = Modifier.fillMaxWidth(),
                                     textAlign = TextAlign.Center,
                                     style = MaterialTheme.typography.displaySmall.copy(
                                         fontWeight = FontWeight.Bold,
                                         fontSize = 30.sp,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.45f)
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.35f)
                                     )
                                 )
                             },
-                            visualTransformation = CopAmountVisualTransformation(),
+                            visualTransformation = CopDigitsVisualTransformation(),
                             singleLine = true,
                             keyboardOptions = KeyboardOptions(
                                 keyboardType = KeyboardType.Number,
@@ -403,6 +491,8 @@ fun RegisterScreen(
                             }
                         }
 
+                        Spacer(modifier = Modifier.height(10.dp))
+
                         // 5. Selector de Billetera Origen
                         PaymentWalletSelector(
                             wallets = state.wallets,
@@ -415,9 +505,10 @@ fun RegisterScreen(
                         // Si es Transferencia, selector de cuenta destino
                         if (state.type == TransactionType.TRANSFERENCIA) {
                             Spacer(modifier = Modifier.height(12.dp))
+                            val destinationWallets = state.wallets.filter { it.id != state.walletId }
                             PaymentWalletSelector(
-                                wallets = state.wallets.filter { it.id != state.walletId },
-                                selectedWalletId = state.toWalletId,
+                                wallets = destinationWallets,
+                                selectedWalletId = state.toWalletId ?: destinationWallets.firstOrNull()?.id,
                                 projectedRemainingBalance = null,
                                 onWalletSelected = { onAction(RegisterAction.ToWalletSelected(it)) },
                                 labelTitle = "Hacia cuenta de destino"
@@ -430,7 +521,8 @@ fun RegisterScreen(
                             CategoryChipsSelector(
                                 categories = state.categories,
                                 selectedCategoryId = state.categoryId,
-                                onCategorySelected = { onAction(RegisterAction.CategorySelected(it)) }
+                                onCategorySelected = { onAction(RegisterAction.CategorySelected(it)) },
+                                onAddCategoryClick = { showAddCategoryDialog = true }
                             )
                         }
 
@@ -595,6 +687,139 @@ fun RegisterScreen(
         }
     }
 
+    // Modal de selección de Fecha
+    if (showDatePicker) {
+        DatePickerDialog(
+            onDismissRequest = { showDatePicker = false },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        val millis = datePickerState.selectedDateMillis ?: System.currentTimeMillis()
+                        onAction(RegisterAction.DateChanged(millis))
+                        showDatePicker = false
+                    }
+                ) {
+                    Text("Seleccionar", color = AndeanPrimary, fontWeight = FontWeight.Bold)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDatePicker = false }) {
+                    Text("Cancelar")
+                }
+            }
+        ) {
+            DatePicker(state = datePickerState)
+        }
+    }
+
+    // Modal de Pegado de SMS Bancario
+    if (showSmsPasteDialog) {
+        AlertDialog(
+            onDismissRequest = { showSmsPasteDialog = false },
+            title = {
+                Text(
+                    text = "Pegar SMS Bancario",
+                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
+                )
+            },
+            text = {
+                Column(modifier = Modifier.fillMaxWidth()) {
+                    Text(
+                        text = "Pega un SMS de Bancolombia, Nequi o DaviPlata. Se completará el monto, billetera, categoría y nota:",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Spacer(modifier = Modifier.height(10.dp))
+                    OutlinedTextField(
+                        value = smsInputText,
+                        onValueChange = { smsInputText = it },
+                        placeholder = { Text("Ej: Bancolombia le informa compra por $45.000 en TIENDAS D1...") },
+                        modifier = Modifier.fillMaxWidth(),
+                        maxLines = 4,
+                        shape = RoundedCornerShape(12.dp)
+                    )
+                }
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        if (smsInputText.isNotBlank()) {
+                            onAction(RegisterAction.ParseSms(smsInputText))
+                            showSmsPasteDialog = false
+                            smsInputText = ""
+                        }
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = AndeanPrimary)
+                ) {
+                    Text("Autocompletar")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showSmsPasteDialog = false }) {
+                    Text("Cancelar")
+                }
+            }
+        )
+    }
+
+    // Modal de creación rápida de categoría
+    if (showAddCategoryDialog) {
+        AlertDialog(
+            onDismissRequest = { showAddCategoryDialog = false },
+            title = {
+                Text(
+                    text = "Nueva Categoría",
+                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
+                )
+            },
+            text = {
+                Column(modifier = Modifier.fillMaxWidth()) {
+                    Text(
+                        text = "Crea una nueva categoría para tus registros contables:",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Spacer(modifier = Modifier.height(10.dp))
+                    OutlinedTextField(
+                        value = newCategoryName,
+                        onValueChange = { newCategoryName = it },
+                        label = { Text("Nombre de la categoría") },
+                        placeholder = { Text("Ej: Mascotas, Gimnasio, Cursos") },
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true,
+                        shape = RoundedCornerShape(12.dp)
+                    )
+                }
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        if (newCategoryName.isNotBlank()) {
+                            onAction(
+                                RegisterAction.CreateCategory(
+                                    name = newCategoryName.trim(),
+                                    kind = if (state.type == TransactionType.INGRESO) CategoryKind.INGRESO else CategoryKind.GASTO,
+                                    icon = "category",
+                                    colorHex = "#435C3C"
+                                )
+                            )
+                            showAddCategoryDialog = false
+                            newCategoryName = ""
+                        }
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = AndeanPrimary)
+                ) {
+                    Text("Crear")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showAddCategoryDialog = false }) {
+                    Text("Cancelar")
+                }
+            }
+        )
+    }
+
     // Modal de confirmación a 2 pasos para cifras altas (> $10.000.000 COP)
     if (state.showHighAmountConfirmation) {
         AlertDialog(
@@ -671,4 +896,11 @@ fun RegisterScreen(
             }
         )
     }
+}
+
+private fun formatShortDate(timestamp: Long): String {
+    val formatter = SimpleDateFormat("d MMM", Locale("es", "CO"))
+    val today = SimpleDateFormat("yyyyMMdd", Locale.getDefault()).format(Date())
+    val itemDate = SimpleDateFormat("yyyyMMdd", Locale.getDefault()).format(Date(timestamp))
+    return if (today == itemDate) "📅 Hoy ▾" else "📅 ${formatter.format(Date(timestamp))} ▾"
 }

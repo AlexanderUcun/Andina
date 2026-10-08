@@ -84,6 +84,7 @@ class HomeViewModel @Inject constructor(
             _state.update { current ->
                 current.copy(
                     userName = userProfile.name,
+                    avatarEmoji = userProfile.avatarEmoji,
                     userLevel = userProfile.level,
                     greeting = calculateGreeting(LocalTime.now().hour),
                     totalNetWorth = summary.totalNetWorth,
@@ -95,6 +96,8 @@ class HomeViewModel @Inject constructor(
                     budgetProgress = budgetProgress,
                     wallets = wallets,
                     pockets = if (userProfile.showPocketsCard) pockets.take(5) else emptyList(),
+                    showBudgetCard = userProfile.showBudgetCard,
+                    showPocketsCard = userProfile.showPocketsCard,
                     recentTransactions = recentTxs,
                     antExpensesMonthTotal = summary.monthlyAntExpense,
                     paramoHealthLevel = userProfile.level,
@@ -155,6 +158,22 @@ class HomeViewModel @Inject constructor(
 
             is HomeAction.BudgetClick -> {
                 sendEffect(HomeEffect.NavigateToBudgets)
+            }
+
+            is HomeAction.CalendarClick -> {
+                sendEffect(HomeEffect.NavigateToCalendar)
+            }
+
+            is HomeAction.ExportClick -> {
+                sendEffect(HomeEffect.NavigateToReportExport)
+            }
+
+            is HomeAction.CustomizationClick -> {
+                sendEffect(HomeEffect.NavigateToCustomization)
+            }
+
+            is HomeAction.SmsClick -> {
+                sendEffect(HomeEffect.NavigateToConsultorioSms)
             }
 
             is HomeAction.AntExpenseCardClick -> {

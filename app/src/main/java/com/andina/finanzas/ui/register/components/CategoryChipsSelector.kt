@@ -55,7 +55,8 @@ fun CategoryChipsSelector(
     categories: List<Category>,
     selectedCategoryId: Long?,
     onCategorySelected: (Long) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onAddCategoryClick: () -> Unit = {}
 ) {
     val haptic = LocalHapticFeedback.current
     val isDark = isSystemInDarkTheme()
@@ -64,14 +65,30 @@ fun CategoryChipsSelector(
         modifier = modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        Text(
-            text = "Categoría",
-            style = MaterialTheme.typography.labelLarge.copy(
-                fontWeight = FontWeight.SemiBold
-            ),
-            color = MaterialTheme.colorScheme.onSurface,
-            modifier = Modifier.padding(horizontal = 4.dp)
-        )
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "Categoría",
+                style = MaterialTheme.typography.labelLarge.copy(
+                    fontWeight = FontWeight.SemiBold
+                ),
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            Text(
+                text = "➕ Nueva / Editar",
+                style = MaterialTheme.typography.labelSmall.copy(
+                    fontWeight = FontWeight.Bold,
+                    color = com.andina.finanzas.ui.theme.AndeanPrimary
+                ),
+                modifier = Modifier
+                    .clip(RoundedCornerShape(6.dp))
+                    .clickable { onAddCategoryClick() }
+                    .padding(horizontal = 6.dp, vertical = 2.dp)
+            )
+        }
 
         LazyHorizontalGrid(
             rows = GridCells.Fixed(2),
@@ -101,7 +118,7 @@ fun CategoryChipsSelector(
                         .clip(RoundedCornerShape(21.dp))
                         .background(chipBg)
                         .border(
-                            width = if (isSelected) 1.5.dp else 0.dp,
+                            width = if (isSelected) 2.dp else 0.dp,
                             color = borderColor,
                             shape = RoundedCornerShape(21.dp)
                         )
@@ -142,6 +159,44 @@ fun CategoryChipsSelector(
                     )
                 }
             }
+
+            // Chip de acción para crear/editar categorías directamente
+            item(key = "add_new_category_chip") {
+                Row(
+                    modifier = Modifier
+                        .height(42.dp)
+                        .clip(RoundedCornerShape(21.dp))
+                        .background(if (isDark) Color(0xFF242721) else Color(0xFFEBE7DF))
+                        .border(
+                            width = 1.dp,
+                            color = com.andina.finanzas.ui.theme.AndeanPrimary.copy(alpha = 0.4f),
+                            shape = RoundedCornerShape(21.dp)
+                        )
+                        .clickable {
+                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                            onAddCategoryClick()
+                        }
+                        .padding(horizontal = 14.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Category,
+                        contentDescription = "Nueva categoría",
+                        tint = com.andina.finanzas.ui.theme.AndeanPrimary,
+                        modifier = Modifier.size(16.dp)
+                    )
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text(
+                        text = "+ Nueva",
+                        style = MaterialTheme.typography.labelMedium.copy(
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 13.sp
+                        ),
+                        color = com.andina.finanzas.ui.theme.AndeanPrimary
+                    )
+                }
+            }
         }
     }
 }
+

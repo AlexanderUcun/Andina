@@ -328,4 +328,7 @@ private class FakeTransactionsFinanceRepository : FinanceRepository {
 
     override fun observeCategories(kind: CategoryKind?): Flow<List<Category>> = categoriesFlow.asStateFlow()
     override suspend fun getCategoryById(id: Long): Category? = categoriesFlow.value.find { it.id == id }
+    override suspend fun createCategory(category: Category): Long = 1L
+    override suspend fun updateCategory(category: Category) {}
+    override suspend fun resetDemoData() {}
 }

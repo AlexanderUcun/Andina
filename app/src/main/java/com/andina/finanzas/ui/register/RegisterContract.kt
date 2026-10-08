@@ -104,6 +104,8 @@ sealed interface RegisterAction {
     data class CategorySelected(val categoryId: Long) : RegisterAction
     data class NoteChanged(val note: String) : RegisterAction
     data class DateChanged(val timestamp: Long) : RegisterAction
+    data class ParseSms(val text: String) : RegisterAction
+    data class CreateCategory(val name: String, val kind: com.andina.finanzas.domain.model.CategoryKind, val icon: String, val colorHex: String) : RegisterAction
     data object ToggleAntExpense : RegisterAction
     data class ReceiptAttached(val uri: String?) : RegisterAction
     data object ConfirmHighAmount : RegisterAction
@@ -112,6 +114,7 @@ sealed interface RegisterAction {
     data object DismissNegativeBalance : RegisterAction
     data object Save : RegisterAction
 }
+
 
 /**
  * Efectos secundarios únicos (One-shot side-effects) emitidos por el ViewModel.

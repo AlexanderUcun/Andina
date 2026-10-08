@@ -12,6 +12,7 @@ import com.andina.finanzas.domain.model.Wallet
  */
 data class HomeUiState(
     val userName: String = "Valentina",
+    val avatarEmoji: String = "🐻",
     val greeting: String = "Buenos días",
     val userLevel: String = "Nivel Frailejón Mayor",
     val totalNetWorth: Money = Money.ZERO,
@@ -28,6 +29,8 @@ data class HomeUiState(
     val antExpensesMonthTotal: Money = Money.ZERO,
     val paramoHealthLevel: String = "Nivel Páramo",
     val andinoInsight: String? = "Tus gastos hormiga representan un control óptimo este mes. ¡Gran disciplina financiera!",
+    val showBudgetCard: Boolean = true,
+    val showPocketsCard: Boolean = true,
     val isInsightDismissed: Boolean = false,
     val isRefreshing: Boolean = false,
     val isLoading: Boolean = false
@@ -56,6 +59,10 @@ sealed interface HomeAction {
     data object NotificationsClick : HomeAction
     data object ProfileClick : HomeAction
     data object BudgetClick : HomeAction
+    data object CalendarClick : HomeAction
+    data object ExportClick : HomeAction
+    data object CustomizationClick : HomeAction
+    data object SmsClick : HomeAction
     data object AntExpenseCardClick : HomeAction
     data object QuickRegisterClick : HomeAction
 }
@@ -73,6 +80,10 @@ sealed interface HomeEffect {
     data object NavigateToRegister : HomeEffect
     data object NavigateToSettings : HomeEffect
     data object NavigateToBudgets : HomeEffect
+    data object NavigateToCalendar : HomeEffect
+    data object NavigateToReportExport : HomeEffect
+    data object NavigateToCustomization : HomeEffect
+    data object NavigateToConsultorioSms : HomeEffect
     data object NavigateToAntExpenses : HomeEffect
     data object NavigateToNotifications : HomeEffect
     data class ShowSnackbar(val message: String) : HomeEffect

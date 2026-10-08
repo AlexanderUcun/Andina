@@ -6,6 +6,7 @@ import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -21,6 +22,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccountBalanceWallet
 import androidx.compose.material.icons.filled.BugReport
 import androidx.compose.material.icons.filled.CalendarMonth
+import androidx.compose.material.icons.filled.Category
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.FilterAlt
@@ -47,9 +49,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.andina.finanzas.domain.model.Category
 import com.andina.finanzas.domain.model.TransactionType
 import com.andina.finanzas.domain.model.Wallet
 import com.andina.finanzas.ui.components.AndinaButton
+import com.andina.finanzas.ui.components.CategoryIconHelper
 import com.andina.finanzas.ui.theme.AndeanAntExpenseAmber
 import com.andina.finanzas.ui.theme.AndeanPrimary
 import com.andina.finanzas.ui.transactions.DateRangeFilterPreset
@@ -57,15 +61,17 @@ import com.andina.finanzas.ui.transactions.TransactionsFilter
 
 /**
  * Modal BottomSheet para filtros avanzados de auditoría financiera.
- * Permite filtrar por tipo de movimiento, billetera/método, compras hormiga y rango temporal.
+ * Permite filtrar por tipo de movimiento, billetera/método, categoría, compras hormiga y rango temporal.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TransactionsFilterBottomSheet(
     filter: TransactionsFilter,
     availableWallets: List<Wallet>,
+    availableCategories: List<Category> = emptyList(),
     onTypeSelected: (TransactionType?) -> Unit,
     onWalletSelected: (Long?) -> Unit,
+    onCategorySelected: (Long?) -> Unit = {},
     onToggleAntExpense: (Boolean) -> Unit,
     onDatePresetSelected: (DateRangeFilterPreset) -> Unit,
     onResetFilters: () -> Unit,
@@ -73,6 +79,8 @@ fun TransactionsFilterBottomSheet(
     modifier: Modifier = Modifier,
     sheetState: SheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 ) {
+    val isAntEligible = filter.type == null || filter.type == TransactionType.GASTO
+
     ModalBottomSheet(
         onDismissRequest = onDismissRequest,
         sheetState = sheetState,
@@ -185,12 +193,18 @@ fun TransactionsFilterBottomSheet(
                 FilterChipItem(
                     label = "Ingresos",
                     selected = filter.type == TransactionType.INGRESO,
-                    onClick = { onTypeSelected(TransactionType.INGRESO) }
+                    onClick = {
+                        onTypeSelected(TransactionType.INGRESO)
+                        if (filter.onlyAntExpense) onToggleAntExpense(false)
+                    }
                 )
                 FilterChipItem(
                     label = "Transferencias",
                     selected = filter.type == TransactionType.TRANSFERENCIA,
-                    onClick = { onTypeSelected(TransactionType.TRANSFERENCIA) }
+                    onClick = {
+                        onTypeSelected(TransactionType.TRANSFERENCIA)
+                        if (filter.onlyAntExpense) onToggleAntExpense(false)
+                    }
                 )
             }
 
@@ -225,13 +239,43 @@ fun TransactionsFilterBottomSheet(
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            // 3. Switch de Compras Hormiga
+            // 2.1. Categoría
+            if (availableCategories.isNotEmpty()) {
+                Text(
+                    text = "Categoría",
+                    style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.SemiBold),
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .horizontalScroll(rememberScrollState()),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    FilterChipItem(
+                        label = "Todas las categorías",
+                        selected = filter.categoryId == null,
+                        onClick = { onCategorySelected(null) }
+                    )
+                    availableCategories.forEach { category ->
+                        FilterChipItem(
+                            label = category.name,
+                            selected = filter.categoryId == category.id,
+                            onClick = { onCategorySelected(category.id) }
+                        )
+                    }
+                }
+                Spacer(modifier = Modifier.height(20.dp))
+            }
+
+            // 3. Switch de Compras Hormiga (deshabilitado si no aplica)
             Surface(
                 shape = RoundedCornerShape(16.dp),
-                color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = if (isAntEligible) 0.5f else 0.2f),
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clickable { onToggleAntExpense(!filter.onlyAntExpense) }
+                    .clickable(enabled = isAntEligible) { onToggleAntExpense(!filter.onlyAntExpense) }
             ) {
                 Row(
                     modifier = Modifier
@@ -248,13 +292,16 @@ fun TransactionsFilterBottomSheet(
                             modifier = Modifier
                                 .size(38.dp)
                                 .clip(RoundedCornerShape(10.dp))
-                                .background(AndeanAntExpenseAmber.copy(alpha = 0.16f)),
+                                .background(
+                                    if (isAntEligible) AndeanAntExpenseAmber.copy(alpha = 0.16f)
+                                    else MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.2f)
+                                ),
                             contentAlignment = Alignment.Center
                         ) {
                             Icon(
                                 imageVector = Icons.Default.BugReport,
                                 contentDescription = null,
-                                tint = AndeanAntExpenseAmber,
+                                tint = if (isAntEligible) AndeanAntExpenseAmber else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f),
                                 modifier = Modifier.size(22.dp)
                             )
                         }
@@ -265,19 +312,20 @@ fun TransactionsFilterBottomSheet(
                                 style = MaterialTheme.typography.bodyMedium.copy(
                                     fontWeight = FontWeight.SemiBold
                                 ),
-                                color = MaterialTheme.colorScheme.onSurface
+                                color = if (isAntEligible) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f)
                             )
                             Text(
-                                text = "Consumos cotidianos e impulsivos",
+                                text = if (isAntEligible) "Consumos cotidianos e impulsivos" else "Solo aplica a gastos",
                                 style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = if (isAntEligible) 1f else 0.4f)
                             )
                         }
                     }
 
                     Switch(
-                        checked = filter.onlyAntExpense,
-                        onCheckedChange = { onToggleAntExpense(it) },
+                        checked = filter.onlyAntExpense && isAntEligible,
+                        onCheckedChange = { if (isAntEligible) onToggleAntExpense(it) },
+                        enabled = isAntEligible,
                         colors = SwitchDefaults.colors(
                             checkedThumbColor = Color.White,
                             checkedTrackColor = AndeanAntExpenseAmber,

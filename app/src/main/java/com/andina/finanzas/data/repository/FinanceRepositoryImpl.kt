@@ -258,4 +258,25 @@ class FinanceRepositoryImpl @Inject constructor(
     override suspend fun getCategoryById(id: Long): Category? {
         return categoryDao.getCategoryById(id)?.toDomain()
     }
+
+    override suspend fun createCategory(category: Category): Long {
+        return categoryDao.insertCategory(category.toEntity())
+    }
+
+    override suspend fun updateCategory(category: Category) {
+        categoryDao.updateCategory(category.toEntity())
+    }
+
+    override suspend fun resetDemoData() {
+        // Elimina transacciones de prueba
+        transactionDao.deleteAllTransactions()
+        // Elimina movimientos de bolsillos
+        pocketDao.deleteAllMovements()
+        // Resetea saldos iniciales de billeteras a cero
+        val activeWallets = walletDao.getActiveWallets()
+        activeWallets.forEach { entity ->
+            walletDao.updateWallet(entity.copy(initialBalance = 0L))
+        }
+    }
 }
+

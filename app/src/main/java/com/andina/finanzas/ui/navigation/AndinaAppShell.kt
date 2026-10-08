@@ -309,6 +309,9 @@ fun AndinaAppShell(
                     onNavigateToRegister = { appState.navigateToRegister() },
                     onNavigateToSettings = { appState.navigateToProfile() },
                     onNavigateToBudgets = { appState.navigateToBudget() },
+                    onNavigateToCalendar = { appState.navigateToCalendar() },
+                    onNavigateToReportExport = { appState.navigateToReportExport() },
+                    onNavigateToCustomization = { appState.navigateToCustomization() },
                     onNavigateToNotifications = { appState.navigateToNotifications() },
                     onNavigateToConsultorio = { appState.navigateToConsultorio() },
                     onShowSnackbar = { msg -> appState.showSnackbar(msg) }

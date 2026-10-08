@@ -161,12 +161,17 @@ fun PocketsHeroCard(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "$progressPercent% del objetivo total (${totalGoals.formatCop()})",
+                        text = "$progressPercent% del objetivo (${totalGoals.formatCop()})",
                         style = MaterialTheme.typography.bodySmall.copy(
                             color = Color.White.copy(alpha = 0.85f),
-                            fontWeight = FontWeight.Medium
-                        )
+                            fontWeight = FontWeight.Medium,
+                            fontSize = 11.sp
+                        ),
+                        maxLines = 1,
+                        modifier = Modifier.weight(1f, fill = false)
                     )
+
+                    Spacer(modifier = Modifier.width(8.dp))
 
                     // Botón para crear nueva meta
                     Surface(
@@ -177,7 +182,7 @@ fun PocketsHeroCard(
                         color = Color.White.copy(alpha = 0.2f)
                     ) {
                         Row(
-                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.spacedBy(4.dp)
                         ) {
@@ -185,11 +190,12 @@ fun PocketsHeroCard(
                                 imageVector = Icons.Default.Add,
                                 contentDescription = "Nueva Meta",
                                 tint = Color.White,
-                                modifier = Modifier.size(16.dp)
+                                modifier = Modifier.size(14.dp)
                             )
                             Text(
                                 text = "Nueva Meta",
-                                style = MaterialTheme.typography.labelMedium.copy(
+                                maxLines = 1,
+                                style = MaterialTheme.typography.labelSmall.copy(
                                     fontWeight = FontWeight.Bold,
                                     color = Color.White
                                 )

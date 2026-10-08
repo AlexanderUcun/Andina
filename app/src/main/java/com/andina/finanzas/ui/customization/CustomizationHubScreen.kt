@@ -200,6 +200,13 @@ fun CustomizationHubScreen(
             }
 
             item {
+                val themePalettes = listOf(
+                    listOf(Color(0xFF435C3C), Color(0xFFC58934), Color(0xFFEBE6DC)),
+                    listOf(Color(0xFF4A5568), Color(0xFF718096), Color(0xFFEDF2F7)),
+                    listOf(Color(0xFF00897B), Color(0xFF26A69A), Color(0xFFE0F2F1)),
+                    listOf(Color(0xFF5D4037), Color(0xFF8D6E63), Color(0xFFEFEBE9))
+                )
+
                 Card(
                     shape = RoundedCornerShape(18.dp),
                     colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f)),
@@ -207,6 +214,7 @@ fun CustomizationHubScreen(
                 ) {
                     Column(modifier = Modifier.padding(16.dp)) {
                         themeNames.forEachIndexed { index, theme ->
+                            val palette = themePalettes.getOrElse(index) { listOf(AndeanPrimary, Color.Gray, Color.LightGray) }
                             Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
@@ -219,12 +227,30 @@ fun CustomizationHubScreen(
                                 horizontalArrangement = Arrangement.SpaceBetween,
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Text(
-                                    text = theme,
-                                    fontSize = 14.sp,
-                                    fontWeight = if (selectedThemeIndex == index) FontWeight.Bold else FontWeight.Medium,
-                                    color = if (selectedThemeIndex == index) AndeanPrimary else MaterialTheme.colorScheme.onSurface
-                                )
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                                ) {
+                                    // Paleta de 3 círculos con colores reales
+                                    Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                                        palette.forEach { color ->
+                                            Box(
+                                                modifier = Modifier
+                                                    .size(14.dp)
+                                                    .clip(CircleShape)
+                                                    .background(color)
+                                            )
+                                        }
+                                    }
+
+                                    Text(
+                                        text = theme,
+                                        fontSize = 14.sp,
+                                        fontWeight = if (selectedThemeIndex == index) FontWeight.Bold else FontWeight.Medium,
+                                        color = if (selectedThemeIndex == index) AndeanPrimary else MaterialTheme.colorScheme.onSurface
+                                    )
+                                }
+
                                 if (selectedThemeIndex == index) {
                                     Icon(imageVector = Icons.Default.Check, contentDescription = null, tint = AndeanPrimary)
                                 }

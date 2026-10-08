@@ -34,7 +34,8 @@ import javax.inject.Inject
 class RegisterViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
     private val registerTransactionUseCase: RegisterTransactionUseCase,
-    private val repository: FinanceRepository
+    private val repository: FinanceRepository,
+    private val intelligenceCore: com.andina.finanzas.core.intelligence.AndinaIntelligenceCore
 ) : ViewModel() {
 
     companion object {
@@ -149,6 +150,8 @@ class RegisterViewModel @Inject constructor(
             is RegisterAction.CategorySelected -> handleCategorySelected(action.categoryId)
             is RegisterAction.NoteChanged -> handleNoteChanged(action.note)
             is RegisterAction.DateChanged -> handleDateChanged(action.timestamp)
+            is RegisterAction.ParseSms -> handleParseSms(action.text)
+            is RegisterAction.CreateCategory -> handleCreateCategory(action.name, action.kind, action.icon, action.colorHex)
             RegisterAction.ToggleAntExpense -> handleToggleAntExpense()
             is RegisterAction.ReceiptAttached -> handleReceiptAttached(action.uri)
             RegisterAction.ConfirmHighAmount -> {
@@ -168,6 +171,67 @@ class RegisterViewModel @Inject constructor(
             RegisterAction.Save -> save()
         }
     }
+
+    private fun handleParseSms(smsText: String) {
+        if (smsText.isBlank()) return
+        val parsed = intelligenceCore.parseBankSms(smsText)
+        if (parsed.isSuccess) {
+            val digits = parsed.amount.toString()
+            val cleanDigits = digits.take(MAX_DIGITS_LENGTH)
+            savedStateHandle[KEY_AMOUNT_DIGITS] = cleanDigits
+
+            // Match wallet
+            val matchedWallet = _state.value.wallets.find { w ->
+                w.name.contains(parsed.walletName, ignoreCase = true) ||
+                (parsed.walletName.contains("Nequi", ignoreCase = true) && w.type == com.andina.finanzas.domain.model.WalletType.NEQUI) ||
+                (parsed.walletName.contains("Daviplata", ignoreCase = true) && w.type == com.andina.finanzas.domain.model.WalletType.DAVIPLATA) ||
+                (parsed.walletName.contains("Bancolombia", ignoreCase = true) && w.type == com.andina.finanzas.domain.model.WalletType.BANCOLOMBIA)
+            }
+            val targetWalletId = matchedWallet?.id ?: _state.value.walletId
+
+            // Match category
+            val matchedCat = _state.value.categories.find { c ->
+                c.name.contains(parsed.suggestedCategory, ignoreCase = true) ||
+                parsed.suggestedCategory.contains(c.name, ignoreCase = true)
+            }
+            val targetCatId = matchedCat?.id ?: _state.value.categoryId
+
+            _state.update { current ->
+                current.copy(
+                    type = TransactionType.GASTO,
+                    amountDigits = cleanDigits,
+                    walletId = targetWalletId,
+                    selectedWallet = matchedWallet ?: current.selectedWallet,
+                    categoryId = targetCatId,
+                    selectedCategory = matchedCat ?: current.selectedCategory,
+                    note = parsed.merchant,
+                    isAntOverride = parsed.isAntCandidate,
+                    amountError = null
+                )
+            }
+        }
+    }
+
+    private fun handleCreateCategory(
+        name: String,
+        kind: CategoryKind,
+        icon: String,
+        colorHex: String
+    ) {
+        viewModelScope.launch {
+            val newId = repository.createCategory(
+                Category(
+                    id = 0L,
+                    name = name,
+                    kind = kind,
+                    icon = icon,
+                    colorHex = colorHex
+                )
+            )
+            _state.update { it.copy(categoryId = newId) }
+        }
+    }
+
 
     private fun handleTypeChanged(newType: TransactionType) {
         savedStateHandle[KEY_TYPE] = newType.name

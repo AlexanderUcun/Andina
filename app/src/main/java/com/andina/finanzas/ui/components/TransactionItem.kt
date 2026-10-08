@@ -156,8 +156,9 @@ fun TransactionItem(
                 Row(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
+                    val hasCustomNote = transaction.note.isNotBlank()
                     val displayName = when {
-                        transaction.note.isNotBlank() -> transaction.note
+                        hasCustomNote -> transaction.note
                         !transaction.categoryName.isNullOrBlank() -> transaction.categoryName
                         isTransfer -> "Transferencia"
                         isIncome -> "Ingreso"
@@ -198,9 +199,10 @@ fun TransactionItem(
 
                 Spacer(modifier = Modifier.height(2.dp))
 
-                // Subtítulo con categoría, fecha y billetera
+                // Subtítulo con categoría (solo si hay nota personalizada), fecha y billetera
+                val hasCustomNote = transaction.note.isNotBlank()
                 val dateString = formatDate(transaction.occurredAt)
-                val categoryPart = transaction.categoryName?.takeIf { it.isNotBlank() && it != transaction.note }
+                val categoryPart = if (hasCustomNote && !transaction.categoryName.isNullOrBlank()) transaction.categoryName else null
                 val walletContext = buildString {
                     if (categoryPart != null) {
                         append("$categoryPart · ")

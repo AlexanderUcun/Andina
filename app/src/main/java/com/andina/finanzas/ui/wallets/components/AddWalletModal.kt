@@ -6,6 +6,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -21,6 +22,8 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
@@ -60,7 +63,12 @@ fun AddWalletModal(
     var nameInput by remember { mutableStateOf(editingWallet?.name ?: "") }
     var selectedType by remember { mutableStateOf(editingWallet?.type ?: WalletType.NEQUI) }
     var initialBalanceInput by remember {
-        mutableStateOf(editingWallet?.initialBalance?.pesos?.toString() ?: "")
+        mutableStateOf(
+            editingWallet?.let {
+                if (it.currentBalance.pesos > 0L) it.currentBalance.pesos.toString()
+                else it.initialBalance.pesos.toString()
+            } ?: ""
+        )
     }
     var selectedColorHex by remember {
         mutableStateOf(editingWallet?.colorHex ?: "#700054")
@@ -92,7 +100,7 @@ fun AddWalletModal(
         onDismissRequest = onDismiss,
         title = {
             Text(
-                text = if (editingWallet == null) "Añadir Billetera" else "Editar Billetera",
+                text = if (editingWallet == null) "Añadir Billetera" else "Editar / Cuadrar Saldo",
                 style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
             )
         },
@@ -119,6 +127,7 @@ fun AddWalletModal(
                 )
                 Spacer(modifier = Modifier.height(6.dp))
                 LazyRow(
+                    contentPadding = PaddingValues(horizontal = 4.dp),
                     horizontalArrangement = Arrangement.spacedBy(6.dp),
                     modifier = Modifier.fillMaxWidth()
                 ) {
@@ -129,7 +138,6 @@ fun AddWalletModal(
                             selected = isSelected,
                             onClick = {
                                 selectedType = type
-                                // Auto-asignar color por defecto según la marca
                                 when (type) {
                                     WalletType.NEQUI -> selectedColorHex = "#700054"
                                     WalletType.DAVIPLATA -> selectedColorHex = "#B32D2D"
@@ -140,9 +148,24 @@ fun AddWalletModal(
                                 }
                             },
                             label = { Text(label, style = MaterialTheme.typography.labelSmall) },
+                            leadingIcon = if (isSelected) {
+                                {
+                                    Icon(
+                                        imageVector = Icons.Default.Check,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(16.dp)
+                                    )
+                                }
+                            } else null,
                             colors = FilterChipDefaults.filterChipColors(
                                 selectedContainerColor = AndeanPrimary.copy(alpha = 0.15f),
                                 selectedLabelColor = AndeanPrimary
+                            ),
+                            border = FilterChipDefaults.filterChipBorder(
+                                enabled = true,
+                                selected = isSelected,
+                                selectedBorderColor = AndeanPrimary,
+                                borderWidth = 1.5.dp
                             )
                         )
                     }
@@ -150,11 +173,11 @@ fun AddWalletModal(
 
                 Spacer(modifier = Modifier.height(12.dp))
 
-                // 3. Saldo Inicial
+                // 3. Saldo Inicial / Cuadre de Saldo
                 OutlinedTextField(
                     value = initialBalanceInput,
-                    onValueChange = { initialBalanceInput = it.filter { ch -> ch.isDigit() }.take(8) },
-                    label = { Text("Saldo inicial") },
+                    onValueChange = { initialBalanceInput = it.filter { ch -> ch.isDigit() }.take(9) },
+                    label = { Text(if (editingWallet != null) "Saldo Actual (Ajuste automático)" else "Saldo inicial") },
                     prefix = { Text("$ ") },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     singleLine = true,
@@ -217,7 +240,7 @@ fun AddWalletModal(
             }
         },
         confirmButton = {
-            TextButton(
+            Button(
                 onClick = {
                     if (nameInput.isNotBlank()) {
                         onConfirm(
@@ -228,12 +251,16 @@ fun AddWalletModal(
                         )
                     }
                 },
-                enabled = nameInput.isNotBlank() && !isSaving
+                enabled = nameInput.isNotBlank() && !isSaving,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = AndeanPrimary,
+                    contentColor = Color.White
+                ),
+                shape = RoundedCornerShape(12.dp)
             ) {
                 Text(
                     text = if (isSaving) "Guardando..." else "Guardar",
-                    fontWeight = FontWeight.Bold,
-                    color = AndeanPrimary
+                    fontWeight = FontWeight.Bold
                 )
             }
         },
