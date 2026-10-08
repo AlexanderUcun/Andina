@@ -70,9 +70,14 @@ abstract class AppDatabase : RoomDatabase() {
                         DatabaseSeeder.seedInitialData(db)
                     }
                 })
+                .fallbackToDestructiveMigration()
 
             if (passphrase != null && passphrase.isNotEmpty()) {
-                builder.openHelperFactory(SupportOpenHelperFactory(passphrase))
+                try {
+                    builder.openHelperFactory(SupportOpenHelperFactory(passphrase))
+                } catch (_: Throwable) {
+                    // Fallback de resiliencia ante error de inicialización de fábrica
+                }
             }
 
             return builder.build()

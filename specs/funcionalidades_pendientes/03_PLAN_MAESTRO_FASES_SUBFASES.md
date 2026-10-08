@@ -71,30 +71,30 @@
 
 ---
 
-## 💰 FASE 2: INTEGRIDAD CONTABLE, CONTROL DE SALDOS Y EDICIÓN COMPLETA
+## ✅ FASE 2: INTEGRIDAD CONTABLE, CONTROL DE SALDOS Y EDICIÓN COMPLETA (100% COMPLETADA)
 > **Meta de la Fase:** Proteger la coherencia financiera del usuario restringiendo disparates contables y permitiendo la edición total de transacciones.
 
-### 📍 Sub-fase 2.1: Tope Monetario Máximo ($99.999.999 COP) y Alerta Inteligente (Módulo 13)
-- **Archivos Objetivo:** `TransactionViewModel.kt`, `TransactionModal.kt`, `AmountInputValidator.kt`.
+### 📍 Sub-fase 2.1: Tope Monetario Máximo ($99.999.999 COP) y Alerta Inteligente (Módulo 13) [COMPLETADA]
+- **Archivos Objetivo:** `RegisterViewModel.kt`, `RegisterContract.kt`, `RegisterScreen.kt`, `PaymentWalletSelector.kt`.
 - **Acciones Técnicas:**
   1. Restringir la longitud del campo de monto a 8 dígitos máximos ($99.999.999 COP).
   2. Implementar alerta modal a 2 pasos si la cifra ingresada supera los $10.000.000 COP (*"¿Estás seguro de registrar esta cifra?"*).
   3. Reestructurar la alerta de saldo en una caja independiente para no pisar la etiqueta de *"Método de pago"*.
 - **Criterio de Cierre Sub-fase 2.1:** Imposible ingresar montos de 500 mil millones; los textos de alerta se ven ordenados.
 
-### 📍 Sub-fase 2.2: Control de Saldos Negativos, Sobregiros y Capacidad de Deuda (Módulo 14)
-- **Archivos Objetivo:** `WalletRepository.kt`, `TransactionViewModel.kt`, `WalletBalanceChecker.kt`.
+### 📍 Sub-fase 2.2: Control de Saldos Negativos, Sobregiros y Capacidad de Deuda (Módulo 14) [COMPLETADA]
+- **Archivos Objetivo:** `RegisterViewModel.kt`, `RegisterContract.kt`, `RegisterScreen.kt`.
 - **Acciones Técnicas:**
   1. Validar el saldo disponible de la billetera seleccionada antes de confirmar un gasto.
   2. Si el saldo es menor al gasto en billetera débito/efectivo, lanzar diálogo: *"Saldo insuficiente en [Billetera]. ¿Deseas registrar como Crédito/Deuda o cambiar de billetera?"*.
   3. Calcular el ratio de endeudamiento recomendado (máx 30%-40% de ingresos registrados) y notificar si se excede.
 - **Criterio de Cierre Sub-fase 2.2:** No se generan saldos negativos accidentales sin la autorización explícita del usuario.
 
-### 📍 Sub-fase 2.3: Edición Integral de Movimientos y Ajuste de Layout en Detalle (Módulo 19)
-- **Archivos Objetivo:** `TransactionDetailScreen.kt`, `TransactionDetailViewModel.kt`.
+### 📍 Sub-fase 2.3: Edición Integral de Movimientos y Ajuste de Layout en Detalle (Módulo 19) [COMPLETADA]
+- **Archivos Objetivo:** `TransactionDetailScreen.kt`, `TransactionDetailViewModel.kt`, `TransactionDetailContract.kt`.
 - **Acciones Técnicas:**
-  1. Habilitar edición clicable en: Monto, Billetera Origen, Categoría, Fecha/Hora y Nota.
-  2. Al guardar, invocar `updateTransactionAndRecalculateBalances()` en SQLite para ajustar los saldos reales.
+  1. Habilitar edición clicable en: Monto, Billetera Origen, Billetera Destino, Categoría, Fecha/Hora y Nota.
+  2. Al guardar, invocar actualización en SQLite (`repository.updateTransaction`) que re-calcula las vistas de balance reactivas automáticamente.
   3. Formatear la fecha a versión compacta (`07 Oct 2026 · 6:56 PM`) y asignar `weight(1f)` para evitar empalmes con el título *"Fecha y hora"*.
 - **Criterio de Cierre Sub-fase 2.3:** Se pueden editar todos los campos de una transacción y los saldos de las billeteras se recalculan exactamente.
 
