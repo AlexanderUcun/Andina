@@ -74,7 +74,7 @@ fun AndeanDewPullRefresh(
     val coroutineScope = rememberCoroutineScope()
 
     val thresholdPx = with(density) { refreshThreshold.toPx() }
-    val refreshHoldPx = with(density) { 56.dp.toPx() }
+    val refreshHoldPx = with(density) { 68.dp.toPx() }
     val maxDragPx = thresholdPx * 1.55f
 
     var pullOffset by remember { mutableFloatStateOf(0f) }
@@ -95,7 +95,7 @@ fun AndeanDewPullRefresh(
             liquidPhase.animateTo(
                 targetValue = (2 * PI).toFloat(),
                 animationSpec = infiniteRepeatable(
-                    animation = tween(durationMillis = 1800, easing = LinearEasing),
+                    animation = tween(durationMillis = 2400, easing = LinearEasing),
                     repeatMode = RepeatMode.Restart
                 )
             )
@@ -104,7 +104,7 @@ fun AndeanDewPullRefresh(
             swirlRotation.animateTo(
                 targetValue = 360f,
                 animationSpec = infiniteRepeatable(
-                    animation = tween(durationMillis = 1200, easing = LinearEasing),
+                    animation = tween(durationMillis = 1800, easing = LinearEasing),
                     repeatMode = RepeatMode.Restart
                 )
             )
@@ -119,7 +119,7 @@ fun AndeanDewPullRefresh(
                 launch {
                     morphProgress.animateTo(
                         targetValue = 1f,
-                        animationSpec = tween(durationMillis = 350, easing = FastOutSlowInEasing)
+                        animationSpec = tween(durationMillis = 550, easing = FastOutSlowInEasing)
                     )
                 }
                 launch {
@@ -128,7 +128,7 @@ fun AndeanDewPullRefresh(
                         targetValue = refreshHoldPx,
                         animationSpec = spring(
                             dampingRatio = Spring.DampingRatioMediumBouncy,
-                            stiffness = Spring.StiffnessMedium
+                            stiffness = Spring.StiffnessLow
                         )
                     ) { value, _ ->
                         pullOffset = value
@@ -138,17 +138,17 @@ fun AndeanDewPullRefresh(
         } else {
             hasTriggeredHaptic = false
             animationJob = launch {
-                // Desvanecimiento etéreo suave y retorno
+                // Desvanecimiento etéreo suave y retorno pausado
                 launch {
                     exitAlpha.animateTo(
                         targetValue = 0f,
-                        animationSpec = tween(durationMillis = 280, easing = FastOutSlowInEasing)
+                        animationSpec = tween(durationMillis = 420, easing = FastOutSlowInEasing)
                     )
                 }
                 launch {
                     morphProgress.animateTo(
                         targetValue = 0f,
-                        animationSpec = tween(durationMillis = 280, easing = FastOutSlowInEasing)
+                        animationSpec = tween(durationMillis = 420, easing = FastOutSlowInEasing)
                     )
                 }
                 launch {
@@ -157,7 +157,7 @@ fun AndeanDewPullRefresh(
                         targetValue = 0f,
                         animationSpec = spring(
                             dampingRatio = Spring.DampingRatioNoBouncy,
-                            stiffness = Spring.StiffnessMedium
+                            stiffness = Spring.StiffnessLow
                         )
                     ) { value, _ ->
                         pullOffset = value
@@ -287,9 +287,9 @@ fun AndeanDewPullRefresh(
                 val dragRatio = (effectiveHeight / thresholdPx).coerceIn(0f, 1.5f)
                 val dragAlpha = ((effectiveHeight / 16.dp.toPx()).coerceIn(0f, 1f) * alphaMultiplier)
 
-                // Posición central del cuerpo líquido
-                val restingCenterY = refreshHoldPx * 0.48f
-                val dragCenterY = (effectiveHeight * 0.52f).coerceAtLeast(14.dp.toPx())
+                // Posición central del cuerpo líquido (ligeramente más abajo)
+                val restingCenterY = refreshHoldPx * 0.52f
+                val dragCenterY = (effectiveHeight * 0.56f).coerceAtLeast(18.dp.toPx())
                 val liquidCenterY = lerp(dragCenterY, restingCenterY, morph)
 
                 // Radio base dinámico de la masa de agua
