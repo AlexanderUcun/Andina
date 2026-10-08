@@ -77,13 +77,13 @@ fun PocketSimulatorCard(
                     Spacer(modifier = Modifier.width(10.dp))
                     Column {
                         Text(
-                            text = "La Vara del Páramo",
+                            text = "Simulador de Fondo",
                             fontSize = 16.sp,
                             fontWeight = FontWeight.Bold,
                             color = Color(0xFF2C241E)
                         )
                         Text(
-                            text = "Simulador dinámico para \"$pocketName\"",
+                            text = "Proyección dinámica para \"$pocketName\"",
                             fontSize = 12.sp,
                             color = Color(0xFF6B655D)
                         )
@@ -132,46 +132,30 @@ fun PocketSimulatorCard(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Tarjeta de revelación de proyección
-            Card(
-                shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(containerColor = Color(0xFFFFFFFF)),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Column(modifier = Modifier.padding(14.dp)) {
-                    AnimatedContent(
-                        targetState = weeksNeeded,
-                        label = "WeeksNeededAnimation"
-                    ) { targetWeeks ->
-                        if (targetWeeks == 0) {
-                            Text(
-                                text = "¡Meta cumplida! Tu páramo está en plenitud 🌿",
-                                fontSize = 14.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = Color(0xFF435C3C)
-                            )
+            // Diálogo y revelación de proyección
+            AnimatedContent(
+                targetState = weeksNeeded,
+                label = "WeeksNeededAnimation"
+            ) { targetWeeks ->
+                if (targetWeeks == 0) {
+                    com.andina.finanzas.ui.components.muggy.MuggySpeechBubble(
+                        title = "¡Meta Cumplida!",
+                        text = "Tu páramo está en plenitud 🌿 Todo el caudal reservado está listo para su propósito.",
+                        pose = MuggyPose.CELEBRATING,
+                        avatarSize = 44.dp
+                    )
+                } else {
+                    com.andina.finanzas.ui.components.muggy.MuggySpeechBubble(
+                        title = "¡Alcanzas la meta en $targetWeeks semanas!",
+                        greeting = "~$monthsNeeded meses al ritmo actual",
+                        text = if (targetWeeks <= 6) {
+                            "Con este ritmo rápido y constante, tu meta florecerá muy pronto."
                         } else {
-                            Column {
-                                Text(
-                                    text = "¡Alcanzas la meta en $targetWeeks semanas! (~$monthsNeeded meses)",
-                                    fontSize = 14.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = Color(0xFF1D1B19)
-                                )
-                                Spacer(modifier = Modifier.height(4.dp))
-                                Text(
-                                    text = if (targetWeeks <= 6) {
-                                        "Muggy dice: Con este ritmo rápido, tu meta está a la vuelta de la esquina."
-                                    } else {
-                                        "Muggy dice: Paso a paso y con constancia, las nieves se conquistan."
-                                    },
-                                    fontSize = 12.sp,
-                                    color = Color(0xFF6B655D),
-                                    lineHeight = 16.sp
-                                )
-                            }
-                        }
-                    }
+                            "Paso a paso y con constancia montañera, las cumbres se conquistan con firmeza."
+                        },
+                        pose = if (targetWeeks <= 6) MuggyPose.CELEBRATING else MuggyPose.OBSERVING,
+                        avatarSize = 44.dp
+                    )
                 }
             }
         }

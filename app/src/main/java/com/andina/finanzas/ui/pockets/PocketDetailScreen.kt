@@ -332,7 +332,7 @@ fun PocketDetailScreen(
                             )
                         }
                         Text(
-                            text = "La Vara del Páramo (Simulador)",
+                            text = "Simulador de Fondo",
                             style = MaterialTheme.typography.titleMedium.copy(
                                 fontWeight = FontWeight.Bold,
                                 color = AndinaDeepForest

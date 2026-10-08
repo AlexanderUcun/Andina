@@ -140,7 +140,7 @@
   2. Configurar un margen de seguridad interno (*padding*) del 15% respecto a los bordes del contenedor.
 - **Criterio de Cierre Sub-fase 4.1:** Al alcanzar el 100% de la meta, las hojas superiores no se recortan contra la tarjeta.
 
-### 📍 Sub-fase 4.2: Rediseño de "La Vara" y Burbuja de Diálogo de Muggy (Módulo 20 y Módulo 7)
+### 📍 Sub-fase 4.2: Rediseño de "La Vara" y Burbuja de Diálogo de Muggy (Módulo 20 y Módulo 7) [COMPLETADA]
 - **Archivos Objetivo:** `ConsultorioScreen.kt`, `MuggySpeechBubble.kt`.
 - **Acciones Técnicas:**
   1. Renombrar la pestaña *"La Vara"* a **"Simulador de Fondo"**.

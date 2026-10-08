@@ -154,44 +154,15 @@ fun ConsultorioScreen(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // 2. Tarjeta con Diagnóstico de Muggy (NLG)
-                Card(
-                    shape = RoundedCornerShape(22.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color(0xFFFFFFFF)),
-                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Column(modifier = Modifier.padding(18.dp)) {
-                        Text(
-                            text = diagnosis.insight.title,
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Color(0xFF1D1B19)
-                        )
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Text(
-                            text = diagnosis.insight.greeting,
-                            fontSize = 13.sp,
-                            color = Color(0xFF845400),
-                            fontWeight = FontWeight.Medium
-                        )
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Text(
-                            text = diagnosis.insight.diagnosis,
-                            fontSize = 14.sp,
-                            color = Color(0xFF4A453E),
-                            lineHeight = 20.sp
-                        )
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Text(
-                            text = diagnosis.insight.keyMetricSummary,
-                            fontSize = 13.sp,
-                            fontWeight = FontWeight.SemiBold,
-                            color = Color(0xFF435C3C)
-                        )
-
-                        if (diagnosis.insight.actionButtonText != null) {
-                            Spacer(modifier = Modifier.height(14.dp))
+                // 2. Tarjeta con Diagnóstico de Muggy (Burbuja de diálogo ilustrada)
+                com.andina.finanzas.ui.components.muggy.MuggySpeechBubble(
+                    text = diagnosis.insight.diagnosis,
+                    title = diagnosis.insight.title,
+                    greeting = diagnosis.insight.greeting,
+                    keyMetric = diagnosis.insight.keyMetricSummary,
+                    pose = diagnosis.healthScore.recommendedPose,
+                    actionContent = if (diagnosis.insight.actionButtonText != null) {
+                        {
                             Button(
                                 onClick = {
                                     when (diagnosis.insight.actionType) {
@@ -206,11 +177,11 @@ fun ConsultorioScreen(
                                 colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF435C3C)),
                                 modifier = Modifier.fillMaxWidth()
                             ) {
-                                Text(diagnosis.insight.actionButtonText, fontSize = 14.sp, color = Color.White)
+                                Text(diagnosis.insight.actionButtonText, fontSize = 13.sp, color = Color.White)
                             }
                         }
-                    }
-                }
+                    } else null
+                )
             }
 
             Spacer(modifier = Modifier.height(20.dp))
@@ -241,7 +212,7 @@ fun ConsultorioScreen(
                 FilterChip(
                     selected = uiState.selectedTab == ConsultorioTab.SIMULADOR_BOLSILLO,
                     onClick = { viewModel.onEvent(ConsultorioEvent.SelectTab(ConsultorioTab.SIMULADOR_BOLSILLO)) },
-                    label = { Text("🌱 La Vara", fontSize = 12.sp) },
+                    label = { Text("🌱 Simulador", fontSize = 12.sp) },
                     colors = FilterChipDefaults.filterChipColors(
                         selectedContainerColor = Color(0xFF435C3C),
                         selectedLabelColor = Color.White
@@ -372,7 +343,7 @@ private fun HeroConsultorioCard(
                 Spacer(modifier = Modifier.height(6.dp))
 
                 Text(
-                    text = "$oxygenDays Días de Oxígeno 🫁",
+                    text = "$oxygenDays Días de Autonomía Financiera 🛡️",
                     fontSize = 15.sp,
                     fontWeight = FontWeight.Bold,
                     color = Color(0xFF1D1B19)
