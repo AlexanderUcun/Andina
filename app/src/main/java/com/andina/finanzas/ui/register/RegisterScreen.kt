@@ -528,4 +528,44 @@ fun RegisterScreen(
             }
         )
     }
+
+    // Modal de advertencia de saldo insuficiente / sobregiro (Módulo 14)
+    if (state.showNegativeBalanceConfirmation) {
+        val wallet = state.selectedWallet
+        val currentBal = wallet?.currentBalance ?: com.andina.finanzas.domain.model.Money.ZERO
+        val remaining = currentBal - state.amountMoney
+        AlertDialog(
+            onDismissRequest = { onAction(RegisterAction.DismissNegativeBalance) },
+            shape = RoundedCornerShape(24.dp),
+            containerColor = MaterialTheme.colorScheme.surface,
+            title = {
+                Text(
+                    text = "⚠️ Saldo insuficiente en ${wallet?.name ?: "billetera"}",
+                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                    color = MaterialTheme.colorScheme.error
+                )
+            },
+            text = {
+                Text(
+                    text = "El saldo actual es de ${currentBal.formatCop()} y vas a registrar ${state.amountMoney.formatCop()}.\n\nEsta cuenta quedará con un saldo negativo de ${remaining.formatCop()}.\n\n¿Deseas registrar este sobregiro/deuda o seleccionar otra billetera?",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            },
+            confirmButton = {
+                Button(
+                    onClick = { onAction(RegisterAction.ConfirmNegativeBalance) },
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
+                ) {
+                    Text("Registrar sobregiro", fontWeight = FontWeight.Bold)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { onAction(RegisterAction.DismissNegativeBalance) }) {
+                    Text("Cambiar billetera", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
+            }
+        )
+    }
 }

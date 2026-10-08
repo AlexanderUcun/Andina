@@ -145,10 +145,17 @@ class RegisterViewModel @Inject constructor(
             is RegisterAction.ReceiptAttached -> handleReceiptAttached(action.uri)
             RegisterAction.ConfirmHighAmount -> {
                 _state.update { it.copy(showHighAmountConfirmation = false) }
-                executeSave()
+                save()
             }
             RegisterAction.DismissHighAmount -> {
                 _state.update { it.copy(showHighAmountConfirmation = false) }
+            }
+            RegisterAction.ConfirmNegativeBalance -> {
+                _state.update { it.copy(showNegativeBalanceConfirmation = false) }
+                executeSave()
+            }
+            RegisterAction.DismissNegativeBalance -> {
+                _state.update { it.copy(showNegativeBalanceConfirmation = false) }
             }
             RegisterAction.Save -> save()
         }
@@ -318,6 +325,19 @@ class RegisterViewModel @Inject constructor(
         if (current.amountMoney.pesos > HIGH_AMOUNT_THRESHOLD_COP && !current.showHighAmountConfirmation) {
             _state.update { it.copy(showHighAmountConfirmation = true) }
             return
+        }
+
+        // Control de Saldos Negativos y Capacidad de Deuda (Módulo 14)
+        if (current.type == TransactionType.GASTO || current.type == TransactionType.TRANSFERENCIA) {
+            val wallet = current.selectedWallet ?: current.wallets.find { it.id == current.walletId }
+            if (wallet != null && wallet.type != com.andina.finanzas.domain.model.WalletType.TARJETA_CREDITO) {
+                val available = wallet.currentBalance.pesos
+                val required = current.amountMoney.pesos
+                if (available < required && !current.showNegativeBalanceConfirmation) {
+                    _state.update { it.copy(showNegativeBalanceConfirmation = true) }
+                    return
+                }
+            }
         }
 
         executeSave()
