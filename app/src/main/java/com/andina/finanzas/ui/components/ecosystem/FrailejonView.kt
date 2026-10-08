@@ -86,44 +86,49 @@ fun FrailejonView(
         val canvasHeight = this.size.height
 
         val centerX = canvasWidth / 2f
-        val groundY = canvasHeight * 0.88f
+        val groundY = canvasHeight * 0.86f
 
         // 1. Dibuja el suelo rocoso/musgoso del páramo
         drawParamoGround(centerX = centerX, groundY = groundY, width = canvasWidth)
 
-        // 2. Altura dinámica del tallo según progreso (crece hacia arriba)
-        val maxStemHeight = canvasHeight * 0.45f
-        val currentStemHeight = 12.dp.toPx() + (maxStemHeight * animatedGrowth)
+        // 2. Altura dinámica del tallo según progreso (crece hacia arriba manteniendo margen de seguridad)
+        val minStemHeight = canvasHeight * 0.08f
+        val maxStemHeight = canvasHeight * 0.32f
+        val currentStemHeight = minStemHeight + (maxStemHeight * animatedGrowth)
         val stemTopY = groundY - currentStemHeight
 
         // Desplazamiento horizontal por viento en la copa
-        val swayOffsetPx = swayAngle * (currentStemHeight / maxStemHeight) * 2.dp.toPx()
+        val swayOffsetPx = swayAngle * (currentStemHeight / maxStemHeight) * (canvasWidth * 0.015f)
         val crownCenterX = centerX + swayOffsetPx
 
         // 3. Tallo leñoso cubierto de hojas secas protectoras
+        val stemWidth = (canvasWidth * 0.12f) + (canvasWidth * 0.05f * animatedGrowth)
         drawVelvetyStem(
             baseX = centerX,
             baseY = groundY,
             topX = crownCenterX,
             topY = stemTopY,
-            stemWidth = (14.dp + (6.dp * animatedGrowth)).toPx()
+            stemWidth = stemWidth
         )
 
-        // 4. Roseta de hojas aterciopeladas verdes
+        // 4. Roseta de hojas aterciopeladas verdes con bounding box seguro
         drawLeavesRosette(
             centerX = crownCenterX,
             centerY = stemTopY,
             growth = animatedGrowth,
-            sway = swayAngle
+            sway = swayAngle,
+            canvasHeight = canvasHeight,
+            canvasWidth = canvasWidth
         )
 
-        // 5. Flor dorada de Frailejón si la meta supera el 75%
+        // 5. Flor dorada de Frailejón si la meta supera el 70%
         if (animatedGrowth >= 0.70f) {
             val flowerScale = ((animatedGrowth - 0.70f) / 0.30f).coerceIn(0f, 1f)
             drawGoldenFlower(
                 centerX = crownCenterX,
-                centerY = stemTopY - (8.dp.toPx() * flowerScale),
-                scale = flowerScale
+                centerY = stemTopY - (canvasHeight * 0.06f * flowerScale),
+                scale = flowerScale,
+                canvasWidth = canvasWidth
             )
         }
     }
@@ -188,11 +193,13 @@ private fun DrawScope.drawLeavesRosette(
     centerX: Float,
     centerY: Float,
     growth: Float,
-    sway: Float
+    sway: Float,
+    canvasHeight: Float,
+    canvasWidth: Float
 ) {
     val leafCount = 8 + (6 * growth).toInt()
-    val leafLength = (16.dp + (26.dp * growth)).toPx()
-    val leafWidth = (6.dp + (4.dp * growth)).toPx()
+    val leafLength = (canvasHeight * 0.12f) + (canvasHeight * 0.16f * growth)
+    val leafWidth = (canvasWidth * 0.05f) + (canvasWidth * 0.03f * growth)
 
     val leafColors = listOf(
         Color(0xFF435C3C), // Verde Musgo Andino
@@ -234,11 +241,12 @@ private fun DrawScope.drawLeavesRosette(
 private fun DrawScope.drawGoldenFlower(
     centerX: Float,
     centerY: Float,
-    scale: Float
+    scale: Float,
+    canvasWidth: Float
 ) {
     val petalCount = 8
-    val petalRadius = 11.dp.toPx() * scale
-    val centerRadius = 5.dp.toPx() * scale
+    val petalRadius = (canvasWidth * 0.09f) * scale
+    val centerRadius = (canvasWidth * 0.045f) * scale
 
     val petalColor = Color(0xFFFEBD67) // Ámbar dorado andino
     val centerColor = Color(0xFFC58934) // Centro marrón dorado
@@ -251,7 +259,7 @@ private fun DrawScope.drawGoldenFlower(
 
         drawCircle(
             color = petalColor,
-            radius = 3.5.dp.toPx() * scale,
+            radius = (canvasWidth * 0.03f) * scale,
             center = Offset(px, py)
         )
     }

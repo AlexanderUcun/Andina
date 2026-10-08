@@ -133,7 +133,7 @@
 ## 🎨 FASE 4: EXPERIENCIA ILUSTRADA, CANVAS FIT Y CONSULTORIO DE MUGGY
 > **Meta de la Fase:** Corregir los escalados vectoriales de Canvas y humanizar la interacción de la IA.
 
-### 📍 Sub-fase 4.1: Bounding Box y Aspect Ratio en Frailejones/Árboles (Módulo 17)
+### 📍 Sub-fase 4.1: Bounding Box y Aspect Ratio en Frailejones/Árboles (Módulo 17) [COMPLETADA]
 - **Archivos Objetivo:** `FrailejonView.kt`, `PocketsScreen.kt`.
 - **Acciones Técnicas:**
   1. Restringir la escala máxima de crecimiento en el Canvas con `ContentScale.Fit`.
