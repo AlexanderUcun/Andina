@@ -290,6 +290,16 @@ private class FakeFinanceRepository : FinanceRepository {
     override fun observeWallets(): Flow<List<Wallet>> = flowOf(wallets.values.toList())
     override fun observeWallet(id: Long): Flow<Wallet?> = flowOf(wallets[id])
     override suspend fun getWalletById(id: Long): Wallet? = wallets[id]
+    override suspend fun createWallet(wallet: Wallet): Long {
+        wallets[wallet.id] = wallet
+        return wallet.id
+    }
+    override suspend fun updateWallet(wallet: Wallet) {
+        wallets[wallet.id] = wallet
+    }
+    override suspend fun archiveWallet(id: Long) {
+        wallets.remove(id)
+    }
 
     override fun observeFinancialSummary(fromMillis: Long, toMillis: Long): Flow<FinancialSummary> =
         flowOf(FinancialSummary(totalNetWorth = Money(1_600_000L)))

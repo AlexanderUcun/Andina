@@ -294,15 +294,10 @@ fun AndinaAppShell(
                 )
             }
 
-            // Pestaña 3: Billeteras
+            // Pestaña 3: Billeteras & Cuentas (Módulo 3 / Sub-fase 3.2)
             composable<WalletsRoute> {
-                ShellPlaceholderScreen(
-                    title = "Billeteras & Cuentas",
-                    subtitle = "Efectivo, Nequi, Daviplata y cuentas sin guardar números confidenciales",
-                    icon = Icons.Default.AccountBalanceWallet,
-                    accentColor = Color(0xFF845400),
-                    actionText = "Añadir Billetera",
-                    onAction = { appState.navigateToRegister() }
+                com.andina.finanzas.ui.wallets.WalletsScreen(
+                    onShowSnackbar = { msg -> appState.showSnackbar(msg) }
                 )
             }
 

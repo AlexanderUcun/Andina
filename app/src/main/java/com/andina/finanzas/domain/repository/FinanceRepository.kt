@@ -22,6 +22,9 @@ interface FinanceRepository {
     fun observeWallets(): Flow<List<Wallet>>
     fun observeWallet(id: Long): Flow<Wallet?>
     suspend fun getWalletById(id: Long): Wallet?
+    suspend fun createWallet(wallet: Wallet): Long
+    suspend fun updateWallet(wallet: Wallet)
+    suspend fun archiveWallet(id: Long)
 
     // --- Resumen Financiero Consolidado ---
     fun observeFinancialSummary(fromMillis: Long, toMillis: Long): Flow<FinancialSummary>

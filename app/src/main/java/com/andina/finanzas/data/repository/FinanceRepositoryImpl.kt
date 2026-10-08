@@ -73,6 +73,18 @@ class FinanceRepositoryImpl @Inject constructor(
         return entity.toDomain(currentBalance = Money(balance))
     }
 
+    override suspend fun createWallet(wallet: Wallet): Long {
+        return walletDao.insertWallet(wallet.toEntity())
+    }
+
+    override suspend fun updateWallet(wallet: Wallet) {
+        walletDao.updateWallet(wallet.toEntity())
+    }
+
+    override suspend fun archiveWallet(id: Long) {
+        walletDao.archiveWallet(id)
+    }
+
     override fun observeFinancialSummary(fromMillis: Long, toMillis: Long): Flow<FinancialSummary> {
         return combine(
             walletDao.observeTotalWalletsBalance(),

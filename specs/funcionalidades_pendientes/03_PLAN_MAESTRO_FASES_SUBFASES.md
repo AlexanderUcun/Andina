@@ -113,11 +113,12 @@
   5. Conectar el clic en Notificaciones -> `NotificationsScreen` (`NotificationsRoute`).
 - **Criterio de Cierre Sub-fase 3.1:** Cero mensajes temporales al tocar contenedores en Inicio.
 
-### 📍 Sub-fase 3.2: Formulario Funcional "Añadir / Editar Billetera" (Módulo 3)
-- **Archivos Objetivo:** `WalletsScreen.kt`, `AddWalletModal.kt`, `WalletViewModel.kt`.
+### 📍 Sub-fase 3.2: Formulario Funcional "Añadir / Editar Billetera" (Módulo 3) [COMPLETADA]
+- **Archivos Objetivo:** `WalletsScreen.kt`, `AddWalletModal.kt`, `WalletsViewModel.kt`, `WalletsContract.kt`, `FinanceRepository.kt`.
 - **Acciones Técnicas:**
-  1. Crear el modal `AddWalletModal` con campos: Nombre, Tipo (Nequi, Daviplata, Efectivo, Banco, Tarjeta), Saldo Inicial y Selector de Color.
-  2. Guardar e insertar la billetera en la base de datos local y actualizar la lista en tiempo real.
+  1. Crear la pantalla funcional `WalletsScreen` con balance total consolidado, lista reactiva de billeteras y tarjeta de cuenta.
+  2. Crear el modal `AddWalletModal` con campos: Nombre, Tipo (Nequi, Daviplata, Bancolombia, Efectivo, Tarjeta, Otra), Saldo Inicial (con teclado numérico y 8 dígitos máx) y Selector de Color.
+  3. Guardar, actualizar y archivar billeteras en la base de datos local recalculando saldos en tiempo real.
 - **Criterio de Cierre Sub-fase 3.2:** El botón *"Añadir Billetera"* abre el formulario y la nueva billetera aparece inmediatamente en la lista.
 
 ### 📍 Sub-fase 3.3: Rediseño de Categorías en Grid y Menú de 3 Puntos en Bolsillos (Módulos 2 y 12)
