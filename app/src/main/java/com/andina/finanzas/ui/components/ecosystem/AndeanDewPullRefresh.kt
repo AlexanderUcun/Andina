@@ -9,6 +9,7 @@ import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.fillMaxSize
@@ -28,6 +29,7 @@ import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
@@ -41,38 +43,40 @@ import androidx.compose.ui.unit.dp
 import com.andina.finanzas.ui.theme.AndeanPrimary
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
-import kotlin.math.min
 
 /**
- * Contenedor Pull-to-Refresh con Gota de Rocío Andino (AndeanDewPullRefresh).
+ * Contenedor Pull-to-Refresh con Gota de Rocío Andino Cristalina (AndeanDewPullRefresh).
  *
- * Arquitectura de alto rendimiento (60 / 120 FPS):
- * 1. Sin relayouts en drag: El contenido se desplaza en GPU mediante [graphicsLayer].
- * 2. Cero asignación de corrutinas por micro-frame táctil.
- * 3. Física de resorte suave (*Spring Physics*) al soltar o refrescar.
- * 4. Trazado Bézier Spline paramétrico con tensión superficial elástica.
+ * Especificaciones de diseño premium:
+ * 1. Gota de agua cristalina hiperrealista: Refracción de luz, destello solar y contorno de tensión superficial.
+ * 2. Cápsula de rocío suspendida en recarga: Micro-vórtice de agua andina que nunca invade el texto.
+ * 3. Renderizado GPU en fase de dibujo sin relayouts para 60/120 FPS fluidos.
  */
 @Composable
 fun AndeanDewPullRefresh(
     isRefreshing: Boolean,
     onRefresh: () -> Unit,
     modifier: Modifier = Modifier,
-    refreshThreshold: Dp = 80.dp,
+    refreshThreshold: Dp = 72.dp,
     content: @Composable BoxScope.() -> Unit
 ) {
+    val isDark = isSystemInDarkTheme()
     val density = LocalDensity.current
     val haptic = LocalHapticFeedback.current
     val coroutineScope = rememberCoroutineScope()
 
     val thresholdPx = with(density) { refreshThreshold.toPx() }
-    val maxDragPx = thresholdPx * 1.6f
+    val refreshHoldPx = with(density) { 56.dp.toPx() }
+    val maxDragPx = thresholdPx * 1.5f
 
     var pullOffset by remember { mutableFloatStateOf(0f) }
     var hasTriggeredHaptic by remember { mutableStateOf(false) }
     var animationJob by remember { mutableStateOf<Job?>(null) }
 
-    // Animación de ondas durante la recarga
-    val rippleProgress = remember { Animatable(0f) }
+    // Rotación continua del micro-vórtice cristalino durante la recarga
+    val vortexRotation = remember { Animatable(0f) }
+    // Pulsación suave de la gota central
+    val pulseScale = remember { Animatable(1f) }
 
     LaunchedEffect(isRefreshing) {
         animationJob?.cancel()
@@ -80,25 +84,37 @@ fun AndeanDewPullRefresh(
             animationJob = launch {
                 animate(
                     initialValue = pullOffset,
-                    targetValue = thresholdPx,
+                    targetValue = refreshHoldPx,
                     animationSpec = spring(
                         dampingRatio = Spring.DampingRatioMediumBouncy,
-                        stiffness = Spring.StiffnessLow
+                        stiffness = Spring.StiffnessMedium
                     )
                 ) { value, _ ->
                     pullOffset = value
                 }
             }
-            rippleProgress.animateTo(
-                targetValue = 1f,
-                animationSpec = infiniteRepeatable(
-                    animation = tween(durationMillis = 1100, easing = LinearEasing),
-                    repeatMode = RepeatMode.Restart
+            launch {
+                vortexRotation.animateTo(
+                    targetValue = 360f,
+                    animationSpec = infiniteRepeatable(
+                        animation = tween(durationMillis = 850, easing = LinearEasing),
+                        repeatMode = RepeatMode.Restart
+                    )
                 )
-            )
+            }
+            launch {
+                pulseScale.animateTo(
+                    targetValue = 1.15f,
+                    animationSpec = infiniteRepeatable(
+                        animation = tween(durationMillis = 425, easing = LinearEasing),
+                        repeatMode = RepeatMode.Reverse
+                    )
+                )
+            }
         } else {
             hasTriggeredHaptic = false
-            rippleProgress.snapTo(0f)
+            vortexRotation.snapTo(0f)
+            pulseScale.snapTo(1f)
             animationJob = launch {
                 animate(
                     initialValue = pullOffset,
@@ -119,7 +135,6 @@ fun AndeanDewPullRefresh(
             override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
                 if (isRefreshing) return Offset.Zero
 
-                // Deslizamiento hacia arriba mientras hay offset acumulado
                 if (available.y < 0 && pullOffset > 0f) {
                     val consumed = available.y
                     pullOffset = (pullOffset + consumed).coerceAtLeast(0f)
@@ -135,7 +150,7 @@ fun AndeanDewPullRefresh(
             ): Offset {
                 if (isRefreshing) return Offset.Zero
 
-                // Deslizamiento hacia abajo cuando la lista está en el tope (SOLO por interacción táctil directa del usuario)
+                // Solo arrastre manual directo del usuario
                 if (source == NestedScrollSource.UserInput && available.y > 0) {
                     val resistance = 0.45f
                     val newOffset = (pullOffset + available.y * resistance).coerceAtMost(maxDragPx)
@@ -205,9 +220,8 @@ fun AndeanDewPullRefresh(
         val currentOffset = pullOffset
         val isVisible = currentOffset > 1f || (isRefreshing && currentOffset > 0f)
 
-        // Indicador de Gota de Rocío en el tope (renderizado en capa estática sin provocar relayouts)
+        // Indicador de Gota de Rocío Cristalina en el tope
         if (isVisible) {
-            val dropAlpha = if (isRefreshing) 1f else (currentOffset / thresholdPx).coerceIn(0f, 1f)
             val canvasHeightDp = with(density) { maxDragPx.toDp() }
 
             Canvas(
@@ -219,35 +233,80 @@ fun AndeanDewPullRefresh(
                 val centerX = canvasWidth / 2f
 
                 if (isRefreshing) {
-                    // Modo Ondas Concéntricas de Agua Cristalina
-                    val centerY = thresholdPx / 2f
-                    val maxRadius = min(canvasWidth / 2f, 65.dp.toPx())
-                    val r = rippleProgress.value * maxRadius
-                    val alpha = (1f - rippleProgress.value).coerceIn(0f, 1f)
+                    // MODO RECARGA: Micro-cápsula suspendida con Vórtice de Agua Andina
+                    val badgeCenterY = refreshHoldPx / 2f
+                    val badgeRadius = 19.dp.toPx()
 
+                    // Fondo de cristal esmerilado de la cápsula
+                    val capsuleBg = if (isDark) Color(0xF21C201A) else Color(0xF2FFFFFF)
+                    val capsuleBorder = AndeanPrimary.copy(alpha = 0.22f)
+
+                    // Sombra sutil de la cápsula
                     drawCircle(
-                        color = Color(0xFF6B9080).copy(alpha = alpha * 0.7f),
-                        radius = r,
-                        center = Offset(centerX, centerY),
-                        style = Stroke(width = 2.dp.toPx())
+                        color = Color.Black.copy(alpha = 0.08f),
+                        radius = badgeRadius + 2.dp.toPx(),
+                        center = Offset(centerX, badgeCenterY + 1.5.dp.toPx())
+                    )
+                    // Cuerpo de la cápsula
+                    drawCircle(
+                        color = capsuleBg,
+                        radius = badgeRadius,
+                        center = Offset(centerX, badgeCenterY)
+                    )
+                    // Borde fino de cristal
+                    drawCircle(
+                        color = capsuleBorder,
+                        radius = badgeRadius,
+                        center = Offset(centerX, badgeCenterY),
+                        style = Stroke(width = 1.dp.toPx())
+                    )
+
+                    // Arco rotativo del vórtice de agua
+                    val ringRadius = 12.dp.toPx()
+                    val arcRect = Rect(
+                        centerX - ringRadius,
+                        badgeCenterY - ringRadius,
+                        centerX + ringRadius,
+                        badgeCenterY + ringRadius
+                    )
+
+                    // Arco fluido esmeralda
+                    drawArc(
+                        brush = Brush.sweepGradient(
+                            listOf(
+                                AndeanPrimary.copy(alpha = 0.05f),
+                                AndeanPrimary.copy(alpha = 0.4f),
+                                AndeanPrimary
+                            ),
+                            center = Offset(centerX, badgeCenterY)
+                        ),
+                        startAngle = vortexRotation.value,
+                        sweepAngle = 260f,
+                        useCenter = false,
+                        topLeft = Offset(arcRect.left, arcRect.top),
+                        size = androidx.compose.ui.geometry.Size(arcRect.width, arcRect.height),
+                        style = Stroke(width = 2.5.dp.toPx(), cap = StrokeCap.Round)
+                    )
+
+                    // Micro-gota cristalina central con pulsación
+                    val dotRadius = 3.5.dp.toPx() * pulseScale.value
+                    drawCircle(
+                        color = AndeanPrimary,
+                        radius = dotRadius,
+                        center = Offset(centerX, badgeCenterY)
                     )
                     drawCircle(
-                        color = Color(0xFFA4C3B2).copy(alpha = alpha * 0.5f),
-                        radius = (r * 0.65f),
-                        center = Offset(centerX, centerY),
-                        style = Stroke(width = 1.5.dp.toPx())
-                    )
-                    drawCircle(
-                        color = AndeanPrimary.copy(alpha = 0.9f),
-                        radius = 6.dp.toPx(),
-                        center = Offset(centerX, centerY)
+                        color = Color.White.copy(alpha = 0.85f),
+                        radius = 1.2.dp.toPx(),
+                        center = Offset(centerX - 1.dp.toPx(), badgeCenterY - 1.dp.toPx())
                     )
                 } else {
-                    // Modo Gota Elástica Bézier Spline
+                    // MODO ARRASTRE: Gota Elástica Cristalina con Tensión Superficial y Refracción
+                    val dropAlpha = (currentOffset / thresholdPx).coerceIn(0f, 1f)
                     val effectiveHeight = currentOffset.coerceIn(0f, maxDragPx)
                     val stretchProgress = (effectiveHeight / thresholdPx).coerceIn(0f, 1.5f)
-                    val bulbRadius = (9.dp.toPx() + stretchProgress * 6.dp.toPx())
-                    val neckWidth = (20.dp.toPx() / (1f + stretchProgress * 0.85f)).coerceAtLeast(5.dp.toPx())
+                    val bulbRadius = (9.dp.toPx() + stretchProgress * 6.5.dp.toPx())
+                    val neckWidth = (18.dp.toPx() / (1f + stretchProgress * 0.9f)).coerceAtLeast(4.5.dp.toPx())
                     val dropBottomY = effectiveHeight - 4.dp.toPx()
                     val bulbCenterY = dropBottomY - bulbRadius
 
@@ -255,7 +314,7 @@ fun AndeanDewPullRefresh(
                         val dropPath = Path().apply {
                             moveTo(centerX - neckWidth, 0f)
                             cubicTo(
-                                centerX - neckWidth * 0.7f, bulbCenterY * 0.55f,
+                                centerX - neckWidth * 0.65f, bulbCenterY * 0.5f,
                                 centerX - bulbRadius, bulbCenterY - bulbRadius * 0.5f,
                                 centerX - bulbRadius, bulbCenterY
                             )
@@ -272,25 +331,45 @@ fun AndeanDewPullRefresh(
                             )
                             cubicTo(
                                 centerX + bulbRadius, bulbCenterY - bulbRadius * 0.5f,
-                                centerX + neckWidth * 0.7f, bulbCenterY * 0.55f,
+                                centerX + neckWidth * 0.65f, bulbCenterY * 0.5f,
                                 centerX + neckWidth, 0f
                             )
                             close()
                         }
 
-                        val waterBrush = Brush.verticalGradient(
+                        // 1. Relleno cristalino translúcido de agua de páramo
+                        val crystalWaterBrush = Brush.verticalGradient(
                             colors = listOf(
-                                Color(0x33A4C3B2).copy(alpha = 0.2f * dropAlpha),
-                                Color(0x996B9080).copy(alpha = 0.6f * dropAlpha),
-                                Color(0xDD3B6E58).copy(alpha = 0.9f * dropAlpha)
+                                Color(0x3080B9AD).copy(alpha = 0.25f * dropAlpha),
+                                Color(0x75528D78).copy(alpha = 0.65f * dropAlpha),
+                                Color(0xCC386A20).copy(alpha = 0.92f * dropAlpha)
                             )
                         )
+                        drawPath(path = dropPath, brush = crystalWaterBrush)
 
-                        drawPath(path = dropPath, brush = waterBrush)
+                        // 2. Contorno de refracción de luz (efecto cristal 3D)
+                        val glassRefractionBrush = Brush.verticalGradient(
+                            colors = listOf(
+                                Color.White.copy(alpha = 0.75f * dropAlpha),
+                                Color(0x88A4C3B2).copy(alpha = 0.45f * dropAlpha),
+                                Color(0x33386A20).copy(alpha = 0.3f * dropAlpha)
+                            )
+                        )
+                        drawPath(
+                            path = dropPath,
+                            brush = glassRefractionBrush,
+                            style = Stroke(width = 1.2.dp.toPx())
+                        )
 
+                        // 3. Destello especular de luz solar en la superficie de la gota
                         drawCircle(
-                            color = Color.White.copy(alpha = 0.85f * dropAlpha),
-                            radius = 2.5.dp.toPx(),
+                            color = Color.White.copy(alpha = 0.35f * dropAlpha),
+                            radius = 3.8.dp.toPx(),
+                            center = Offset(centerX - bulbRadius * 0.35f, bulbCenterY - bulbRadius * 0.25f)
+                        )
+                        drawCircle(
+                            color = Color.White.copy(alpha = 0.95f * dropAlpha),
+                            radius = 1.8.dp.toPx(),
                             center = Offset(centerX - bulbRadius * 0.35f, bulbCenterY - bulbRadius * 0.25f)
                         )
                     }
