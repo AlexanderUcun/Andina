@@ -20,12 +20,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.zIndex
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.Size
@@ -33,7 +33,6 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
@@ -44,21 +43,20 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
 
 /**
- * Contenedor Pull-to-Refresh con Gota de Rocío Líquida Orgánica y Morfismo Continuo (AndeanDewPullRefresh).
+ * Contenedor Pull-to-Refresh con Protocolo Inteligente de Doble Modo y Marea Andina Fluida (AndeanDewPullRefresh).
  *
- * Características clave:
- * 1. Morfismo continuo: Desprendimiento elástico sin saltos ni parpadeos de transición.
- * 2. Física líquida orgánica: Geometría dinámica no circular basada en armónicos sinusoidales de tensión superficial.
- * 3. Cristalino y cromático: Gradientes fluidos de Azul Zafiro, Cian Glaciar y Turquesa Andino con refracción 3D.
- * 4. Cierre etéreo: Disolución suave y natural al finalizar la recarga.
+ * Protocolo de Recarga:
+ * 1. Soltado Rápido (< 350 ms): Carga ágil y ligera sin esperas.
+ * 2. Retención Sostenida (>= 350 ms): Animación completa cinematográfica con doble vórtice, destellos y morfismo orgánico.
+ * 3. Renderizado inmediato en primer plano desde el primer píxel de arrastre.
  */
 @Composable
 fun AndeanDewPullRefresh(
@@ -74,20 +72,24 @@ fun AndeanDewPullRefresh(
     val coroutineScope = rememberCoroutineScope()
 
     val thresholdPx = with(density) { refreshThreshold.toPx() }
-    val refreshHoldPx = with(density) { 68.dp.toPx() }
+    val fullRefreshHoldPx = with(density) { 68.dp.toPx() }
+    val quickRefreshHoldPx = with(density) { 42.dp.toPx() }
     val maxDragPx = thresholdPx * 1.55f
 
     var pullOffset by remember { mutableFloatStateOf(0f) }
-    var hasTriggeredHaptic by remember { mutableStateOf(false) }
+    var thresholdReachedTime by remember { mutableLongStateOf(0L) }
+    var isFullAnimationMode by remember { mutableStateOf(false) }
+    var hasTriggeredInitialHaptic by remember { mutableStateOf(false) }
+    var hasTriggeredFullHaptic by remember { mutableStateOf(false) }
     var animationJob by remember { mutableStateOf<Job?>(null) }
 
-    // Factor de morfismo: 0f = estiramiento elástico con cuello, 1f = gota flotante orgánica libre
+    // Factor de morfismo: 0f = marea elástica de arrastre, 1f = gota orgánica flotante libre
     val morphProgress = remember { Animatable(0f) }
     // Fase de ondulación líquida continua (armónicos de fluidos)
     val liquidPhase = remember { Animatable(0f) }
     // Rotación del filamento de agua y destellos cáusticos
     val swirlRotation = remember { Animatable(0f) }
-    // Opacidad de salida suave para evitar parpadeos
+    // Opacidad de salida suave
     val exitAlpha = remember { Animatable(1f) }
 
     LaunchedEffect(Unit) {
@@ -115,20 +117,25 @@ fun AndeanDewPullRefresh(
         animationJob?.cancel()
         if (isRefreshing) {
             exitAlpha.snapTo(1f)
+            val isFull = isFullAnimationMode
+            val targetHold = if (isFull) fullRefreshHoldPx else quickRefreshHoldPx
+            val morphTarget = if (isFull) 1f else 0.45f
+            val morphDuration = if (isFull) 550 else 240
+
             animationJob = launch {
                 launch {
                     morphProgress.animateTo(
-                        targetValue = 1f,
-                        animationSpec = tween(durationMillis = 550, easing = FastOutSlowInEasing)
+                        targetValue = morphTarget,
+                        animationSpec = tween(durationMillis = morphDuration, easing = FastOutSlowInEasing)
                     )
                 }
                 launch {
                     animate(
                         initialValue = pullOffset,
-                        targetValue = refreshHoldPx,
+                        targetValue = targetHold,
                         animationSpec = spring(
                             dampingRatio = Spring.DampingRatioMediumBouncy,
-                            stiffness = Spring.StiffnessLow
+                            stiffness = if (isFull) Spring.StiffnessLow else Spring.StiffnessMedium
                         )
                     ) { value, _ ->
                         pullOffset = value
@@ -136,19 +143,20 @@ fun AndeanDewPullRefresh(
                 }
             }
         } else {
-            hasTriggeredHaptic = false
+            val isFull = isFullAnimationMode
+            val exitDuration = if (isFull) 420 else 260
+
             animationJob = launch {
-                // Desvanecimiento etéreo suave y retorno pausado
                 launch {
                     exitAlpha.animateTo(
                         targetValue = 0f,
-                        animationSpec = tween(durationMillis = 420, easing = FastOutSlowInEasing)
+                        animationSpec = tween(durationMillis = exitDuration, easing = FastOutSlowInEasing)
                     )
                 }
                 launch {
                     morphProgress.animateTo(
                         targetValue = 0f,
-                        animationSpec = tween(durationMillis = 420, easing = FastOutSlowInEasing)
+                        animationSpec = tween(durationMillis = exitDuration, easing = FastOutSlowInEasing)
                     )
                 }
                 launch {
@@ -157,13 +165,17 @@ fun AndeanDewPullRefresh(
                         targetValue = 0f,
                         animationSpec = spring(
                             dampingRatio = Spring.DampingRatioNoBouncy,
-                            stiffness = Spring.StiffnessLow
+                            stiffness = if (isFull) Spring.StiffnessLow else Spring.StiffnessMedium
                         )
                     ) { value, _ ->
                         pullOffset = value
                     }
                 }
                 exitAlpha.snapTo(1f)
+                thresholdReachedTime = 0L
+                isFullAnimationMode = false
+                hasTriggeredInitialHaptic = false
+                hasTriggeredFullHaptic = false
             }
         }
     }
@@ -188,16 +200,31 @@ fun AndeanDewPullRefresh(
             ): Offset {
                 if (isRefreshing) return Offset.Zero
 
-                if (source == NestedScrollSource.UserInput && available.y > 0) {
-                    val resistance = 0.45f
+                if (available.y > 0) {
+                    val resistance = 0.48f
                     val newOffset = (pullOffset + available.y * resistance).coerceAtMost(maxDragPx)
                     pullOffset = newOffset
 
-                    if (newOffset >= thresholdPx && !hasTriggeredHaptic) {
-                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                        hasTriggeredHaptic = true
-                    } else if (newOffset < thresholdPx && hasTriggeredHaptic) {
-                        hasTriggeredHaptic = false
+                    if (newOffset >= thresholdPx) {
+                        if (thresholdReachedTime == 0L) {
+                            thresholdReachedTime = System.currentTimeMillis()
+                        }
+                        if (!hasTriggeredInitialHaptic) {
+                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                            hasTriggeredInitialHaptic = true
+                        }
+                        // Detección de retención sostenida (> 350 ms)
+                        val elapsed = System.currentTimeMillis() - thresholdReachedTime
+                        if (elapsed >= 350L && !hasTriggeredFullHaptic) {
+                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                            hasTriggeredFullHaptic = true
+                            isFullAnimationMode = true
+                        }
+                    } else {
+                        thresholdReachedTime = 0L
+                        hasTriggeredInitialHaptic = false
+                        hasTriggeredFullHaptic = false
+                        isFullAnimationMode = false
                     }
                     return Offset(0f, available.y)
                 }
@@ -206,6 +233,8 @@ fun AndeanDewPullRefresh(
 
             override suspend fun onPreFling(available: androidx.compose.ui.unit.Velocity): androidx.compose.ui.unit.Velocity {
                 if (pullOffset >= thresholdPx && !isRefreshing) {
+                    val elapsed = if (thresholdReachedTime > 0L) System.currentTimeMillis() - thresholdReachedTime else 0L
+                    isFullAnimationMode = elapsed >= 350L || hasTriggeredFullHaptic
                     onRefresh()
                 } else if (!isRefreshing && pullOffset > 0f) {
                     animationJob?.cancel()
@@ -268,9 +297,9 @@ fun AndeanDewPullRefresh(
             content()
         }
 
-        // 2. Indicador de Agua Andina en Primer Plano (zIndex superior para visibilidad total inmediata)
+        // 2. Marea y Gota de Agua Andina en Primer Plano (Renderizado inmediato)
         if (isVisible) {
-            val canvasHeightDp = with(density) { maxDragPx.toDp() }
+            val canvasHeightDp = with(density) { (maxDragPx + 20.dp.toPx()).toDp() }
 
             Canvas(
                 modifier = Modifier
@@ -285,16 +314,16 @@ fun AndeanDewPullRefresh(
 
                 val effectiveHeight = currentOffset.coerceIn(0f, maxDragPx)
                 val dragRatio = (effectiveHeight / thresholdPx).coerceIn(0f, 1.5f)
-                val dragAlpha = ((effectiveHeight / 16.dp.toPx()).coerceIn(0f, 1f) * alphaMultiplier)
+                val dragAlpha = ((effectiveHeight / 8.dp.toPx()).coerceIn(0.15f, 1f) * alphaMultiplier)
 
-                // Posición central del cuerpo líquido (ligeramente más abajo)
-                val restingCenterY = refreshHoldPx * 0.52f
-                val dragCenterY = (effectiveHeight * 0.56f).coerceAtLeast(18.dp.toPx())
+                // Posición vertical del centro líquido
+                val restingCenterY = fullRefreshHoldPx * 0.52f
+                val dragCenterY = (effectiveHeight * 0.58f).coerceAtLeast(8.dp.toPx())
                 val liquidCenterY = lerp(dragCenterY, restingCenterY, morph)
 
-                // Radio base dinámico de la masa de agua
-                val baseRadius = with(density) {
-                    lerp(12.dp.toPx() + dragRatio * 7.5.dp.toPx(), 19.dp.toPx(), morph)
+                // Radio dinámico del cuerpo de agua
+                val currentBulbRadius = with(density) {
+                    lerp((6.dp.toPx() + dragRatio * 8.5.dp.toPx()).coerceAtMost(20.dp.toPx()), 19.dp.toPx(), morph)
                 }
 
                 val phase = liquidPhase.value
@@ -308,51 +337,51 @@ fun AndeanDewPullRefresh(
                             Color(0x0038BDF8)
                         ),
                         center = Offset(centerX, liquidCenterY),
-                        radius = baseRadius * 2.2f
+                        radius = currentBulbRadius * 2.2f
                     ),
-                    radius = baseRadius * 2.2f,
+                    radius = currentBulbRadius * 2.2f,
                     center = Offset(centerX, liquidCenterY)
                 )
 
-                // 2. Trazado Líquido: Extensión Horizontal Amplia (Marea de agua andina 4x más ancha)
-                val liquidPath = if (morph < 0.95f) {
-                    // Extensión horizontal que cubre hasta el 80% del ancho de pantalla
-                    val baseSpread = canvasWidth * 0.38f
-                    val maxSpread = canvasWidth * 0.42f
+                // 2. Trazado Líquido: Marea y Gota Orgánica
+                val liquidPath = if (morph < 0.92f) {
+                    // Manto de agua elástico que cubre el ancho de pantalla
+                    val baseSpread = canvasWidth * 0.32f
+                    val maxSpread = canvasWidth * 0.44f
                     val horizontalSpread = (baseSpread + dragRatio * (maxSpread - baseSpread)) * (1f - morph * 0.88f)
-                    val topY = lerp(0f, liquidCenterY - baseRadius, morph)
+                    val topY = 0f
 
                     Path().apply {
                         moveTo(centerX - horizontalSpread, topY)
 
-                        // Onda fluida izquierda que baja hacia el centro
+                        // Onda izquierda
                         val leftControlX = centerX - horizontalSpread * 0.45f
-                        val leftControlY = topY + (liquidCenterY - topY) * 0.55f + sin(phase + 1.2f) * 3.dp.toPx()
+                        val leftControlY = topY + (liquidCenterY - topY) * 0.5f + sin(phase + 1.2f) * 2.5.dp.toPx()
                         cubicTo(
-                            leftControlX, topY + 4.dp.toPx(),
-                            centerX - baseRadius * 1.35f, leftControlY,
-                            centerX - baseRadius, liquidCenterY
+                            leftControlX, topY + 2.dp.toPx(),
+                            centerX - currentBulbRadius * 1.35f, leftControlY,
+                            centerX - currentBulbRadius, liquidCenterY
                         )
 
-                        // Curva inferior del bulbo con armónicos de tensión superficial
-                        val bottomWobble = sin(phase * 2f) * 2.5f * (1f - morph)
+                        // Curva inferior del bulbo con tensión viva
+                        val bottomWobble = sin(phase * 2f) * 2.2f * (1f - morph)
                         cubicTo(
-                            centerX - baseRadius * 0.92f, liquidCenterY + baseRadius + bottomWobble,
-                            centerX + baseRadius * 0.92f, liquidCenterY + baseRadius + bottomWobble,
-                            centerX + baseRadius, liquidCenterY
+                            centerX - currentBulbRadius * 0.92f, liquidCenterY + currentBulbRadius + bottomWobble,
+                            centerX + currentBulbRadius * 0.92f, liquidCenterY + currentBulbRadius + bottomWobble,
+                            centerX + currentBulbRadius, liquidCenterY
                         )
 
-                        // Onda fluida derecha que sube hacia la cresta horizontal
+                        // Onda derecha
                         val rightControlX = centerX + horizontalSpread * 0.45f
-                        val rightControlY = topY + (liquidCenterY - topY) * 0.55f + cos(phase + 1.2f) * 3.dp.toPx()
+                        val rightControlY = topY + (liquidCenterY - topY) * 0.5f + cos(phase + 1.2f) * 2.5.dp.toPx()
                         cubicTo(
-                            centerX + baseRadius * 1.35f, rightControlY,
-                            rightControlX, topY + 4.dp.toPx(),
+                            centerX + currentBulbRadius * 1.35f, rightControlY,
+                            rightControlX, topY + 2.dp.toPx(),
                             centerX + horizontalSpread, topY
                         )
 
-                        // Manto de agua superior con ondulación suave
-                        val crestWaveY = topY + sin(phase) * 1.8.dp.toPx() * (1f - morph)
+                        // Retorno superior con suave ondulación
+                        val crestWaveY = topY + sin(phase) * 1.5.dp.toPx() * (1f - morph)
                         quadraticTo(
                             centerX, crestWaveY,
                             centerX - horizontalSpread, topY
@@ -360,16 +389,16 @@ fun AndeanDewPullRefresh(
                         close()
                     }
                 } else {
-                    // Estado Gota Flotante Orgánica (Masa líquida viva no-circular con 8 nodos armónicos)
+                    // Gota flotante viva no-circular con armónicos sinusoidales
                     createOrganicBlobPath(
                         centerX = centerX,
                         centerY = liquidCenterY,
-                        baseRadius = baseRadius,
+                        baseRadius = currentBulbRadius,
                         phase = phase
                     )
                 }
 
-                // 3. Gradiente Cromático Líquido (Azul Zafiro -> Cian Glaciar -> Turquesa Esmeralda)
+                // 3. Gradiente Cromático Dinámico
                 val tensionHue = (dragRatio * 0.75f + morph * 0.5f).coerceIn(0f, 1f)
                 val topColor = Color(0x907DD3FC).copy(alpha = 0.70f * dragAlpha)
                 val midColor = if (tensionHue > 0.55f) {
@@ -378,18 +407,18 @@ fun AndeanDewPullRefresh(
                     Color(0xC838BDF8).copy(alpha = 0.85f * dragAlpha)
                 }
                 val bottomColor = if (tensionHue > 0.55f) {
-                    Color(0xF506D6A0).copy(alpha = 0.98f * dragAlpha) // Turquesa Esmeralda Andino
+                    Color(0xF506D6A0).copy(alpha = 0.98f * dragAlpha)
                 } else {
-                    Color(0xF00284C7).copy(alpha = 0.95f * dragAlpha) // Azul Zafiro Glaciar
+                    Color(0xF00284C7).copy(alpha = 0.95f * dragAlpha)
                 }
 
                 val waterGradient = Brush.verticalGradient(
                     colors = listOf(topColor, midColor, bottomColor),
-                    startY = liquidCenterY - baseRadius * 1.2f,
-                    endY = liquidCenterY + baseRadius * 1.2f
+                    startY = liquidCenterY - currentBulbRadius * 1.2f,
+                    endY = liquidCenterY + currentBulbRadius * 1.2f
                 )
 
-                // Render del cuerpo de agua fluido
+                // Render del cuerpo de agua
                 drawPath(path = liquidPath, brush = waterGradient)
 
                 // 4. Borde de Refracción Cristalina 3D
@@ -399,8 +428,8 @@ fun AndeanDewPullRefresh(
                         Color(0xC0BAE6FD).copy(alpha = 0.70f * dragAlpha),
                         Color(0x600284C7).copy(alpha = 0.45f * dragAlpha)
                     ),
-                    startY = liquidCenterY - baseRadius * 1.2f,
-                    endY = liquidCenterY + baseRadius * 1.2f
+                    startY = liquidCenterY - currentBulbRadius * 1.2f,
+                    endY = liquidCenterY + currentBulbRadius * 1.2f
                 )
                 drawPath(
                     path = liquidPath,
@@ -408,10 +437,10 @@ fun AndeanDewPullRefresh(
                     style = Stroke(width = with(density) { 1.45.dp.toPx() })
                 )
 
-                // 5. Filamento de Corriente Líquida Interna en Movimiento
+                // 5. Filamento de Corriente Interna
                 if (morph > 0.15f) {
                     val streamAlpha = (morph * dragAlpha).coerceIn(0f, 1f)
-                    val streamRadius = baseRadius * 0.62f
+                    val streamRadius = currentBulbRadius * 0.62f
                     val arcRect = Rect(
                         centerX - streamRadius,
                         liquidCenterY - streamRadius,
@@ -445,12 +474,12 @@ fun AndeanDewPullRefresh(
 
                 // 6. Destellos Especulares Asimétricos y Cáusticos
                 val glintAngle1 = phase
-                val glintX1 = centerX + cos(glintAngle1) * (baseRadius * 0.45f)
-                val glintY1 = liquidCenterY + sin(glintAngle1) * (baseRadius * 0.38f) - baseRadius * 0.18f
+                val glintX1 = centerX + cos(glintAngle1) * (currentBulbRadius * 0.45f)
+                val glintY1 = liquidCenterY + sin(glintAngle1) * (currentBulbRadius * 0.38f) - currentBulbRadius * 0.18f
 
                 val glintAngle2 = phase + PI.toFloat() * 0.85f
-                val glintX2 = centerX + cos(glintAngle2) * (baseRadius * 0.35f)
-                val glintY2 = liquidCenterY + sin(glintAngle2) * (baseRadius * 0.32f)
+                val glintX2 = centerX + cos(glintAngle2) * (currentBulbRadius * 0.35f)
+                val glintY2 = liquidCenterY + sin(glintAngle2) * (currentBulbRadius * 0.32f)
 
                 // Destello primario de luz viva
                 drawCircle(

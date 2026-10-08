@@ -139,10 +139,9 @@ fun HomeScreen(
                 modifier = Modifier.fillMaxSize(),
                 contentPadding = PaddingValues(bottom = 110.dp)
             ) {
-                // Espacio de la barra de estado
+                // Margen superior limpio
                 item {
-                    Spacer(modifier = Modifier.statusBarsPadding())
-                    Spacer(modifier = Modifier.height(12.dp))
+                    Spacer(modifier = Modifier.height(14.dp))
                 }
 
                 // 1. Barra Superior Editorial (Avatar + Saludo + Notificaciones)
