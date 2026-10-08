@@ -31,7 +31,9 @@ data class PocketsUiState(
     val isMoving: Boolean = false,
     val moveError: String? = null,
     val isCreateSheetVisible: Boolean = false,
-    val celebrationPocket: Pocket? = null
+    val celebrationPocket: Pocket? = null,
+    val editingPocket: Pocket? = null,
+    val pocketToDelete: Pocket? = null
 ) {
     val selectedPocket: Pocket?
         get() = pockets.find { it.id == (movePocketId ?: selectedPocketId) }
@@ -88,6 +90,14 @@ sealed interface PocketsAction {
         val colorHex: String = "#435C3C",
         val deadline: Long? = null
     ) : PocketsAction
+
+    data class OpenEditPocket(val pocket: Pocket) : PocketsAction
+    data object DismissEditPocket : PocketsAction
+    data class UpdatePocket(val pocket: Pocket) : PocketsAction
+    data class RequestDeletePocket(val pocket: Pocket) : PocketsAction
+    data object DismissDeletePocket : PocketsAction
+    data class ConfirmDeletePocket(val pocketId: Long) : PocketsAction
+    data class ScheduleReminder(val pocketName: String) : PocketsAction
 
     data object DismissCelebration : PocketsAction
     data object Refresh : PocketsAction

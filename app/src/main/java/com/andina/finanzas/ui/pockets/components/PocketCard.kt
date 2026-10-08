@@ -45,11 +45,19 @@ import com.andina.finanzas.ui.theme.AndinaAmber
 import com.andina.finanzas.ui.theme.AndinaDeepForest
 import com.andina.finanzas.ui.theme.AndinaMossGreen
 
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.NotificationsActive
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.IconButton
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+
 /**
- * Tarjeta interactiva de un Bolsillo de Ahorro con Frailejón Vivo.
- *
- * Muestra el progreso botánico del frailejón en tiempo real,
- * el estado contable de la meta y botones de acción rápida.
+ * Tarjeta interactiva de un Bolsillo de Ahorro con Frailejón Vivo y Menú de Gestión (Sub-fase 3.3).
  */
 @Composable
 fun PocketCard(
@@ -57,8 +65,13 @@ fun PocketCard(
     onClick: () -> Unit,
     onContributeClick: () -> Unit,
     onWithdrawClick: () -> Unit,
+    onEditClick: () -> Unit = {},
+    onReminderClick: () -> Unit = {},
+    onDeleteClick: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
+    var menuExpanded by remember { mutableStateOf(false) }
+
     val animatedProgress by animateFloatAsState(
         targetValue = pocket.progress,
         animationSpec = tween(durationMillis = 700, easing = FastOutSlowInEasing),
@@ -88,7 +101,7 @@ fun PocketCard(
                 .fillMaxWidth()
                 .padding(18.dp)
         ) {
-            // Fila superior: Frailejón en miniatura + Info básica + Badge
+            // Fila superior: Frailejón en miniatura + Info básica + Badge + Menú 3 puntos
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically
@@ -168,6 +181,59 @@ fun PocketCard(
                                 )
                             )
                         }
+                    }
+                }
+
+                Spacer(modifier = Modifier.width(4.dp))
+
+                // Menú de 3 puntos (⋮)
+                Box {
+                    IconButton(
+                        onClick = { menuExpanded = true },
+                        modifier = Modifier.size(32.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.MoreVert,
+                            contentDescription = "Opciones del bolsillo",
+                            tint = Color(0xFF6B7280),
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
+
+                    DropdownMenu(
+                        expanded = menuExpanded,
+                        onDismissRequest = { menuExpanded = false }
+                    ) {
+                        DropdownMenuItem(
+                            text = { Text("Editar Meta") },
+                            leadingIcon = {
+                                Icon(Icons.Default.Edit, contentDescription = null, modifier = Modifier.size(18.dp))
+                            },
+                            onClick = {
+                                menuExpanded = false
+                                onEditClick()
+                            }
+                        )
+                        DropdownMenuItem(
+                            text = { Text("Programar Recordatorio") },
+                            leadingIcon = {
+                                Icon(Icons.Default.NotificationsActive, contentDescription = null, modifier = Modifier.size(18.dp))
+                            },
+                            onClick = {
+                                menuExpanded = false
+                                onReminderClick()
+                            }
+                        )
+                        DropdownMenuItem(
+                            text = { Text("Eliminar Bolsillo", color = Color(0xFFBA1A1A)) },
+                            leadingIcon = {
+                                Icon(Icons.Default.Delete, contentDescription = null, tint = Color(0xFFBA1A1A), modifier = Modifier.size(18.dp))
+                            },
+                            onClick = {
+                                menuExpanded = false
+                                onDeleteClick()
+                            }
+                        )
                     }
                 }
             }

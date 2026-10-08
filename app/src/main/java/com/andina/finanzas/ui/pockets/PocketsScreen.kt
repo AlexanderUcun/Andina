@@ -154,6 +154,105 @@ fun PocketsScreen(
             onDismiss = { viewModel.processAction(PocketsAction.DismissCelebration) }
         )
     }
+
+    // Diálogo de Edición de Meta
+    state.editingPocket?.let { pocketToEdit ->
+        var editName by remember(pocketToEdit) { mutableStateOf(pocketToEdit.name) }
+        var editGoal by remember(pocketToEdit) { mutableStateOf(pocketToEdit.goal.pesos.toString()) }
+
+        AlertDialog(
+            onDismissRequest = { viewModel.processAction(PocketsAction.DismissEditPocket) },
+            title = {
+                Text(
+                    text = "Editar Meta del Bolsillo",
+                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
+                )
+            },
+            text = {
+                Column(modifier = Modifier.fillMaxWidth()) {
+                    androidx.compose.material3.OutlinedTextField(
+                        value = editName,
+                        onValueChange = { editName = it },
+                        label = { Text("Nombre de la meta") },
+                        singleLine = true,
+                        shape = RoundedCornerShape(12.dp),
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+                    androidx.compose.material3.OutlinedTextField(
+                        value = editGoal,
+                        onValueChange = { editGoal = it.filter { ch -> ch.isDigit() }.take(8) },
+                        label = { Text("Meta en COP") },
+                        prefix = { Text("$ ") },
+                        keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(
+                            keyboardType = androidx.compose.ui.text.input.KeyboardType.Number
+                        ),
+                        singleLine = true,
+                        shape = RoundedCornerShape(12.dp),
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+            },
+            confirmButton = {
+                androidx.compose.material3.TextButton(
+                    onClick = {
+                        val parsedGoal = editGoal.toLongOrNull() ?: pocketToEdit.goal.pesos
+                        if (editName.isNotBlank() && parsedGoal > 0) {
+                            viewModel.processAction(
+                                PocketsAction.UpdatePocket(
+                                    pocketToEdit.copy(
+                                        name = editName.trim(),
+                                        goal = com.andina.finanzas.domain.model.Money(parsedGoal)
+                                    )
+                                )
+                            )
+                        }
+                    }
+                ) {
+                    Text("Guardar", fontWeight = FontWeight.Bold, color = AndinaMossGreen)
+                }
+            },
+            dismissButton = {
+                androidx.compose.material3.TextButton(
+                    onClick = { viewModel.processAction(PocketsAction.DismissEditPocket) }
+                ) {
+                    Text("Cancelar")
+                }
+            }
+        )
+    }
+
+    // Diálogo de Confirmación para Eliminar Bolsillo
+    state.pocketToDelete?.let { pocketToDelete ->
+        AlertDialog(
+            onDismissRequest = { viewModel.processAction(PocketsAction.DismissDeletePocket) },
+            title = {
+                Text(
+                    text = "Eliminar Bolsillo",
+                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
+                )
+            },
+            text = {
+                Text(
+                    text = "¿Confirmas que deseas eliminar el bolsillo '${pocketToDelete.name}'? Tu saldo ahorrado de ${pocketToDelete.currentBalance.formatCop()} permanecerá seguro."
+                )
+            },
+            confirmButton = {
+                androidx.compose.material3.TextButton(
+                    onClick = { viewModel.processAction(PocketsAction.ConfirmDeletePocket(pocketToDelete.id)) }
+                ) {
+                    Text("Eliminar", fontWeight = FontWeight.Bold, color = Color(0xFFBA1A1A))
+                }
+            },
+            dismissButton = {
+                androidx.compose.material3.TextButton(
+                    onClick = { viewModel.processAction(PocketsAction.DismissDeletePocket) }
+                ) {
+                    Text("Cancelar")
+                }
+            }
+        )
+    }
 }
 
 @Composable
@@ -282,7 +381,10 @@ private fun PocketsDashboardContent(
                     pocket = pocket,
                     onClick = { onAction(PocketsAction.SelectPocket(pocket.id)) },
                     onContributeClick = { onAction(PocketsAction.OpenContribute(pocket.id)) },
-                    onWithdrawClick = { onAction(PocketsAction.OpenWithdraw(pocket.id)) }
+                    onWithdrawClick = { onAction(PocketsAction.OpenWithdraw(pocket.id)) },
+                    onEditClick = { onAction(PocketsAction.OpenEditPocket(pocket)) },
+                    onReminderClick = { onAction(PocketsAction.ScheduleReminder(pocket.name)) },
+                    onDeleteClick = { onAction(PocketsAction.RequestDeletePocket(pocket)) }
                 )
             }
         }

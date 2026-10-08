@@ -156,6 +156,27 @@ class PocketsViewModel @Inject constructor(
             is PocketsAction.CreatePocket -> {
                 createPocket(action)
             }
+            is PocketsAction.OpenEditPocket -> {
+                _state.update { it.copy(editingPocket = action.pocket) }
+            }
+            is PocketsAction.DismissEditPocket -> {
+                _state.update { it.copy(editingPocket = null) }
+            }
+            is PocketsAction.UpdatePocket -> {
+                updatePocket(action.pocket)
+            }
+            is PocketsAction.RequestDeletePocket -> {
+                _state.update { it.copy(pocketToDelete = action.pocket) }
+            }
+            is PocketsAction.DismissDeletePocket -> {
+                _state.update { it.copy(pocketToDelete = null) }
+            }
+            is PocketsAction.ConfirmDeletePocket -> {
+                deletePocket(action.pocketId)
+            }
+            is PocketsAction.ScheduleReminder -> {
+                sendEffect(PocketsEffect.ShowSnackbar("Recordatorio quincenal programado para '${action.pocketName}'"))
+            }
             is PocketsAction.DismissCelebration -> {
                 _state.update { it.copy(celebrationPocket = null) }
             }
@@ -311,6 +332,22 @@ class PocketsViewModel @Inject constructor(
             repository.createPocket(newPocket)
             _state.update { it.copy(isCreateSheetVisible = false) }
             sendEffect(PocketsEffect.ShowSnackbar("Meta '${action.name}' sembrada en tu páramo 🌿"))
+        }
+    }
+
+    private fun updatePocket(pocket: Pocket) {
+        viewModelScope.launch {
+            repository.updatePocket(pocket)
+            _state.update { it.copy(editingPocket = null) }
+            sendEffect(PocketsEffect.ShowSnackbar("Meta '${pocket.name}' actualizada"))
+        }
+    }
+
+    private fun deletePocket(pocketId: Long) {
+        viewModelScope.launch {
+            repository.archivePocket(pocketId)
+            _state.update { it.copy(pocketToDelete = null) }
+            sendEffect(PocketsEffect.ShowSnackbar("Bolsillo eliminado"))
         }
     }
 

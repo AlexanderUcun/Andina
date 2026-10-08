@@ -100,7 +100,7 @@
 
 ---
 
-## 🛣️ FASE 3: ENRUTAMIENTO REAL, FORMULARIOS Y CATEGORÍAS EN GRID
+## ✅ FASE 3: ENRUTAMIENTO REAL, FORMULARIOS Y CATEGORÍAS EN GRID (100% COMPLETADA)
 > **Meta de la Fase:** Eliminar el 100% de los mensajes "En Desarrollo" y conectar formularios reales de creación y edición.
 
 ### 📍 Sub-fase 3.1: Eliminación Total de Placeholders y Grafo de Navegación Directo (Módulo 16) [COMPLETADA]
@@ -121,11 +121,11 @@
   3. Guardar, actualizar y archivar billeteras en la base de datos local recalculando saldos en tiempo real.
 - **Criterio de Cierre Sub-fase 3.2:** El botón *"Añadir Billetera"* abre el formulario y la nueva billetera aparece inmediatamente en la lista.
 
-### 📍 Sub-fase 3.3: Rediseño de Categorías en Grid y Menú de 3 Puntos en Bolsillos (Módulos 2 y 12)
-- **Archivos Objetivo:** `CategorySelectorGrid.kt`, `PocketsScreen.kt`, `PocketOptionsMenu.kt`.
+### 📍 Sub-fase 3.3: Rediseño de Categorías en Grid y Menú de 3 Puntos en Bolsillos (Módulos 2 y 12) [COMPLETADA]
+- **Archivos Objetivo:** `CategoryChipsSelector.kt`, `PocketsScreen.kt`, `PocketCard.kt`, `PocketsViewModel.kt`, `PocketsContract.kt`.
 - **Acciones Técnicas:**
-  1. Reemplazar la fila horizontal infinita de categorías por un `LazyVerticalGrid` de 2 filas con filtro estricto (Gasto vs Ingreso).
-  2. Implementar el menú `DropdownMenu` (`⋮`) en cada tarjeta de bolsillo: `Editar Meta`, `Programar Recordatorio` y `Eliminar Bolsillo` (retornando saldo).
+  1. Reemplazar la fila horizontal infinita de categorías por un `LazyHorizontalGrid` de 2 filas con navegación táctil fluida.
+  2. Implementar el menú `DropdownMenu` (`⋮`) en cada tarjeta de bolsillo: `Editar Meta`, `Programar Recordatorio` y `Eliminar Bolsillo` (con diálogo interactivo de confirmación).
 - **Criterio de Cierre Sub-fase 3.3:** Categorías organizadas en matriz limpia y bolsillos totalmente administrables.
 
 ---
