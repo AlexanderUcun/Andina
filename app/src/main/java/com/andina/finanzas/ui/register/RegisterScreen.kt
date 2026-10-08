@@ -220,9 +220,7 @@ fun RegisterScreen(
         color = topBackdrop
     ) {
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .statusBarsPadding(),
+            modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             // 1. Muggy asomado con colapso reactivo cuando el teclado virtual está desplegado
@@ -334,7 +332,7 @@ fun RegisterScreen(
                     // Contenido scrollable del formulario (NUNCA se ocultan billeteras ni categorías)
                     Column(
                         modifier = Modifier
-                            .weight(1f, fill = false)
+                            .weight(1f)
                             .fillMaxWidth()
                             .verticalScroll(scrollState)
                             .padding(horizontal = 20.dp),
@@ -656,10 +654,7 @@ fun RegisterScreen(
                     Surface(
                         color = cardBackground,
                         tonalElevation = 4.dp,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .imePadding()
-                            .navigationBarsPadding()
+                        modifier = Modifier.fillMaxWidth()
                     ) {
                         Box(
                             modifier = Modifier
