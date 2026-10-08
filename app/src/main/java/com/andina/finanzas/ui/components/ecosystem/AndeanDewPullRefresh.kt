@@ -135,8 +135,8 @@ fun AndeanDewPullRefresh(
             ): Offset {
                 if (isRefreshing) return Offset.Zero
 
-                // Deslizamiento hacia abajo cuando la lista está en el tope
-                if (available.y > 0) {
+                // Deslizamiento hacia abajo cuando la lista está en el tope (SOLO por interacción táctil directa del usuario)
+                if (source == NestedScrollSource.UserInput && available.y > 0) {
                     val resistance = 0.45f
                     val newOffset = (pullOffset + available.y * resistance).coerceAtMost(maxDragPx)
                     pullOffset = newOffset
@@ -171,6 +171,28 @@ fun AndeanDewPullRefresh(
                     }
                 }
                 return super.onPreFling(available)
+            }
+
+            override suspend fun onPostFling(
+                consumed: androidx.compose.ui.unit.Velocity,
+                available: androidx.compose.ui.unit.Velocity
+            ): androidx.compose.ui.unit.Velocity {
+                if (!isRefreshing && pullOffset > 0f) {
+                    animationJob?.cancel()
+                    animationJob = coroutineScope.launch {
+                        animate(
+                            initialValue = pullOffset,
+                            targetValue = 0f,
+                            animationSpec = spring(
+                                dampingRatio = Spring.DampingRatioMediumBouncy,
+                                stiffness = Spring.StiffnessMedium
+                            )
+                        ) { value, _ ->
+                            pullOffset = value
+                        }
+                    }
+                }
+                return super.onPostFling(consumed, available)
             }
         }
     }
