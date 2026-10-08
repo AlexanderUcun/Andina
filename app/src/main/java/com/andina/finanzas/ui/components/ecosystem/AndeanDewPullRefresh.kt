@@ -90,13 +90,13 @@ fun AndeanDewPullRefresh(
                 )
             )
         } else {
+            pullOffset = 0f
+            hasTriggeredHaptic = false
             rippleProgress.snapTo(0f)
             animatedOffset.animateTo(
                 targetValue = 0f,
-                animationSpec = spring(stiffness = Spring.StiffnessMedium)
+                animationSpec = tween(durationMillis = 280, easing = LinearEasing)
             )
-            pullOffset = 0f
-            hasTriggeredHaptic = false
         }
     }
 
