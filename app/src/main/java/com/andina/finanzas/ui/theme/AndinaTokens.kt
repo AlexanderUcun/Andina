@@ -58,6 +58,19 @@ data class AndinaColors(
 val LocalAndinaColors = staticCompositionLocalOf { AndinaColors() }
 
 /**
+ * Paleta líquida para el Splash de Agua Andina (Pull-to-Refresh de lado a lado).
+ */
+object AndeanSplashColors {
+    val DeepWater = Color(0xFF0284C7)      // Azul Glaciar Zafiro profundo
+    val MidWater = Color(0xFF00B4D8)       // Azul Eléctrico Agua de Páramo
+    val LightWater = Color(0xFF38BDF8)     // Cian Glaciar Luminoso
+    val CausticFoam = Color(0xFFBAE6FD)    // Espuma blanca cristalina
+    val AmbientGlow = Color(0x3838BDF8)    // Resplandor ambiental de agua
+    val FoamEdge = Color(0xF2FFFFFF)       // Menisco de luz blanca
+    val DropletGleam = Color(0xFFE0F2FE)   // Brillo perlado de gota
+}
+
+/**
  * Paleta categórica para gráficas (8 colores armonizados distinguibles).
  */
 object AndinaChartColors {
