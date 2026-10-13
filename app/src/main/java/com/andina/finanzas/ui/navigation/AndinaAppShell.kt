@@ -68,7 +68,7 @@ import androidx.navigation.toRoute
 import com.andina.finanzas.ui.components.AndinaBottomBar
 import com.andina.finanzas.ui.components.AndinaButton
 import com.andina.finanzas.ui.components.AndinaButtonVariant
-import com.andina.finanzas.ui.components.FrostedGlassCard
+import com.andina.finanzas.ui.components.AndeanHyperCard
 import com.andina.finanzas.ui.home.HomeScreen
 import com.andina.finanzas.ui.theme.AndeanPrimaryContainer
 import kotlinx.coroutines.CoroutineScope
@@ -540,11 +540,11 @@ private fun ShellPlaceholderScreen(
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            FrostedGlassCard(
-                modifier = Modifier.fillMaxWidth()
+            AndeanHyperCard(
+                modifier = Modifier.fillMaxWidth(),
+                contentPadding = 20.dp
             ) {
                 Column(
-                    modifier = Modifier.padding(20.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Row(

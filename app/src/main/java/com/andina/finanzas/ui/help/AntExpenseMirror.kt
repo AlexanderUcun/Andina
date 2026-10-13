@@ -38,7 +38,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.andina.finanzas.domain.model.Money
-import com.andina.finanzas.ui.components.FrostedGlassCard
+import com.andina.finanzas.ui.components.AndeanHyperCard
+import com.andina.finanzas.ui.theme.LocalAndinaColors
 import com.andina.finanzas.ui.components.muggy.MuggyAvatar
 import com.andina.finanzas.ui.components.muggy.MuggyPose
 import com.andina.finanzas.ui.theme.AndeanSlateInk
@@ -83,11 +84,12 @@ fun AntExpenseMirrorCard(
         else -> "Un fin de semana inolvidable de descanso en Villa de Leyva."
     }
 
-    FrostedGlassCard(
+    AndeanHyperCard(
         shape = RoundedCornerShape(24.dp),
+        contentPadding = 20.dp,
         modifier = modifier.fillMaxWidth()
     ) {
-        Column(modifier = Modifier.padding(20.dp)) {
+        Column {
             // Encabezado
             Row(
                 verticalAlignment = Alignment.CenterVertically,

@@ -49,6 +49,10 @@ import com.andina.finanzas.ui.theme.specularGlassBorder
  * @param onClick Acción opcional de pulsación; si es nulo, la tarjeta actúa como contenedor pasivo.
  * @param content Contenido interno organizado verticalmente con [ColumnScope].
  */
+@Deprecated(
+    message = "Utilizar AndeanHyperCard del sistema Platinum Light Luxury.",
+    replaceWith = ReplaceWith("AndeanHyperCard(modifier, variant, shape, elevation, onClick, contentPadding = contentPadding, content = content)", "com.andina.finanzas.ui.components.AndeanHyperCard")
+)
 @Composable
 fun FrostedGlassCard(
     modifier: Modifier = Modifier,

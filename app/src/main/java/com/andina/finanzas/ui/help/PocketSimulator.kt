@@ -38,7 +38,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.andina.finanzas.domain.model.Money
-import com.andina.finanzas.ui.components.FrostedGlassCard
+import com.andina.finanzas.ui.components.AndeanHyperCard
+import com.andina.finanzas.ui.theme.LocalAndinaColors
 import com.andina.finanzas.ui.components.ecosystem.FrailejonView
 import com.andina.finanzas.ui.theme.AndeanPrimary
 import com.andina.finanzas.ui.theme.AndeanSlateInk
@@ -66,11 +67,12 @@ fun PocketSimulatorCard(
         (currentAmount.pesos.toFloat() / targetAmount.pesos.toFloat()).coerceIn(0f, 1f)
     } else 1f
 
-    FrostedGlassCard(
+    AndeanHyperCard(
         shape = RoundedCornerShape(24.dp),
+        contentPadding = 20.dp,
         modifier = modifier.fillMaxWidth()
     ) {
-        Column(modifier = Modifier.padding(20.dp)) {
+        Column {
             // Cabecera con icono limpio y título
             Row(
                 verticalAlignment = Alignment.CenterVertically,

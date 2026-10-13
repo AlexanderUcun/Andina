@@ -46,7 +46,9 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.ui.graphics.Brush
-import com.andina.finanzas.ui.components.FrostedGlassCard
+import com.andina.finanzas.ui.components.AndeanHyperCard
+import com.andina.finanzas.ui.components.HyperCardVariant
+import com.andina.finanzas.ui.theme.LocalAndinaColors
 import com.andina.finanzas.ui.components.bouncyClick
 import com.andina.finanzas.ui.theme.AndeanMistCanvasBottom
 import com.andina.finanzas.ui.theme.AndeanMistCanvasTop
@@ -157,14 +159,14 @@ fun UserProfileScreen(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 // 1. Tarjeta Avatar Hero con Identidad y Progreso del Páramo
-                FrostedGlassCard(
+                AndeanHyperCard(
+                    variant = HyperCardVariant.HERO,
                     shape = RoundedCornerShape(24.dp),
+                    contentPadding = 20.dp,
                     modifier = Modifier.fillMaxWidth()
                 ) {
                 Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(24.dp),
+                    modifier = Modifier.fillMaxWidth(),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Box(
@@ -361,11 +363,12 @@ fun UserProfileScreen(
             )
             Spacer(modifier = Modifier.height(8.dp))
 
-            FrostedGlassCard(
+            AndeanHyperCard(
                 shape = RoundedCornerShape(18.dp),
+                contentPadding = 16.dp,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Column(modifier = Modifier.padding(16.dp)) {
+                Column {
                     // Formato Moneda con icono de pagos
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -431,11 +434,12 @@ fun UserProfileScreen(
             )
             Spacer(modifier = Modifier.height(8.dp))
 
-            FrostedGlassCard(
+            AndeanHyperCard(
                 shape = RoundedCornerShape(18.dp),
+                contentPadding = 16.dp,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Column(modifier = Modifier.padding(16.dp)) {
+                Column {
                     // Switch Biometría
                     PreferenceSwitchRow(
                         icon = Icons.Default.Lock,
@@ -733,15 +737,14 @@ private fun BentoToolCard(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    FrostedGlassCard(
+    AndeanHyperCard(
         shape = RoundedCornerShape(16.dp),
         onClick = onClick,
+        contentPadding = 14.dp,
         modifier = modifier
     ) {
         Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(14.dp)
+            modifier = Modifier.fillMaxWidth()
         ) {
             Box(
                 modifier = Modifier

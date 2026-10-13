@@ -43,7 +43,8 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.andina.finanzas.ui.components.FrostedGlassCard
+import com.andina.finanzas.ui.components.AndeanHyperCard
+import com.andina.finanzas.ui.theme.LocalAndinaColors
 import com.andina.finanzas.ui.components.bouncyClick
 import com.andina.finanzas.ui.theme.AndeanAntExpenseAmber
 import com.andina.finanzas.ui.theme.AndeanPrimary
@@ -161,13 +162,13 @@ fun NotificationsScreen(
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 item {
-                    FrostedGlassCard(
+                    AndeanHyperCard(
                         shape = RoundedCornerShape(18.dp),
                         onClick = onNavigateToRecurring,
+                        contentPadding = 16.dp,
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Row(
-                            modifier = Modifier.padding(16.dp),
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
@@ -207,14 +208,13 @@ fun NotificationsScreen(
                 }
 
                 items(alerts, key = { it.id }) { alert ->
-                    FrostedGlassCard(
+                    AndeanHyperCard(
                         shape = RoundedCornerShape(18.dp),
+                        contentPadding = 16.dp,
                         modifier = Modifier.fillMaxWidth()
                     ) {
                     Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp),
+                        modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.Top
                     ) {
                         Box(

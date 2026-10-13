@@ -55,7 +55,9 @@ import com.andina.finanzas.core.intelligence.triage.TriageLevel
 import com.andina.finanzas.domain.model.Money
 import com.andina.finanzas.ui.components.muggy.MuggyAvatar
 import com.andina.finanzas.ui.components.muggy.MuggyPose
-import com.andina.finanzas.ui.components.FrostedGlassCard
+import com.andina.finanzas.ui.components.AndeanHyperCard
+import com.andina.finanzas.ui.components.HyperCardVariant
+import com.andina.finanzas.ui.theme.LocalAndinaColors
 import com.andina.finanzas.ui.components.bouncyClick
 import com.andina.finanzas.ui.help.AntExpenseMirrorCard
 import com.andina.finanzas.ui.help.PocketSimulatorCard
@@ -299,13 +301,13 @@ private fun HeroConsultorioCard(
         TriageLevel.TRIAGE_CRITICO -> "Nivel: Crítico"
     }
 
-    FrostedGlassCard(
+    AndeanHyperCard(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(26.dp)
+        shape = RoundedCornerShape(26.dp),
+        contentPadding = 20.dp
     ) {
         Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.padding(20.dp)
+            verticalAlignment = Alignment.CenterVertically
         ) {
             // Círculo con Score
             Box(
@@ -392,11 +394,12 @@ private fun TopCategoriesSection(
     topCategories: List<Pair<String, Money>>,
     totalExpenses: Money
 ) {
-    FrostedGlassCard(
+    AndeanHyperCard(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(20.dp)
+        shape = RoundedCornerShape(20.dp),
+        contentPadding = 18.dp
     ) {
-        Column(modifier = Modifier.padding(18.dp)) {
+        Column {
             Text(
                 text = "Distribución del Caudal este Mes",
                 fontSize = 15.sp,

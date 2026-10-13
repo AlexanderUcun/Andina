@@ -33,6 +33,9 @@ import com.andina.finanzas.domain.model.Wallet
 import com.andina.finanzas.domain.model.WalletType
 import com.andina.finanzas.ui.components.ecosystem.FrailejonView
 import com.andina.finanzas.ui.components.ecosystem.WaterRippleOverlay
+import com.andina.finanzas.ui.components.AndeanHyperCard
+import com.andina.finanzas.ui.components.HyperCardVariant
+import com.andina.finanzas.ui.theme.LocalAndinaColors
 import com.andina.finanzas.ui.theme.AndeanMistGradient
 import com.andina.finanzas.ui.theme.AndinaTheme
 
@@ -81,9 +84,9 @@ fun ComponentsPreviewGallery() {
 
             HorizontalDivider(color = DividerDefaults.color.copy(alpha = 0.3f))
 
-            // 1. FrostedGlassCard
-            SectionTitle(title = "1. Vidrio Esmerilado (FrostedGlassCard)")
-            FrostedGlassCard {
+            // 1. AndeanHyperCard
+            SectionTitle(title = "1. Tarjeta Insignia (AndeanHyperCard)")
+            AndeanHyperCard {
                 Text(
                     text = "Patrimonio Líquido Total",
                     style = MaterialTheme.typography.labelSmall,
@@ -195,7 +198,7 @@ fun ComponentsPreviewGallery() {
 
             // 5. TransactionItem
             SectionTitle(title = "5. Movimientos Financieros (TransactionItem)")
-            FrostedGlassCard(contentPadding = 4.dp) {
+            AndeanHyperCard(contentPadding = 4.dp) {
                 TransactionItem(
                     transaction = Transaction(
                         id = 1,
@@ -226,7 +229,7 @@ fun ComponentsPreviewGallery() {
 
             // 6. Ecosistema Vivo en Canvas
             SectionTitle(title = "6. Ecosistema Vivo: Frailejón Andino")
-            FrostedGlassCard {
+            AndeanHyperCard {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceEvenly,
