@@ -58,7 +58,9 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.ui.graphics.Brush
-import com.andina.finanzas.ui.components.FrostedGlassCard
+import com.andina.finanzas.ui.components.AndeanHyperCard
+import com.andina.finanzas.ui.components.HyperCardVariant
+import com.andina.finanzas.ui.theme.LocalAndinaColors
 import com.andina.finanzas.ui.components.bouncyClick
 import com.andina.finanzas.ui.theme.AndeanMistCanvasBottom
 import com.andina.finanzas.ui.theme.AndeanMistCanvasTop
@@ -458,14 +460,15 @@ private fun TransactionHeroCard(
         else -> MaterialTheme.colorScheme.onSurface
     }
 
-    FrostedGlassCard(
+    val colors = LocalAndinaColors.current
+
+    AndeanHyperCard(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(22.dp)
+        variant = HyperCardVariant.HERO,
+        contentPadding = 24.dp
     ) {
         Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(24.dp),
+            modifier = Modifier.fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             // Badges
@@ -559,15 +562,18 @@ private fun TransactionMetaCard(
     onCategoryClick: () -> Unit,
     onDateTimeClick: () -> Unit
 ) {
-    FrostedGlassCard(
+    val colors = LocalAndinaColors.current
+
+    AndeanHyperCard(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(18.dp)
+        variant = HyperCardVariant.CARD,
+        contentPadding = 16.dp
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
+        Column {
             Text(
                 text = "Detalles del Asiento (Toca para editar)",
                 style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
-                color = AndeanSlateInk.copy(alpha = 0.7f)
+                color = colors.textSecondary
             )
             Spacer(modifier = Modifier.height(12.dp))
 

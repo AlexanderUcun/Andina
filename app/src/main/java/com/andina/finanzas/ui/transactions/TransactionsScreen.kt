@@ -124,9 +124,11 @@ fun TransactionsScreen(
         }
     }
 
+    val colors = com.andina.finanzas.ui.theme.LocalAndinaColors.current
+
     Scaffold(
         modifier = modifier.fillMaxSize(),
-        containerColor = MaterialTheme.colorScheme.background,
+        containerColor = colors.canvasTop,
         topBar = {
             TransactionsTopHeader(
                 viewMode = state.viewMode,
@@ -147,6 +149,7 @@ fun TransactionsScreen(
         Box(
             modifier = Modifier
                 .fillMaxSize()
+                .background(colors.canvasGradient)
                 .padding(innerPadding)
         ) {
             if (state.viewMode == TransactionsViewMode.CALENDARIO) {
@@ -282,11 +285,12 @@ private fun TransactionsTopHeader(
     onQuickToggleAnt: () -> Unit
 ) {
     val focusManager = LocalFocusManager.current
+    val colors = com.andina.finanzas.ui.theme.LocalAndinaColors.current
 
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .background(MaterialTheme.colorScheme.surface)
+            .background(colors.cardBackground)
             .statusBarsPadding()
             .padding(top = 8.dp, bottom = 4.dp)
     ) {
@@ -305,12 +309,12 @@ private fun TransactionsTopHeader(
                         fontWeight = FontWeight.Bold,
                         letterSpacing = (-0.5).sp
                     ),
-                    color = MaterialTheme.colorScheme.onSurface
+                    color = colors.textPrimary
                 )
                 Text(
                     text = "Libro mayor y auditoría de caudal",
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = colors.textSecondary
                 )
             }
 
@@ -321,12 +325,13 @@ private fun TransactionsTopHeader(
                 // Selector Segmentado de Vista (Lista / Calendario)
                 Surface(
                     shape = RoundedCornerShape(12.dp),
-                    color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+                    color = colors.canvasBottom,
+                    border = androidx.compose.foundation.BorderStroke(1.dp, colors.cardBorder)
                 ) {
                     Row(modifier = Modifier.padding(3.dp)) {
                         Surface(
                             shape = RoundedCornerShape(9.dp),
-                            color = if (viewMode == TransactionsViewMode.LISTA) AndeanPrimary else Color.Transparent,
+                            color = if (viewMode == TransactionsViewMode.LISTA) colors.accentGold else Color.Transparent,
                             modifier = Modifier
                                 .clip(RoundedCornerShape(9.dp))
                                 .clickable { onViewModeSelected(TransactionsViewMode.LISTA) }
@@ -335,13 +340,13 @@ private fun TransactionsTopHeader(
                                 text = "📋 Lista",
                                 fontSize = 11.sp,
                                 fontWeight = if (viewMode == TransactionsViewMode.LISTA) FontWeight.Bold else FontWeight.Medium,
-                                color = if (viewMode == TransactionsViewMode.LISTA) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
+                                color = if (viewMode == TransactionsViewMode.LISTA) MaterialTheme.colorScheme.onPrimary else colors.textSecondary,
                                 modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
                             )
                         }
                         Surface(
                             shape = RoundedCornerShape(9.dp),
-                            color = if (viewMode == TransactionsViewMode.CALENDARIO) AndeanPrimary else Color.Transparent,
+                            color = if (viewMode == TransactionsViewMode.CALENDARIO) colors.accentGold else Color.Transparent,
                             modifier = Modifier
                                 .clip(RoundedCornerShape(9.dp))
                                 .clickable { onViewModeSelected(TransactionsViewMode.CALENDARIO) }
@@ -350,7 +355,7 @@ private fun TransactionsTopHeader(
                                 text = "📅 Calendario",
                                 fontSize = 11.sp,
                                 fontWeight = if (viewMode == TransactionsViewMode.CALENDARIO) FontWeight.Bold else FontWeight.Medium,
-                                color = if (viewMode == TransactionsViewMode.CALENDARIO) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
+                                color = if (viewMode == TransactionsViewMode.CALENDARIO) MaterialTheme.colorScheme.onPrimary else colors.textSecondary,
                                 modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
                             )
                         }
@@ -362,8 +367,8 @@ private fun TransactionsTopHeader(
                     badge = {
                         if (filter.activeFilterCount > 0) {
                             Badge(
-                                containerColor = AndeanPrimary,
-                                contentColor = Color.White
+                                containerColor = colors.accentGold,
+                                contentColor = MaterialTheme.colorScheme.onPrimary
                             ) {
                                 Text(text = filter.activeFilterCount.toString())
                             }
@@ -376,14 +381,14 @@ private fun TransactionsTopHeader(
                             .size(38.dp)
                             .clip(CircleShape)
                             .background(
-                                if (filter.activeFilterCount > 0) AndeanPrimary.copy(alpha = 0.12f)
-                                else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+                                if (filter.activeFilterCount > 0) colors.accentGold.copy(alpha = 0.16f)
+                                else colors.canvasBottom
                             )
                     ) {
                         Icon(
                             imageVector = Icons.Default.FilterAlt,
                             contentDescription = "Filtros avanzados",
-                            tint = if (filter.activeFilterCount > 0) AndeanPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
+                            tint = if (filter.activeFilterCount > 0) colors.accentGold else colors.textSecondary,
                             modifier = Modifier.size(20.dp)
                         )
                     }
@@ -401,14 +406,14 @@ private fun TransactionsTopHeader(
                 Text(
                     text = "Buscar por nota, negocio o categoría...",
                     style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
+                    color = colors.textSecondary.copy(alpha = 0.7f)
                 )
             },
             leadingIcon = {
                 Icon(
                     imageVector = Icons.Default.Search,
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    tint = colors.textSecondary
                 )
             },
             trailingIcon = {
@@ -417,7 +422,7 @@ private fun TransactionsTopHeader(
                         Icon(
                             imageVector = Icons.Default.Clear,
                             contentDescription = "Limpiar búsqueda",
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                            tint = colors.textSecondary
                         )
                     }
                 }
@@ -425,10 +430,10 @@ private fun TransactionsTopHeader(
             singleLine = true,
             shape = RoundedCornerShape(14.dp),
             colors = OutlinedTextFieldDefaults.colors(
-                focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f),
-                unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.25f),
-                focusedBorderColor = AndeanPrimary,
-                unfocusedBorderColor = Color.Transparent
+                focusedContainerColor = colors.canvasTop,
+                unfocusedContainerColor = colors.canvasBottom,
+                focusedBorderColor = colors.accentGold,
+                unfocusedBorderColor = colors.cardBorder
             ),
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
             keyboardActions = KeyboardActions(onSearch = { focusManager.clearFocus() }),
@@ -459,8 +464,8 @@ private fun TransactionsTopHeader(
                 label = { Text("Todos") },
                 shape = RoundedCornerShape(10.dp),
                 colors = FilterChipDefaults.filterChipColors(
-                    selectedContainerColor = AndeanPrimary.copy(alpha = 0.16f),
-                    selectedLabelColor = AndeanPrimary
+                    selectedContainerColor = colors.accentGold.copy(alpha = 0.16f),
+                    selectedLabelColor = colors.accentGold
                 )
             )
 
@@ -470,8 +475,8 @@ private fun TransactionsTopHeader(
                 label = { Text("Gastos") },
                 shape = RoundedCornerShape(10.dp),
                 colors = FilterChipDefaults.filterChipColors(
-                    selectedContainerColor = AndeanPrimary.copy(alpha = 0.16f),
-                    selectedLabelColor = AndeanPrimary
+                    selectedContainerColor = colors.statusDanger.copy(alpha = 0.12f),
+                    selectedLabelColor = colors.statusDanger
                 )
             )
 
@@ -481,8 +486,8 @@ private fun TransactionsTopHeader(
                 label = { Text("Ingresos") },
                 shape = RoundedCornerShape(10.dp),
                 colors = FilterChipDefaults.filterChipColors(
-                    selectedContainerColor = AndeanPrimary.copy(alpha = 0.16f),
-                    selectedLabelColor = AndeanPrimary
+                    selectedContainerColor = colors.statusSuccess.copy(alpha = 0.12f),
+                    selectedLabelColor = colors.statusSuccess
                 )
             )
 
@@ -495,7 +500,7 @@ private fun TransactionsTopHeader(
                             imageVector = Icons.Default.BugReport,
                             contentDescription = null,
                             modifier = Modifier.size(14.dp),
-                            tint = if (filter.onlyAntExpense) AndeanAntExpenseAmber else MaterialTheme.colorScheme.onSurfaceVariant
+                            tint = if (filter.onlyAntExpense) colors.statusWarning else colors.textSecondary
                         )
                         Spacer(modifier = Modifier.width(4.dp))
                         Text("Hormiga")
@@ -503,8 +508,8 @@ private fun TransactionsTopHeader(
                 },
                 shape = RoundedCornerShape(10.dp),
                 colors = FilterChipDefaults.filterChipColors(
-                    selectedContainerColor = AndeanAntExpenseAmber.copy(alpha = 0.16f),
-                    selectedLabelColor = AndeanAntExpenseAmber
+                    selectedContainerColor = colors.statusWarning.copy(alpha = 0.16f),
+                    selectedLabelColor = colors.statusWarning
                 )
             )
 
@@ -514,15 +519,15 @@ private fun TransactionsTopHeader(
                 label = { Text("Transferencias") },
                 shape = RoundedCornerShape(10.dp),
                 colors = FilterChipDefaults.filterChipColors(
-                    selectedContainerColor = AndeanPrimary.copy(alpha = 0.16f),
-                    selectedLabelColor = AndeanPrimary
+                    selectedContainerColor = colors.accentBlueSoft.copy(alpha = 0.16f),
+                    selectedLabelColor = colors.accentBlueSoft
                 )
             )
         }
 
         HorizontalDivider(
             thickness = 0.5.dp,
-            color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f)
+            color = colors.cardBorder
         )
     }
 }
@@ -532,8 +537,9 @@ private fun TransactionsTopHeader(
  */
 @Composable
 private fun DateSectionHeader(title: String, dayNetBalance: String? = null) {
+    val colors = com.andina.finanzas.ui.theme.LocalAndinaColors.current
     Surface(
-        color = MaterialTheme.colorScheme.background,
+        color = Color.Transparent,
         modifier = Modifier.fillMaxWidth()
     ) {
         Row(
@@ -550,7 +556,7 @@ private fun DateSectionHeader(title: String, dayNetBalance: String? = null) {
                         fontWeight = FontWeight.Bold,
                         fontSize = 13.sp
                     ),
-                    color = AndinaMossGreen
+                    color = colors.textMoney
                 )
             }
             if (dayNetBalance != null) {
@@ -560,7 +566,7 @@ private fun DateSectionHeader(title: String, dayNetBalance: String? = null) {
                         fontWeight = FontWeight.SemiBold,
                         fontSize = 11.sp
                     ),
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = colors.textSecondary
                 )
             }
         }
@@ -577,53 +583,60 @@ private fun EmptyTransactionsState(
     hasFilters: Boolean,
     onResetFilters: () -> Unit
 ) {
+    val colors = com.andina.finanzas.ui.theme.LocalAndinaColors.current
     Box(
         modifier = Modifier
             .fillMaxSize()
             .padding(24.dp),
         contentAlignment = Alignment.Center
     ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+        com.andina.finanzas.ui.components.AndeanHyperCard(
+            modifier = Modifier.fillMaxWidth(),
+            variant = com.andina.finanzas.ui.components.HyperCardVariant.CARD,
+            contentPadding = 24.dp
         ) {
-            Box(
-                modifier = Modifier
-                    .size(72.dp)
-                    .clip(CircleShape)
-                    .background(AndeanPrimary.copy(alpha = 0.1f)),
-                contentAlignment = Alignment.Center
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
             ) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Outlined.ReceiptLong,
-                    contentDescription = null,
-                    tint = AndeanPrimary,
-                    modifier = Modifier.size(36.dp)
+                Box(
+                    modifier = Modifier
+                        .size(72.dp)
+                        .clip(CircleShape)
+                        .background(colors.accentGold.copy(alpha = 0.15f)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Outlined.ReceiptLong,
+                        contentDescription = null,
+                        tint = colors.accentGold,
+                        modifier = Modifier.size(36.dp)
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Text(
+                    text = if (hasFilters) "Sin movimientos coincidentes" else "Aún no hay movimientos",
+                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                    color = colors.textPrimary,
+                    textAlign = TextAlign.Center
                 )
-            }
 
-            Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(6.dp))
 
-            Text(
-                text = if (hasFilters) "Sin movimientos coincidentes" else "Aún no hay movimientos",
-                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                color = MaterialTheme.colorScheme.onSurface,
-                textAlign = TextAlign.Center
-            )
-
-            Spacer(modifier = Modifier.height(6.dp))
-
-            Text(
-                text = if (hasFilters) {
-                    "No se encontraron movimientos con los filtros seleccionados. Toca un filtro para quitarlo o restablece la búsqueda."
-                } else {
-                    "Registra tu primer gasto o ingreso usando el botón central (+) para iniciar tu libro mayor."
-                },
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.padding(horizontal = 16.dp)
-            )
+                Text(
+                    text = if (hasFilters) {
+                        "No se encontraron movimientos con los filtros seleccionados. Toca un filtro para quitarlo o restablece la búsqueda."
+                    } else {
+                        "Registra tu primer gasto o ingreso usando el botón central (+) para iniciar tu libro mayor."
+                    },
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = colors.textSecondary,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.padding(horizontal = 16.dp)
+                )
 
             if (hasFilters) {
                 Spacer(modifier = Modifier.height(16.dp))
@@ -683,6 +696,7 @@ private fun EmptyTransactionsState(
             }
         }
     }
+}
 }
 
 /**
