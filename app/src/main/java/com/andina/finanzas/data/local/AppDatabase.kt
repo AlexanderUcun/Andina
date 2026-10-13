@@ -69,6 +69,11 @@ abstract class AppDatabase : RoomDatabase() {
                         super.onCreate(db)
                         DatabaseSeeder.seedInitialData(db)
                     }
+
+                    override fun onOpen(db: SupportSQLiteDatabase) {
+                        super.onOpen(db)
+                        DatabaseSeeder.cleanupLegacyCategories(db)
+                    }
                 })
 
             if (passphrase != null && passphrase.isNotEmpty()) {

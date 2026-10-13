@@ -57,4 +57,47 @@ object DatabaseSeeder {
             db.endTransaction()
         }
     }
+
+    /**
+     * Limpieza y sanitización idempotente al abrir la base de datos (Fase 1.2).
+     * Reasigna cualquier transacción ligada a categorías residuales (ej. "Mujeres")
+     * a la categoría estándar "Cuidado Personal" y purga el registro obsoleto.
+     */
+    fun cleanupLegacyCategories(db: SupportSQLiteDatabase) {
+        db.beginTransaction()
+        try {
+            // 1. Obtener ID de la categoría destino "Cuidado Personal"
+            val cursorTarget = db.query("SELECT id FROM categories WHERE name = 'Cuidado Personal' LIMIT 1")
+            var targetId: Long? = null
+            if (cursorTarget.moveToFirst()) {
+                targetId = cursorTarget.getLong(0)
+            }
+            cursorTarget.close()
+
+            // 2. Si existe la categoría residual "Mujeres", reasignar transacciones y eliminarla
+            val cursorLegacy = db.query("SELECT id FROM categories WHERE name = 'Mujeres'")
+            val legacyIds = mutableListOf<Long>()
+            while (cursorLegacy.moveToNext()) {
+                legacyIds.add(cursorLegacy.getLong(0))
+            }
+            cursorLegacy.close()
+
+            if (legacyIds.isNotEmpty()) {
+                for (legacyId in legacyIds) {
+                    if (targetId != null) {
+                        db.execSQL("UPDATE transactions SET categoryId = ? WHERE categoryId = ?", arrayOf(targetId, legacyId))
+                    } else {
+                        db.execSQL("UPDATE transactions SET categoryId = NULL WHERE categoryId = ?", arrayOf(legacyId))
+                    }
+                    db.execSQL("DELETE FROM categories WHERE id = ?", arrayOf(legacyId))
+                }
+            }
+
+            db.setTransactionSuccessful()
+        } catch (_: Throwable) {
+            // Resiliencia silenciosa para no bloquear el inicio de la app
+        } finally {
+            db.endTransaction()
+        }
+    }
 }

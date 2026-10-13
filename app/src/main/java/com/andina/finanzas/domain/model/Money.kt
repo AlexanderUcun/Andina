@@ -23,7 +23,14 @@ value class Money(val pesos: Long) : Comparable<Money> {
 
     operator fun times(factor: Long): Money = Money(pesos * factor)
 
-    operator fun times(factor: Double): Money = Money((pesos * factor).roundToLong())
+    /**
+     * Multiplicación exacta por fracción racional (por ejemplo cuota * (110L, 100L) para +10%).
+     * Evita completamente la pérdida de precisión por coma flotante (Double).
+     */
+    fun timesRational(numerator: Long, denominator: Long): Money {
+        require(denominator != 0L) { "El denominador no puede ser cero" }
+        return Money((pesos * numerator) / denominator)
+    }
 
     operator fun div(divisor: Long): Money {
         require(divisor != 0L) { "No se puede dividir dinero entre cero" }

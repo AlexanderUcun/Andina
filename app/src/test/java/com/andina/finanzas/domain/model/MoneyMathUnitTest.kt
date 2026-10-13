@@ -52,7 +52,7 @@ class MoneyMathUnitTest {
 
         val cuatroCuotas = cuota * 4
         val mediaCuota = cuota / 2L
-        val conPorcentaje = cuota * 1.10 // +10%
+        val conPorcentaje = cuota.timesRational(110L, 100L) // +10% con enteros puros
 
         assertEquals(1_000_000L, cuatroCuotas.pesos)
         assertEquals(125_000L, mediaCuota.pesos)

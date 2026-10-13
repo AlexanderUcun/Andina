@@ -265,6 +265,14 @@ fun BudgetScreen(
                     text = "Has superado el tope de ${mostExceeded.name} en ${formatPesos(overAmount)}. Modera este gasto en las próximas semanas para evitar desajustar tu caudal.",
                     pose = MuggyPose.REFLECTIVE
                 )
+            } else if (percentage >= 1.0f) {
+                val overTotal = state.totalExecutedSpent - state.monthlyBudgetLimit
+                MuggySpeechBubble(
+                    title = "¡Alerta Crítica de Presupuesto!",
+                    greeting = "Presupuesto Mensual Excedido al ${(percentage * 100).toInt()}%",
+                    text = "Has sobrepasado el límite total del mes en ${formatPesos(overTotal)}. Se recomienda pausar gastos prescindibles para no comprometer tus fondos de reserva.",
+                    pose = MuggyPose.REFLECTIVE
+                )
             } else {
                 MuggySpeechBubble(
                     title = when {
