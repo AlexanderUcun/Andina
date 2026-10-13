@@ -36,13 +36,23 @@ data class AndinaColors(
     val statusSuccess: Color = Color(0xFF15803D),
     val statusWarning: Color = Color(0xFFB45309),
     val statusDanger: Color = Color(0xFF991B1B),
-    val statusDangerFill: Color = Color(0xFFDC2626)
+    val statusDangerFill: Color = Color(0xFFDC2626),
+
+    // 3.4 Navegación de Lujo (Vivid Jewel Tones con alto contraste)
+    val navHome: Color = Color(0xFFD4AF37),        // Oro Solar Champagne
+    val navTransactions: Color = Color(0xFF2563EB), // Azul Zafiro Glaciar
+    val navWallets: Color = Color(0xFF10B981),      // Esmeralda Viva
+    val navConsultorio: Color = Color(0xFF8B5CF6),  // Amatista Cuarzo IA
+    val navInactive: Color = Color(0xFF64748B)      // Platino Pizarra
 ) {
     val canvasGradient: Brush
         get() = Brush.verticalGradient(listOf(canvasTop, canvasBottom))
 
     val heroGradient: Brush
         get() = Brush.verticalGradient(listOf(heroTop, heroBottom))
+
+    val fabGoldGradient: Brush
+        get() = Brush.verticalGradient(listOf(Color(0xFFF7DE8B), Color(0xFFD4AF37), Color(0xFFA67C24)))
 }
 
 val LocalAndinaColors = staticCompositionLocalOf { AndinaColors() }

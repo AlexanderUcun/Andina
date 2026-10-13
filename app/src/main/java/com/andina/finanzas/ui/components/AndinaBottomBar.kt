@@ -55,17 +55,17 @@ import androidx.compose.ui.unit.sp
 import com.andina.finanzas.ui.navigation.AndinaNavTab
 import com.andina.finanzas.ui.theme.AndeanPrimaryContainer
 import com.andina.finanzas.ui.theme.AndinaTheme
+import com.andina.finanzas.ui.theme.LocalAndinaColors
 import com.andina.finanzas.ui.theme.specularGlassBorder
 
 /**
  * Barra de navegación inferior insignia de Andina Finanzas.
  *
  * Arquitectura y distribución:
- * - 4 pestañas simétricas: `[ Inicio ]` · `[ Bolsillos ]` · 🟢 `(+)` · `[ Billeteras ]` · `[ Movimientos ]`
- * - Botón central flotante (+) elevado -12.dp con halo de sombra verde andino y micro-animación de escala tipo resorte.
- * - Área táctil accesible mínima de 48dp en cada pestaña.
- * - SafeDrawing mediante WindowInsets.navigationBars.
- * - Alineación correcta de Column (`Alignment.CenterHorizontally`) previniendo fallos de layout.
+ * - 4 pestañas simétricas: `[ Inicio ]` · `[ Movimientos ]` · 🟡 `(+)` · `[ Patrimonio ]` · `[ Plan & IA ]`
+ * - Botón central flotante (+) elevado con halo áureo y micro-animación de escala tipo resorte.
+ * - Fondo integrado sin cortes con gradiente suave del canvas.
+ * - Iconos con paleta viva Platinum Light Luxury (Oro, Zafiro, Esmeralda, Amatista).
  *
  * @param currentTab Pestaña actualmente seleccionada en el grafo de navegación.
  * @param onTabSelected Callback invocado al seleccionar una pestaña.
@@ -80,21 +80,30 @@ fun AndinaBottomBar(
     modifier: Modifier = Modifier
 ) {
     val haptic = LocalHapticFeedback.current
+    val colors = LocalAndinaColors.current
 
     Box(
         modifier = modifier
             .fillMaxWidth()
+            .background(
+                Brush.verticalGradient(
+                    colors = listOf(
+                        Color.Transparent,
+                        colors.canvasBottom.copy(alpha = 0.70f),
+                        colors.canvasBottom
+                    )
+                )
+            )
             .navigationBarsPadding(),
         contentAlignment = Alignment.BottomCenter
     ) {
-        val colors = com.andina.finanzas.ui.theme.LocalAndinaColors.current
         Surface(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 8.dp)
+                .padding(start = 16.dp, end = 16.dp, bottom = 8.dp, top = 6.dp)
                 .height(68.dp)
                 .shadow(
-                    elevation = 10.dp,
+                    elevation = 12.dp,
                     shape = RoundedCornerShape(26.dp),
                     ambientColor = colors.ambientShadow,
                     spotColor = colors.ambientShadow
@@ -104,9 +113,9 @@ fun AndinaBottomBar(
                     strokeWidth = 1.dp,
                     shape = RoundedCornerShape(26.dp),
                     topLightColor = colors.specularBorderTop,
-                    bottomShadowColor = colors.specularBorderBottom.copy(alpha = 0.5f)
+                    bottomShadowColor = colors.cardBorder
                 ),
-            color = colors.cardBackground.copy(alpha = 0.94f)
+            color = colors.cardBackground.copy(alpha = 0.96f)
         ) {
             Row(
                 modifier = Modifier
@@ -114,7 +123,7 @@ fun AndinaBottomBar(
                     .padding(horizontal = 8.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // Pestañas izquierdas: [ Inicio ] y [ Bolsillos ]
+                // Pestañas izquierdas: [ Inicio ] y [ Movimientos ]
                 Row(
                     modifier = Modifier.weight(1f),
                     horizontalArrangement = Arrangement.SpaceEvenly,
@@ -138,7 +147,7 @@ fun AndinaBottomBar(
                 // Espaciador central reservado para el botón flotante (+)
                 Spacer(modifier = Modifier.width(64.dp))
 
-                // Pestañas derechas: [ Billeteras ] y [ Movimientos ]
+                // Pestañas derechas: [ Patrimonio ] y [ Plan & IA ]
                 Row(
                     modifier = Modifier.weight(1f),
                     horizontalArrangement = Arrangement.SpaceEvenly,
@@ -176,7 +185,7 @@ fun AndinaBottomBar(
 
 /**
  * Ítem individual de navegación para la barra inferior.
- * Cumple con un área táctil mínima de 48dp y alineación horizontal centrada.
+ * Con micro-cápsula luminosa y colores vivos de la paleta de lujo.
  */
 @Composable
 private fun BottomBarTabItem(
@@ -185,24 +194,38 @@ private fun BottomBarTabItem(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val activeColor = MaterialTheme.colorScheme.primary
-    val inactiveColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.65f)
+    val colors = LocalAndinaColors.current
+
+    // Colores vivos con identidad de lujo (Platinum Light Luxury)
+    val tabActiveColor = when (tab) {
+        AndinaNavTab.HOME -> colors.navHome                // Oro Solar Champagne
+        AndinaNavTab.TRANSACTIONS -> colors.navTransactions // Azul Zafiro Glaciar
+        AndinaNavTab.WALLETS -> colors.navWallets          // Esmeralda Andina Vibrante
+        AndinaNavTab.CONSULTORIO -> colors.navConsultorio  // Amatista Cuarzo / Violeta IA
+    }
+    val inactiveColor = colors.navInactive
 
     val contentColor by animateColorAsState(
-        targetValue = if (isSelected) activeColor else inactiveColor,
+        targetValue = if (isSelected) tabActiveColor else inactiveColor,
         animationSpec = spring(stiffness = Spring.StiffnessMediumLow),
         label = "BottomBarColor_${tab.name}"
     )
 
+    val capsuleBgColor by animateColorAsState(
+        targetValue = if (isSelected) tabActiveColor.copy(alpha = 0.14f) else Color.Transparent,
+        animationSpec = spring(stiffness = Spring.StiffnessMediumLow),
+        label = "BottomBarCapsule_${tab.name}"
+    )
+
     val iconScale by animateFloatAsState(
-        targetValue = if (isSelected) 1.1f else 1.0f,
+        targetValue = if (isSelected) 1.12f else 1.0f,
         animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy),
         label = "BottomBarScale_${tab.name}"
     )
 
     Box(
         modifier = modifier
-            .height(56.dp)
+            .height(58.dp)
             .clip(RoundedCornerShape(16.dp))
             .clickable(
                 onClick = onClick,
@@ -220,24 +243,33 @@ private fun BottomBarTabItem(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
-            Icon(
-                imageVector = if (isSelected) tab.selectedIcon else tab.unselectedIcon,
-                contentDescription = null,
-                tint = contentColor,
+            // Micro-cápsula con halo del color distintivo
+            Box(
                 modifier = Modifier
-                    .size(24.dp)
-                    .scale(iconScale)
-            )
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(capsuleBgColor)
+                    .padding(horizontal = 10.dp, vertical = 2.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    imageVector = if (isSelected) tab.selectedIcon else tab.unselectedIcon,
+                    contentDescription = null,
+                    tint = contentColor,
+                    modifier = Modifier
+                        .size(24.dp)
+                        .scale(iconScale)
+                )
+            }
 
-            Spacer(modifier = Modifier.height(3.dp))
+            Spacer(modifier = Modifier.height(2.dp))
 
             Text(
                 text = tab.title,
                 color = contentColor,
                 style = MaterialTheme.typography.labelSmall.copy(
-                    fontSize = 11.sp,
-                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
-                    letterSpacing = 0.2.sp
+                    fontSize = 10.5.sp,
+                    fontWeight = if (isSelected) FontWeight.ExtraBold else FontWeight.Medium,
+                    letterSpacing = 0.15.sp
                 ),
                 maxLines = 1
             )
@@ -246,14 +278,14 @@ private fun BottomBarTabItem(
 }
 
 /**
- * Botón (+) central flotante con elevación de -12dp a -16dp, halo de resplandor verde andino
- * y animación de pulsación háptica.
+ * Botón (+) central flotante con elevación, halo áureo y bisel especular.
  */
 @Composable
 private fun CenterFloatingActionButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val colors = LocalAndinaColors.current
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
 
@@ -266,12 +298,12 @@ private fun CenterFloatingActionButton(
         label = "FabPressScale"
     )
 
-    val colors = com.andina.finanzas.ui.theme.LocalAndinaColors.current
-    // Resplandor cálido oro / platino
+    val goldSolar = colors.navHome
+    // Resplandor áureo cálido
     val glowBrush = Brush.radialGradient(
         colors = listOf(
-            colors.accentGold.copy(alpha = 0.40f),
-            colors.accentGold.copy(alpha = 0.12f),
+            goldSolar.copy(alpha = 0.45f),
+            goldSolar.copy(alpha = 0.12f),
             Color.Transparent
         )
     )
@@ -289,26 +321,28 @@ private fun CenterFloatingActionButton(
                 .background(glowBrush)
         )
 
-        // Botón circular principal de 54dp
+        // Botón circular principal de 54dp con gradiente Oro Solar rico y bisel
         Box(
             modifier = Modifier
                 .size(54.dp)
                 .scale(scale)
                 .shadow(
-                    elevation = 8.dp,
+                    elevation = 10.dp,
                     shape = CircleShape,
-                    spotColor = colors.accentGold.copy(alpha = 0.40f),
+                    spotColor = goldSolar.copy(alpha = 0.55f),
                     ambientColor = colors.ambientShadow
                 )
                 .clip(CircleShape)
-                .background(
-                    Brush.verticalGradient(
-                        listOf(colors.accentGold, colors.textMoneyDisplay)
-                    )
+                .background(colors.fabGoldGradient)
+                .specularGlassBorder(
+                    strokeWidth = 1.dp,
+                    shape = CircleShape,
+                    topLightColor = colors.specularBorderTop.copy(alpha = 0.7f),
+                    bottomShadowColor = colors.cardBorder
                 )
                 .clickable(
                     interactionSource = interactionSource,
-                    indication = ripple(bounded = true, color = MaterialTheme.colorScheme.onPrimary),
+                    indication = ripple(bounded = true, color = colors.cardBackground),
                     role = Role.Button,
                     onClick = onClick
                 )
@@ -321,8 +355,8 @@ private fun CenterFloatingActionButton(
             Icon(
                 imageVector = Icons.Default.Add,
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.onPrimary,
-                modifier = Modifier.size(30.dp)
+                tint = colors.cardBackground,
+                modifier = Modifier.size(28.dp)
             )
         }
     }

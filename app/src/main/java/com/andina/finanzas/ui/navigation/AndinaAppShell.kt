@@ -267,8 +267,10 @@ fun AndinaAppShell(
     modifier: Modifier = Modifier,
     appState: AndinaAppState = rememberAndinaAppState()
 ) {
+    val colors = com.andina.finanzas.ui.theme.LocalAndinaColors.current
     Scaffold(
         modifier = modifier.fillMaxSize(),
+        containerColor = colors.canvasTop,
         snackbarHost = {
             SnackbarHost(
                 hostState = appState.snackbarHostState,
