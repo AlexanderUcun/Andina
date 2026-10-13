@@ -1,10 +1,24 @@
 package com.andina.finanzas.ui.components
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.ContentTransform
+import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.layout.Row
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.TextUnit
@@ -28,7 +42,8 @@ fun MoneyText(
     prefix: String = if (amount.pesos < 0) "-$ " else "$ ",
     customColor: Color? = null,
     showSymbol: Boolean = true,
-    showCode: Boolean = false
+    showCode: Boolean = false,
+    animateOdometer: Boolean = (level == MoneyDisplayLevel.DISPLAY)
 ) {
     val displayPrefix = if (showSymbol) prefix else ""
     val colors = LocalAndinaColors.current
@@ -41,17 +56,73 @@ fun MoneyText(
 
     val formattedNumber = amount.formatCop(includeSymbol = false, includeCode = false)
     val suffix = if (showCode) " COP" else ""
+    val fullSpokenText = amount.formatCop(includeSymbol = true, includeCode = showCode)
 
-    Text(
-        text = "$displayPrefix$formattedNumber$suffix",
-        style = TextStyle(
-            fontSize = fontSize,
-            fontWeight = fontWeight,
-            color = textColor,
-            fontFeatureSettings = "tnum"
-        ),
-        modifier = modifier
+    val textStyle = TextStyle(
+        fontSize = fontSize,
+        fontWeight = fontWeight,
+        color = textColor,
+        fontFeatureSettings = "tnum"
     )
+
+    if (animateOdometer) {
+        Row(
+            modifier = modifier.semantics {
+                this.contentDescription = fullSpokenText
+                this.liveRegion = LiveRegionMode.Polite
+            },
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            if (displayPrefix.isNotEmpty()) {
+                Text(
+                    text = displayPrefix,
+                    style = textStyle
+                )
+            }
+            // Animar dígitos individualmente con transición vertical estilo odómetro mecánico
+            formattedNumber.forEachIndexed { index, char ->
+                if (char.isDigit()) {
+                    AnimatedContent(
+                        targetState = char,
+                        transitionSpec = {
+                            if (targetState > initialState) {
+                                (slideInVertically { height -> height } + fadeIn())
+                                    .togetherWith(slideOutVertically { height -> -height } + fadeOut())
+                            } else {
+                                (slideInVertically { height -> -height } + fadeIn())
+                                    .togetherWith(slideOutVertically { height -> height } + fadeOut())
+                            }
+                        },
+                        label = "OdometerDigit_$index"
+                    ) { targetChar ->
+                        Text(
+                            text = targetChar.toString(),
+                            style = textStyle
+                        )
+                    }
+                } else {
+                    Text(
+                        text = char.toString(),
+                        style = textStyle
+                    )
+                }
+            }
+            if (suffix.isNotEmpty()) {
+                Text(
+                    text = suffix,
+                    style = textStyle
+                )
+            }
+        }
+    } else {
+        Text(
+            text = "$displayPrefix$formattedNumber$suffix",
+            style = textStyle,
+            modifier = modifier.semantics {
+                this.contentDescription = fullSpokenText
+            }
+        )
+    }
 }
 
 /**
