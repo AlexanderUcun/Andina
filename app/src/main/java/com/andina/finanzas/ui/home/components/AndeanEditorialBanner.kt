@@ -23,18 +23,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.andina.finanzas.ui.components.FrostedGlassCard
-import com.andina.finanzas.ui.theme.AndeanPrimary
-import com.andina.finanzas.ui.theme.CornerMedium
+import com.andina.finanzas.ui.components.AndeanHyperCard
+import com.andina.finanzas.ui.components.HyperCardVariant
+import com.andina.finanzas.ui.theme.LocalAndinaColors
 
 /**
  * Banner Editorial de Sabiduría Andina y Consejos de Muggy (Andino Observador).
  *
- * Muestra el insight financiero del día con opción de descarte o apertura del consultorio.
+ * Muestra el insight financiero del día con acabado platino mineral.
  */
 @Composable
 fun AndeanEditorialBanner(
@@ -43,12 +42,13 @@ fun AndeanEditorialBanner(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    FrostedGlassCard(
+    val colors = LocalAndinaColors.current
+
+    AndeanHyperCard(
         modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp),
-        shape = CornerMedium,
-        elevation = 2.dp,
+        variant = HyperCardVariant.CARD,
         onClick = onClick,
         contentPadding = 14.dp
     ) {
@@ -56,18 +56,18 @@ fun AndeanEditorialBanner(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.Top
         ) {
-            // Icono de Muggy / Cerebro Sabio Andino
+            // Icono de Muggy / Cerebro Sabio Andino en Moca / Oro
             Box(
                 modifier = Modifier
                     .size(36.dp)
                     .clip(CircleShape)
-                    .background(Color(0xFF2C4427)),
+                    .background(colors.accentMocha),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
                     imageVector = Icons.Default.Psychology,
                     contentDescription = null,
-                    tint = Color(0xFFF3E8D3),
+                    tint = colors.accentGold,
                     modifier = Modifier.size(22.dp)
                 )
             }
@@ -84,7 +84,7 @@ fun AndeanEditorialBanner(
                         text = "Muggy · Consejo Andino",
                         style = MaterialTheme.typography.labelSmall,
                         fontWeight = FontWeight.Bold,
-                        color = AndeanPrimary,
+                        color = colors.accentGold,
                         letterSpacing = 0.5.sp
                     )
 
@@ -95,7 +95,7 @@ fun AndeanEditorialBanner(
                         Icon(
                             imageVector = Icons.Default.Close,
                             contentDescription = "Ocultar consejo",
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                            tint = colors.textSecondary,
                             modifier = Modifier.size(16.dp)
                         )
                     }
@@ -106,7 +106,7 @@ fun AndeanEditorialBanner(
                 Text(
                     text = insightText,
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurface,
+                    color = colors.textPrimary,
                     lineHeight = 18.sp
                 )
             }

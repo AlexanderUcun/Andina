@@ -28,10 +28,15 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.andina.finanzas.ui.theme.LocalAndinaColors
 
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.padding
+
 enum class AndeanHyperCardVariant {
     CARD, // Superficie blanca pura con borde platino sutil
     HERO  // Platino cepillado con bisel especular y sutil brillo de valor
 }
+
+typealias HyperCardVariant = AndeanHyperCardVariant
 
 /**
  * Tarjeta Insignia Platinum Light Luxury (AndeanHyperCard).
@@ -45,6 +50,7 @@ fun AndeanHyperCard(
     elevation: Dp = if (variant == AndeanHyperCardVariant.HERO) 6.dp else 2.dp,
     onClick: (() -> Unit)? = null,
     enableShimmer: Boolean = (variant == AndeanHyperCardVariant.HERO),
+    contentPadding: Dp = 16.dp,
     content: @Composable ColumnScope.() -> Unit
 ) {
     val colors = LocalAndinaColors.current
@@ -114,7 +120,7 @@ fun AndeanHyperCard(
             .then(clickableModifier)
     ) {
         Column(
-            modifier = Modifier.padding(16.dp),
+            modifier = Modifier.padding(contentPadding),
             content = content
         )
     }

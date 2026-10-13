@@ -109,27 +109,12 @@ fun HomeScreen(
         }
     }
 
-    // Fondo con gradiente orgánico vertical andino
-    val backgroundBrush = if (isDark) {
-        Brush.verticalGradient(
-            colors = listOf(
-                Color(0xFF141713),
-                Color(0xFF1B1E19)
-            )
-        )
-    } else {
-        Brush.verticalGradient(
-            colors = listOf(
-                Color(0xFFF5F3EF),
-                Color(0xFFEBE6DC)
-            )
-        )
-    }
+    val colors = com.andina.finanzas.ui.theme.LocalAndinaColors.current
 
     Box(
         modifier = modifier
             .fillMaxSize()
-            .background(backgroundBrush)
+            .background(colors.canvasGradient)
     ) {
         AndeanDewPullRefresh(
             isRefreshing = state.isRefreshing,
@@ -263,8 +248,9 @@ fun HomeScreen(
                             onClick = { viewModel.onAction(HomeAction.CustomizationClick) },
                             shape = RoundedCornerShape(16.dp),
                             colors = CardDefaults.cardColors(
-                                containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f)
+                                containerColor = colors.cardBackground
                             ),
+                            border = androidx.compose.foundation.BorderStroke(1.dp, colors.cardBorder),
                             modifier = Modifier.fillMaxWidth()
                         ) {
                             Row(
@@ -279,13 +265,13 @@ fun HomeScreen(
                                         modifier = Modifier
                                             .size(36.dp)
                                             .clip(CircleShape)
-                                            .background(AndeanPrimary.copy(alpha = 0.12f)),
+                                            .background(colors.accentGold.copy(alpha = 0.15f)),
                                         contentAlignment = Alignment.Center
                                     ) {
                                         Icon(
                                             imageVector = Icons.Default.Tune,
                                             contentDescription = null,
-                                            tint = AndeanPrimary,
+                                            tint = colors.accentGold,
                                             modifier = Modifier.size(18.dp)
                                         )
                                     }
@@ -294,19 +280,19 @@ fun HomeScreen(
                                         Text(
                                             text = "Personalizar Módulos y Tema",
                                             style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
-                                            color = MaterialTheme.colorScheme.onSurface
+                                            color = colors.textPrimary
                                         )
                                         Text(
                                             text = "Ajusta tarjetas visibles y paleta del páramo",
                                             style = MaterialTheme.typography.bodySmall,
-                                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                                            color = colors.textSecondary
                                         )
                                     }
                                 }
                                 Icon(
                                     imageVector = Icons.AutoMirrored.Filled.ArrowForward,
                                     contentDescription = null,
-                                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    tint = colors.textSecondary,
                                     modifier = Modifier.size(18.dp)
                                 )
                             }
@@ -372,10 +358,13 @@ private fun QuickActionButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val colors = com.andina.finanzas.ui.theme.LocalAndinaColors.current
     Surface(
         onClick = onClick,
         shape = RoundedCornerShape(14.dp),
-        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.45f),
+        color = colors.cardBackground,
+        border = androidx.compose.foundation.BorderStroke(1.dp, colors.cardBorder),
+        shadowElevation = 1.dp,
         modifier = modifier
     ) {
         Column(
@@ -386,7 +375,7 @@ private fun QuickActionButton(
             Icon(
                 imageVector = icon,
                 contentDescription = label,
-                tint = AndeanPrimary,
+                tint = colors.accentGold,
                 modifier = Modifier.size(20.dp)
             )
             Spacer(modifier = Modifier.height(4.dp))
@@ -396,7 +385,7 @@ private fun QuickActionButton(
                     fontWeight = FontWeight.SemiBold,
                     fontSize = 10.sp
                 ),
-                color = MaterialTheme.colorScheme.onSurface,
+                color = colors.textPrimary,
                 maxLines = 1
             )
         }
@@ -416,6 +405,7 @@ private fun HomeTopBar(
     onNotificationsClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val colors = com.andina.finanzas.ui.theme.LocalAndinaColors.current
     Row(
         modifier = modifier
             .fillMaxWidth()
@@ -434,7 +424,7 @@ private fun HomeTopBar(
             Box {
                 Surface(
                     shape = CircleShape,
-                    color = AndeanPrimary.copy(alpha = 0.16f),
+                    color = colors.accentGold.copy(alpha = 0.16f),
                     modifier = Modifier.size(46.dp)
                 ) {
                     Box(contentAlignment = Alignment.Center) {
@@ -446,7 +436,7 @@ private fun HomeTopBar(
                 }
                 Surface(
                     shape = CircleShape,
-                    color = AndeanPrimary,
+                    color = colors.accentGold,
                     modifier = Modifier
                         .size(16.dp)
                         .align(Alignment.BottomEnd)
@@ -455,7 +445,7 @@ private fun HomeTopBar(
                         Icon(
                             imageVector = Icons.Default.Settings,
                             contentDescription = "Ajustes",
-                            tint = Color.White,
+                            tint = MaterialTheme.colorScheme.onPrimary,
                             modifier = Modifier.size(10.dp)
                         )
                     }
@@ -469,12 +459,12 @@ private fun HomeTopBar(
                     text = "$greeting, $userName",
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurface
+                    color = colors.textPrimary
                 )
                 Text(
                     text = userLevel,
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = colors.textSecondary
                 )
             }
         }
@@ -485,12 +475,12 @@ private fun HomeTopBar(
             modifier = Modifier
                 .size(44.dp)
                 .clip(CircleShape)
-                .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+                .background(colors.cardBackground)
         ) {
             Icon(
                 imageVector = Icons.Default.NotificationsNone,
                 contentDescription = "Notificaciones",
-                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                tint = colors.textSecondary,
                 modifier = Modifier.size(24.dp)
             )
         }

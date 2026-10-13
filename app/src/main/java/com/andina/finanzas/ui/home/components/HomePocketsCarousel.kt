@@ -25,9 +25,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.andina.finanzas.domain.model.Pocket
-import com.andina.finanzas.ui.components.FrostedGlassCard
+import com.andina.finanzas.ui.components.AndeanHyperCard
+import com.andina.finanzas.ui.components.HyperCardVariant
 import com.andina.finanzas.ui.components.PocketProgressCard
-import com.andina.finanzas.ui.theme.AndeanPrimary
+import com.andina.finanzas.ui.theme.LocalAndinaColors
 
 /**
  * Carrusel horizontal de Bolsillos de Ahorro y Metas activas para la pantalla de Inicio.
@@ -39,6 +40,8 @@ fun HomePocketsCarousel(
     onSeeAllClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val colors = LocalAndinaColors.current
+
     Column(modifier = modifier.fillMaxWidth()) {
         // Encabezado de Sección
         Row(
@@ -52,20 +55,20 @@ fun HomePocketsCarousel(
                 text = "Bolsillos & Metas",
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onSurface
+                color = colors.textPrimary
             )
 
             TextButton(onClick = onSeeAllClick) {
                 Text(
                     text = "Ver todos",
                     style = MaterialTheme.typography.labelMedium,
-                    color = AndeanPrimary,
+                    color = colors.textLink,
                     fontWeight = FontWeight.SemiBold
                 )
                 Icon(
                     imageVector = Icons.Default.ChevronRight,
                     contentDescription = null,
-                    tint = AndeanPrimary,
+                    tint = colors.textLink,
                     modifier = Modifier.size(16.dp)
                 )
             }
@@ -74,10 +77,11 @@ fun HomePocketsCarousel(
         Spacer(modifier = Modifier.height(8.dp))
 
         if (pockets.isEmpty()) {
-            FrostedGlassCard(
+            AndeanHyperCard(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp),
+                variant = HyperCardVariant.CARD,
                 onClick = onSeeAllClick,
                 contentPadding = 16.dp
             ) {
@@ -85,14 +89,14 @@ fun HomePocketsCarousel(
                     Icon(
                         imageVector = Icons.Default.Savings,
                         contentDescription = null,
-                        tint = AndeanPrimary,
+                        tint = colors.accentGold,
                         modifier = Modifier.size(24.dp)
                     )
                     Spacer(modifier = Modifier.size(12.dp))
                     Text(
                         text = "Crea tu primera meta de ahorro y mírala florecer",
                         style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = colors.textSecondary
                     )
                 }
             }

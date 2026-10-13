@@ -22,10 +22,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.andina.finanzas.domain.model.Transaction
+import com.andina.finanzas.ui.components.AndeanHyperCard
 import com.andina.finanzas.ui.components.AndinaButton
-import com.andina.finanzas.ui.components.FrostedGlassCard
+import com.andina.finanzas.ui.components.HyperCardVariant
 import com.andina.finanzas.ui.components.TransactionItem
-import com.andina.finanzas.ui.theme.AndeanPrimary
+import com.andina.finanzas.ui.theme.LocalAndinaColors
 
 /**
  * Sección de Actividad Reciente de la pantalla de Inicio.
@@ -41,6 +42,8 @@ fun RecentActivitySection(
     onQuickRegisterClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val colors = LocalAndinaColors.current
+
     Column(
         modifier = modifier
             .fillMaxWidth()
@@ -56,7 +59,7 @@ fun RecentActivitySection(
                 text = "Actividad Reciente",
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onSurface
+                color = colors.textPrimary
             )
 
             if (transactions.isNotEmpty()) {
@@ -64,13 +67,13 @@ fun RecentActivitySection(
                     Text(
                         text = "Ver todos",
                         style = MaterialTheme.typography.labelMedium,
-                        color = AndeanPrimary,
+                        color = colors.textLink,
                         fontWeight = FontWeight.SemiBold
                     )
                     Icon(
                         imageVector = Icons.Default.ChevronRight,
                         contentDescription = null,
-                        tint = AndeanPrimary,
+                        tint = colors.textLink,
                         modifier = Modifier.size(16.dp)
                     )
                 }
@@ -80,8 +83,9 @@ fun RecentActivitySection(
         Spacer(modifier = Modifier.height(8.dp))
 
         if (transactions.isEmpty()) {
-            FrostedGlassCard(
+            AndeanHyperCard(
                 modifier = Modifier.fillMaxWidth(),
+                variant = HyperCardVariant.CARD,
                 contentPadding = 20.dp
             ) {
                 Column(
@@ -91,7 +95,7 @@ fun RecentActivitySection(
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ReceiptLong,
                         contentDescription = null,
-                        tint = AndeanPrimary,
+                        tint = colors.accentGold,
                         modifier = Modifier.size(36.dp)
                     )
 
@@ -100,7 +104,8 @@ fun RecentActivitySection(
                     Text(
                         text = "Sin movimientos registrados este mes",
                         style = MaterialTheme.typography.titleSmall,
-                        fontWeight = FontWeight.SemiBold
+                        fontWeight = FontWeight.SemiBold,
+                        color = colors.textPrimary
                     )
 
                     Spacer(modifier = Modifier.height(4.dp))
@@ -108,7 +113,7 @@ fun RecentActivitySection(
                     Text(
                         text = "Registra tu primer gasto o ingreso tocando el botón central",
                         style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = colors.textSecondary
                     )
 
                     Spacer(modifier = Modifier.height(14.dp))
@@ -128,8 +133,9 @@ fun RecentActivitySection(
                 }
             }
         } else {
-            FrostedGlassCard(
+            AndeanHyperCard(
                 modifier = Modifier.fillMaxWidth(),
+                variant = HyperCardVariant.CARD,
                 contentPadding = 8.dp
             ) {
                 Column {

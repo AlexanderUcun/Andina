@@ -24,9 +24,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.andina.finanzas.domain.model.Wallet
-import com.andina.finanzas.ui.components.FrostedGlassCard
+import com.andina.finanzas.ui.components.AndeanHyperCard
+import com.andina.finanzas.ui.components.HyperCardVariant
 import com.andina.finanzas.ui.components.QuickWalletCard
-import com.andina.finanzas.ui.theme.AndeanPrimary
+import com.andina.finanzas.ui.theme.LocalAndinaColors
 
 /**
  * Carrusel horizontal de Billeteras activas para la pantalla de Inicio.
@@ -38,6 +39,8 @@ fun HomeWalletsCarousel(
     onSeeAllClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val colors = LocalAndinaColors.current
+
     Column(modifier = modifier.fillMaxWidth()) {
         // Encabezado de Sección
         Row(
@@ -51,20 +54,20 @@ fun HomeWalletsCarousel(
                 text = "Medios & Billeteras",
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onSurface
+                color = colors.textPrimary
             )
 
             TextButton(onClick = onSeeAllClick) {
                 Text(
                     text = "Ver todas",
                     style = MaterialTheme.typography.labelMedium,
-                    color = AndeanPrimary,
+                    color = colors.textLink,
                     fontWeight = FontWeight.SemiBold
                 )
                 Icon(
                     imageVector = Icons.Default.ChevronRight,
                     contentDescription = null,
-                    tint = AndeanPrimary,
+                    tint = colors.textLink,
                     modifier = Modifier.size(16.dp)
                 )
             }
@@ -73,10 +76,11 @@ fun HomeWalletsCarousel(
         Spacer(modifier = Modifier.height(8.dp))
 
         if (wallets.isEmpty()) {
-            FrostedGlassCard(
+            AndeanHyperCard(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp),
+                variant = HyperCardVariant.CARD,
                 onClick = onSeeAllClick,
                 contentPadding = 16.dp
             ) {
@@ -84,14 +88,14 @@ fun HomeWalletsCarousel(
                     Icon(
                         imageVector = Icons.Default.AccountBalanceWallet,
                         contentDescription = null,
-                        tint = AndeanPrimary,
+                        tint = colors.accentGold,
                         modifier = Modifier.size(24.dp)
                     )
                     Spacer(modifier = Modifier.size(12.dp))
                     Text(
-                        text = "Configura tus cuentas o billeteras (Nequi, Daviplata, Efectivo)",
+                        text = "Configura tus cuentas o billeteras (Nequi, Daviplata, Bancolombia, Efectivo)",
                         style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = colors.textSecondary
                     )
                 }
             }

@@ -33,17 +33,15 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.andina.finanzas.domain.model.Money
-import com.andina.finanzas.ui.components.FrostedGlassCard
-import com.andina.finanzas.ui.theme.AndeanAntExpenseAmber
-import com.andina.finanzas.ui.theme.AndeanError
-import com.andina.finanzas.ui.theme.AndeanPrimary
-import com.andina.finanzas.ui.theme.CornerMedium
+import com.andina.finanzas.ui.components.AndeanHyperCard
+import com.andina.finanzas.ui.components.HyperCardVariant
+import com.andina.finanzas.ui.theme.LocalAndinaColors
 
 /**
  * Tarjeta de Control de Presupuesto Mensual (HomeBudgetContent).
  *
  * Muestra el porcentaje gastado del presupuesto con barra fluida animada,
- * cambiando de verde a ámbar y rojo según el nivel de consumo.
+ * en sintonía con la estética platino mineral y oro frailejón.
  */
 @Composable
 fun HomeBudgetContent(
@@ -54,6 +52,7 @@ fun HomeBudgetContent(
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val colors = LocalAndinaColors.current
     val animatedProgress by animateFloatAsState(
         targetValue = budgetProgress.coerceIn(0f, 1f),
         animationSpec = tween(durationMillis = 650, easing = FastOutSlowInEasing),
@@ -64,18 +63,17 @@ fun HomeBudgetContent(
 
     // Color semántico según consumo
     val progressBrush = when {
-        budgetProgress >= 1f -> Brush.horizontalGradient(listOf(AndeanError, Color(0xFFD32F2F)))
-        budgetProgress >= 0.8f -> Brush.horizontalGradient(listOf(AndeanAntExpenseAmber, Color(0xFFE65100)))
-        else -> Brush.horizontalGradient(listOf(AndeanPrimary, Color(0xFF4A7C43)))
+        budgetProgress >= 1f -> Brush.horizontalGradient(listOf(colors.statusDanger, colors.statusDangerFill))
+        budgetProgress >= 0.8f -> Brush.horizontalGradient(listOf(colors.statusWarning, colors.accentGold))
+        else -> Brush.horizontalGradient(listOf(colors.accentGold, colors.statusSuccess))
     }
 
     val spentText = if (isPrivacyMode) "••••••" else budgetSpent.formatCop()
     val totalText = if (isPrivacyMode) "••••••" else budgetTotal.formatCop()
 
-    FrostedGlassCard(
+    AndeanHyperCard(
         modifier = modifier.fillMaxWidth(),
-        shape = CornerMedium,
-        elevation = 2.dp,
+        variant = HyperCardVariant.CARD,
         onClick = onClick,
         contentPadding = 16.dp
     ) {
@@ -89,13 +87,13 @@ fun HomeBudgetContent(
                     modifier = Modifier
                         .size(32.dp)
                         .clip(CircleShape)
-                        .background(MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.5f)),
+                        .background(colors.accentGold.copy(alpha = 0.15f)),
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
                         imageVector = Icons.Default.PieChart,
                         contentDescription = null,
-                        tint = AndeanPrimary,
+                        tint = colors.accentGold,
                         modifier = Modifier.size(18.dp)
                     )
                 }
@@ -106,12 +104,13 @@ fun HomeBudgetContent(
                     Text(
                         text = "Presupuesto Mensual",
                         style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.SemiBold
+                        fontWeight = FontWeight.SemiBold,
+                        color = colors.textPrimary
                     )
                     Text(
                         text = "$spentText de $totalText",
                         style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = colors.textSecondary
                     )
                 }
             }
@@ -121,12 +120,12 @@ fun HomeBudgetContent(
                     text = "$progressPercent%",
                     style = MaterialTheme.typography.labelLarge,
                     fontWeight = FontWeight.Bold,
-                    color = if (budgetProgress >= 1f) AndeanError else AndeanPrimary
+                    color = if (budgetProgress >= 1f) colors.statusDanger else colors.textMoney
                 )
                 Icon(
                     imageVector = Icons.Default.ChevronRight,
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    tint = colors.textSecondary,
                     modifier = Modifier.size(18.dp)
                 )
             }
@@ -140,7 +139,7 @@ fun HomeBudgetContent(
                 .fillMaxWidth()
                 .height(8.dp)
                 .clip(RoundedCornerShape(4.dp))
-                .background(MaterialTheme.colorScheme.surfaceVariant)
+                .background(colors.cardBorder)
         ) {
             Box(
                 modifier = Modifier

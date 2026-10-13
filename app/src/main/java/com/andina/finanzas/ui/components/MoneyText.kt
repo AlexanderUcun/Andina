@@ -18,6 +18,42 @@ enum class MoneyDisplayLevel {
     DISPLAY  // Cifras grandes >= 24sp bold (usa textMoneyDisplay oro con contraste >= 3.0:1)
 }
 
+@Composable
+fun MoneyText(
+    amount: com.andina.finanzas.domain.model.Money,
+    modifier: Modifier = Modifier,
+    level: MoneyDisplayLevel = MoneyDisplayLevel.BODY,
+    fontSize: TextUnit = if (level == MoneyDisplayLevel.DISPLAY) 38.sp else 16.sp,
+    fontWeight: FontWeight = if (level == MoneyDisplayLevel.DISPLAY) FontWeight.ExtraBold else FontWeight.Bold,
+    prefix: String = if (amount.pesos < 0) "-$ " else "$ ",
+    customColor: Color? = null,
+    showSymbol: Boolean = true,
+    showCode: Boolean = false
+) {
+    val displayPrefix = if (showSymbol) prefix else ""
+    val colors = LocalAndinaColors.current
+
+    val textColor = customColor ?: when {
+        amount.pesos < 0 -> colors.statusDanger
+        level == MoneyDisplayLevel.DISPLAY -> colors.textMoneyDisplay
+        else -> colors.textMoney
+    }
+
+    val formattedNumber = amount.formatCop(includeSymbol = false, includeCode = false)
+    val suffix = if (showCode) " COP" else ""
+
+    Text(
+        text = "$displayPrefix$formattedNumber$suffix",
+        style = TextStyle(
+            fontSize = fontSize,
+            fontWeight = fontWeight,
+            color = textColor,
+            fontFeatureSettings = "tnum"
+        ),
+        modifier = modifier
+    )
+}
+
 /**
  * Componente unificado para renderizado tipográfico monetario con WCAG 2.1 garantizado.
  */

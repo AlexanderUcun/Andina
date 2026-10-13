@@ -46,11 +46,11 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.andina.finanzas.domain.model.Money
-import com.andina.finanzas.ui.components.FrostedGlassCard
-import com.andina.finanzas.ui.theme.AndeanPrimary
-import com.andina.finanzas.ui.theme.AndeanPrimaryContainer
-import com.andina.finanzas.ui.theme.CornerLarge
-import com.andina.finanzas.ui.theme.financialAmbientGlow
+import com.andina.finanzas.ui.components.AndeanHyperCard
+import com.andina.finanzas.ui.components.HyperCardVariant
+import com.andina.finanzas.ui.components.MoneyDisplayLevel
+import com.andina.finanzas.ui.components.MoneyText
+import com.andina.finanzas.ui.theme.LocalAndinaColors
 
 /**
  * Tarjeta Hero de Patrimonio Consolidado y Privacidad Andina.
@@ -115,18 +115,13 @@ fun HeroBalanceCard(
         }
     }
 
-    FrostedGlassCard(
-        modifier = modifier
-            .fillMaxWidth()
-            .financialAmbientGlow(
-                glowColor = com.andina.finanzas.ui.theme.AndeanEmeraldLight,
-                glowRadiusMultiplier = 0.9f,
-                alpha = 0.22f
-            ),
-        shape = CornerLarge,
-        elevation = 4.dp,
+    val colors = LocalAndinaColors.current
+
+    AndeanHyperCard(
+        modifier = modifier.fillMaxWidth(),
+        variant = HyperCardVariant.HERO,
         onClick = onCardClick,
-        contentPadding = 20.dp
+        contentPadding = 22.dp
     ) {
         // Fila Superior: Label editorial + Píldora de Ecosistema + Botón Ojo
         Row(
@@ -138,19 +133,19 @@ fun HeroBalanceCard(
                 Text(
                     text = "PATRIMONIO CONSOLIDADO",
                     style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f),
-                    fontWeight = FontWeight.SemiBold,
+                    color = colors.textSecondary,
+                    fontWeight = FontWeight.Bold,
                     letterSpacing = 1.3.sp
                 )
 
                 Spacer(modifier = Modifier.height(5.dp))
 
-                // Píldora Joya de Nivel de Salud Andina
+                // Píldora Platino / Oro de Salud Financiera
                 Surface(
                     shape = RoundedCornerShape(12.dp),
-                    color = AndeanPrimary.copy(alpha = 0.12f),
-                    contentColor = AndeanPrimary,
-                    border = androidx.compose.foundation.BorderStroke(0.8.dp, AndeanPrimary.copy(alpha = 0.25f))
+                    color = colors.cardBackground.copy(alpha = 0.8f),
+                    contentColor = colors.textPrimary,
+                    border = androidx.compose.foundation.BorderStroke(0.8.dp, colors.cardBorder)
                 ) {
                     Row(
                         modifier = Modifier.padding(horizontal = 9.dp, vertical = 3.dp),
@@ -159,13 +154,15 @@ fun HeroBalanceCard(
                         Icon(
                             imageVector = Icons.Default.Eco,
                             contentDescription = null,
+                            tint = colors.statusSuccess,
                             modifier = Modifier.size(12.dp)
                         )
                         Spacer(modifier = Modifier.width(5.dp))
                         Text(
                             text = paramoHealthLevel,
                             style = MaterialTheme.typography.labelSmall.copy(fontSize = 11.sp),
-                            fontWeight = FontWeight.Bold
+                            fontWeight = FontWeight.Bold,
+                            color = colors.textPrimary
                         )
                     }
                 }
@@ -180,16 +177,13 @@ fun HeroBalanceCard(
                 modifier = Modifier
                     .defaultMinSize(minWidth = 44.dp, minHeight = 44.dp)
                     .clip(CircleShape)
-                    .background(
-                        if (isPrivacyMode) MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.7f)
-                        else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f)
-                    )
+                    .background(colors.cardBackground.copy(alpha = 0.85f))
                     .semantics { role = Role.Button }
             ) {
                 Icon(
                     imageVector = if (isPrivacyMode) Icons.Default.VisibilityOff else Icons.Default.Visibility,
                     contentDescription = if (isPrivacyMode) "Mostrar saldo" else "Ocultar saldo",
-                    tint = if (isPrivacyMode) AndeanPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
+                    tint = if (isPrivacyMode) colors.accentGold else colors.textSecondary,
                     modifier = Modifier.size(20.dp)
                 )
             }
@@ -197,25 +191,22 @@ fun HeroBalanceCard(
 
         Spacer(modifier = Modifier.height(20.dp))
 
-        // Fila Central: Odómetro de Saldo Maestro con jerarquía tipográfica
-        AnimatedContent(
-            targetState = annotatedAmount,
-            transitionSpec = {
-                if (targetState.length >= initialState.length) {
-                    slideInVertically { height -> height } + fadeIn() togetherWith
-                        slideOutVertically { height -> -height } + fadeOut()
-                } else {
-                    slideInVertically { height -> -height } + fadeIn() togetherWith
-                        slideOutVertically { height -> height } + fadeOut()
-                }
-            },
-            label = "HeroBalanceOdometer"
-        ) { targetAnnotatedString ->
+        // Fila Central: Saldo Maestro con MoneyText de alta gama
+        if (isPrivacyMode) {
             Text(
-                text = targetAnnotatedString,
-                style = MaterialTheme.typography.displayLarge.copy(fontSize = 38.sp),
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
+                text = "••••••••",
+                style = MaterialTheme.typography.displayLarge.copy(
+                    fontSize = 38.sp,
+                    fontWeight = FontWeight.ExtraBold
+                ),
+                color = colors.textMoneyDisplay
+            )
+        } else {
+            MoneyText(
+                amount = totalNetWorth,
+                level = MoneyDisplayLevel.DISPLAY,
+                showSymbol = true,
+                showCode = true
             )
         }
 
@@ -230,7 +221,7 @@ fun HeroBalanceCard(
             Text(
                 text = "Total disponible en billeteras y reservas",
                 style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                color = colors.textSecondary
             )
 
             Row(
@@ -239,13 +230,13 @@ fun HeroBalanceCard(
                 Text(
                     text = "Billeteras",
                     style = MaterialTheme.typography.labelMedium,
-                    color = AndeanPrimary,
+                    color = colors.textLink,
                     fontWeight = FontWeight.SemiBold
                 )
                 Icon(
                     imageVector = Icons.Default.ChevronRight,
                     contentDescription = null,
-                    tint = AndeanPrimary,
+                    tint = colors.textLink,
                     modifier = Modifier.size(16.dp)
                 )
             }

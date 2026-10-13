@@ -29,12 +29,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.andina.finanzas.domain.model.Money
-import com.andina.finanzas.ui.components.FrostedGlassCard
-import com.andina.finanzas.ui.theme.AndeanError
-import com.andina.finanzas.ui.theme.AndeanErrorContainer
-import com.andina.finanzas.ui.theme.AndeanPrimary
-import com.andina.finanzas.ui.theme.AndeanPrimaryContainer
-import com.andina.finanzas.ui.theme.CornerMedium
+import com.andina.finanzas.ui.components.AndeanHyperCard
+import com.andina.finanzas.ui.components.HyperCardVariant
+import com.andina.finanzas.ui.theme.LocalAndinaColors
 
 /**
  * Métrica individual de resumen de periodo financiero.
@@ -48,7 +45,7 @@ private fun MetricItem(
     iconBgColor: Color,
     modifier: Modifier = Modifier
 ) {
-    // Escalamiento dinámico de fuente para evitar truncamientos en cifras millonarias
+    val colors = LocalAndinaColors.current
     val dynamicFontSize = when {
         amount.length > 15 -> 12.sp
         amount.length > 12 -> 13.sp
@@ -56,11 +53,10 @@ private fun MetricItem(
         else -> 16.sp
     }
 
-    FrostedGlassCard(
+    AndeanHyperCard(
         modifier = modifier,
-        shape = CornerMedium,
-        elevation = 2.dp,
-        contentPadding = 10.dp
+        variant = HyperCardVariant.CARD,
+        contentPadding = 12.dp
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically
@@ -88,7 +84,7 @@ private fun MetricItem(
                     fontWeight = FontWeight.SemiBold,
                     fontSize = 11.sp
                 ),
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                color = colors.textSecondary,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
@@ -103,7 +99,7 @@ private fun MetricItem(
                 fontWeight = FontWeight.Bold,
                 fontFeatureSettings = "tnum"
             ),
-            color = MaterialTheme.colorScheme.onSurface,
+            color = colors.textPrimary,
             maxLines = 1
         )
     }
@@ -122,6 +118,7 @@ fun PeriodMetricsGrid(
     isPrivacyMode: Boolean,
     modifier: Modifier = Modifier
 ) {
+    val colors = LocalAndinaColors.current
     val incomeText = if (isPrivacyMode) "••••••" else periodIncome.formatCop()
     val expenseText = if (isPrivacyMode) "••••••" else periodExpense.formatCop()
     val netBalanceText = if (isPrivacyMode) "••••••" else periodNetRemaining.formatCop()
@@ -135,8 +132,8 @@ fun PeriodMetricsGrid(
             title = "Entró",
             amount = incomeText,
             icon = Icons.Default.ArrowDownward,
-            iconColor = AndeanPrimary,
-            iconBgColor = AndeanPrimaryContainer.copy(alpha = 0.6f),
+            iconColor = colors.statusSuccess,
+            iconBgColor = colors.statusSuccess.copy(alpha = 0.12f),
             modifier = Modifier.weight(1f)
         )
 
@@ -145,8 +142,8 @@ fun PeriodMetricsGrid(
             title = "Salió",
             amount = expenseText,
             icon = Icons.Default.ArrowUpward,
-            iconColor = AndeanError,
-            iconBgColor = AndeanErrorContainer.copy(alpha = 0.6f),
+            iconColor = colors.statusDanger,
+            iconBgColor = colors.statusDanger.copy(alpha = 0.12f),
             modifier = Modifier.weight(1f)
         )
 
@@ -155,8 +152,8 @@ fun PeriodMetricsGrid(
             title = "Flujo Neto",
             amount = netBalanceText,
             icon = Icons.Default.Wallet,
-            iconColor = if (periodNetRemaining.pesos >= 0L) AndeanPrimary else AndeanError,
-            iconBgColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f),
+            iconColor = if (periodNetRemaining.pesos >= 0L) colors.statusSuccess else colors.statusDanger,
+            iconBgColor = (if (periodNetRemaining.pesos >= 0L) colors.statusSuccess else colors.statusDanger).copy(alpha = 0.12f),
             modifier = Modifier.weight(1f)
         )
     }
