@@ -222,9 +222,7 @@ fun RegisterScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .statusBarsPadding()
-                .imePadding()
-                .navigationBarsPadding(),
+                .statusBarsPadding(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             // 1. Muggy asomado con colapso reactivo cuando el teclado virtual está desplegado
@@ -680,7 +678,10 @@ fun RegisterScreen(
                     Surface(
                         color = colors.cardBackground,
                         tonalElevation = 4.dp,
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .navigationBarsPadding()
+                            .imePadding()
                     ) {
                         Box(
                             modifier = Modifier
