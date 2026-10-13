@@ -78,6 +78,8 @@ fun TransactionItem(
     val isIncome = transaction.type == TransactionType.INGRESO
     val isTransfer = transaction.type == TransactionType.TRANSFERENCIA
 
+    val colors = com.andina.finanzas.ui.theme.LocalAndinaColors.current
+
     // Color y vector del icono circular izquierdo
     val (iconBackground, iconTint, iconVector) = when {
         isIncome -> {
@@ -87,18 +89,18 @@ fun TransactionItem(
                 Icons.Default.ArrowDownward
             }
             Triple(
-                AndeanPrimary.copy(alpha = 0.12f),
-                AndeanPrimary,
+                colors.statusSuccess.copy(alpha = 0.12f),
+                colors.statusSuccess,
                 iconVec
             )
         }
         isTransfer -> Triple(
-            Color(0xFF1E88E5).copy(alpha = 0.12f),
-            Color(0xFF1E88E5),
+            colors.textLink.copy(alpha = 0.12f),
+            colors.textLink,
             Icons.AutoMirrored.Filled.CompareArrows
         )
         else -> {
-            val baseColor = if (transaction.isAntExpense) AndeanAntExpenseAmber else AndeanError
+            val baseColor = if (transaction.isAntExpense) colors.statusWarning else colors.statusDanger
             Triple(
                 baseColor.copy(alpha = 0.12f),
                 baseColor,
@@ -109,9 +111,9 @@ fun TransactionItem(
 
     // Texto del signo monetario y color de la cifra
     val (amountPrefix, amountColor) = when {
-        isIncome -> "+ " to AndeanPrimary
-        isTransfer -> "" to MaterialTheme.colorScheme.onSurface
-        else -> "- " to MaterialTheme.colorScheme.onSurface
+        isIncome -> "+ " to colors.statusSuccess
+        isTransfer -> "" to colors.textPrimary
+        else -> "- " to colors.textPrimary
     }
 
     Surface(
@@ -227,15 +229,12 @@ fun TransactionItem(
 
             Spacer(modifier = Modifier.width(12.dp))
 
-            // Cifra monetaria alineada a la derecha
-            Text(
-                text = "$amountPrefix${transaction.amount.formatCop()}",
-                style = MaterialTheme.typography.bodyMedium.copy(
-                    fontWeight = FontWeight.Bold,
-                    fontFeatureSettings = "tnum"
-                ),
-                color = amountColor,
-                maxLines = 1
+            // Cifra monetaria alineada a la derecha mediante MoneyText (WCAG AA garantizado)
+            MoneyText(
+                amountPesos = transaction.amount.pesos,
+                level = MoneyDisplayLevel.BODY,
+                prefix = amountPrefix,
+                customColor = amountColor
             )
         }
     }

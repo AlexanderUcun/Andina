@@ -22,6 +22,7 @@ import androidx.compose.material.icons.automirrored.filled.TrendingUp
 import androidx.compose.material.icons.filled.Work
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import com.andina.finanzas.ui.theme.LegacyColorMapper
 
 /**
  * Catálogo centralizado y unificado de iconos y colores de categorías para todo Andina Finanzas.
@@ -54,10 +55,9 @@ object CategoryIconHelper {
         }
     }
 
-    fun parseColor(hex: String, fallback: Color = Color(0xFF4A6B47)): Color {
+    fun parseColor(hex: String, fallback: Color = Color(0xFFC5A059)): Color {
         return runCatching {
-            val clean = hex.removePrefix("#")
-            Color(android.graphics.Color.parseColor("#$clean"))
+            LegacyColorMapper.mapLegacyHex(hex)
         }.getOrDefault(fallback)
     }
 }

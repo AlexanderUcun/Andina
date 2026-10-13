@@ -30,6 +30,9 @@ import com.andina.finanzas.ui.theme.CornerLarge
 import com.andina.finanzas.ui.theme.FrailejonGold
 import com.andina.finanzas.ui.theme.financialAmbientGlow
 
+import androidx.compose.foundation.shape.RoundedCornerShape
+import com.andina.finanzas.ui.theme.LocalAndinaColors
+
 /**
  * Estado Vacío de Expedición con Resonancia Emocional (Pilar 7).
  *
@@ -44,26 +47,21 @@ fun AndeanEmptyState(
     onActionClick: (() -> Unit)? = null,
     modifier: Modifier = Modifier
 ) {
-    FrostedGlassCard(
-        modifier = modifier
-            .fillMaxWidth()
-            .financialAmbientGlow(
-                glowColor = AndeanEmeraldDeep,
-                glowRadiusMultiplier = 0.85f,
-                alpha = 0.15f
-            ),
-        shape = CornerLarge,
-        contentPadding = 28.dp
+    val colors = LocalAndinaColors.current
+
+    AndeanHyperCard(
+        modifier = modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(22.dp)
     ) {
         Column(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth().padding(12.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
             Icon(
                 imageVector = icon,
                 contentDescription = null,
-                tint = FrailejonGold,
+                tint = colors.accentGold,
                 modifier = Modifier.size(52.dp)
             )
 
@@ -74,7 +72,7 @@ fun AndeanEmptyState(
                 style = MaterialTheme.typography.titleMedium.copy(
                     fontWeight = FontWeight.Bold,
                     fontSize = 17.sp,
-                    color = AndeanSlateInk
+                    color = colors.textPrimary
                 ),
                 textAlign = TextAlign.Center
             )
@@ -85,7 +83,7 @@ fun AndeanEmptyState(
                 text = subtitle,
                 style = MaterialTheme.typography.bodyMedium.copy(
                     fontSize = 13.sp,
-                    color = AndeanSlateInk.copy(alpha = 0.70f),
+                    color = colors.textSecondary,
                     lineHeight = 18.sp
                 ),
                 textAlign = TextAlign.Center

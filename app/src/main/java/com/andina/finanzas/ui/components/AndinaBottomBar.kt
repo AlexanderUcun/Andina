@@ -87,7 +87,7 @@ fun AndinaBottomBar(
             .navigationBarsPadding(),
         contentAlignment = Alignment.BottomCenter
     ) {
-        // Superficie suspendida flotante de cristal de cuarzo
+        val colors = com.andina.finanzas.ui.theme.LocalAndinaColors.current
         Surface(
             modifier = Modifier
                 .fillMaxWidth()
@@ -96,17 +96,17 @@ fun AndinaBottomBar(
                 .shadow(
                     elevation = 10.dp,
                     shape = RoundedCornerShape(26.dp),
-                    ambientColor = Color(0x1A1D1B19),
-                    spotColor = Color(0x141D1B19)
+                    ambientColor = colors.ambientShadow,
+                    spotColor = colors.ambientShadow
                 )
                 .clip(RoundedCornerShape(26.dp))
                 .specularGlassBorder(
                     strokeWidth = 1.dp,
                     shape = RoundedCornerShape(26.dp),
-                    topLightColor = Color.White.copy(alpha = 0.90f),
-                    bottomShadowColor = Color.White.copy(alpha = 0.15f)
+                    topLightColor = colors.specularBorderTop,
+                    bottomShadowColor = colors.specularBorderBottom.copy(alpha = 0.5f)
                 ),
-            color = MaterialTheme.colorScheme.surfaceContainer.copy(alpha = 0.88f)
+            color = colors.cardBackground.copy(alpha = 0.94f)
         ) {
             Row(
                 modifier = Modifier
@@ -266,11 +266,12 @@ private fun CenterFloatingActionButton(
         label = "FabPressScale"
     )
 
-    // Resplandor cálido verde andino
+    val colors = com.andina.finanzas.ui.theme.LocalAndinaColors.current
+    // Resplandor cálido oro / platino
     val glowBrush = Brush.radialGradient(
         colors = listOf(
-            Color(0x66435C3C),
-            Color(0x1A435C3C),
+            colors.accentGold.copy(alpha = 0.40f),
+            colors.accentGold.copy(alpha = 0.12f),
             Color.Transparent
         )
     )
@@ -296,14 +297,18 @@ private fun CenterFloatingActionButton(
                 .shadow(
                     elevation = 8.dp,
                     shape = CircleShape,
-                    spotColor = Color(0x66435C3C),
-                    ambientColor = Color(0x33435C3C)
+                    spotColor = colors.accentGold.copy(alpha = 0.40f),
+                    ambientColor = colors.ambientShadow
                 )
                 .clip(CircleShape)
-                .background(AndeanPrimaryContainer)
+                .background(
+                    Brush.verticalGradient(
+                        listOf(colors.accentGold, colors.textMoneyDisplay)
+                    )
+                )
                 .clickable(
                     interactionSource = interactionSource,
-                    indication = ripple(bounded = true, color = Color.White),
+                    indication = ripple(bounded = true, color = MaterialTheme.colorScheme.onPrimary),
                     role = Role.Button,
                     onClick = onClick
                 )
@@ -316,7 +321,7 @@ private fun CenterFloatingActionButton(
             Icon(
                 imageVector = Icons.Default.Add,
                 contentDescription = null,
-                tint = Color.White,
+                tint = MaterialTheme.colorScheme.onPrimary,
                 modifier = Modifier.size(30.dp)
             )
         }
