@@ -75,10 +75,12 @@ private val DarkColorScheme = darkColorScheme(
  */
 @Composable
 fun AndinaTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
+    darkTheme: Boolean = false,
     dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {
+    val andinaColors = AndinaColors()
+
     val colorScheme = when {
         dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
             val context = LocalContext.current
@@ -106,10 +108,14 @@ fun AndinaTheme(
         }
     }
 
-    MaterialTheme(
-        colorScheme = colorScheme,
-        typography = AndinaTypography,
-        shapes = AndinaShapes,
-        content = content
-    )
+    androidx.compose.runtime.CompositionLocalProvider(
+        LocalAndinaColors provides andinaColors
+    ) {
+        MaterialTheme(
+            colorScheme = colorScheme,
+            typography = AndinaTypography,
+            shapes = AndinaShapes,
+            content = content
+        )
+    }
 }
