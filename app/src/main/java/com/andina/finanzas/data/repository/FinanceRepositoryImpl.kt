@@ -55,6 +55,19 @@ class FinanceRepositoryImpl @Inject constructor(
         }
     }
 
+    override fun observeArchivedWallets(): Flow<List<Wallet>> {
+        return combine(
+            walletDao.observeArchivedWallets(),
+            walletDao.observeBalances()
+        ) { wallets, balances ->
+            val balanceMap = balances.associate { it.walletId to it.balance }
+            wallets.map { entity ->
+                val current = balanceMap[entity.id] ?: entity.initialBalance
+                entity.toDomain(currentBalance = Money(current))
+            }
+        }
+    }
+
     override fun observeWallet(id: Long): Flow<Wallet?> {
         return combine(
             walletDao.observeWalletById(id),
@@ -83,6 +96,14 @@ class FinanceRepositoryImpl @Inject constructor(
 
     override suspend fun archiveWallet(id: Long) {
         walletDao.archiveWallet(id)
+    }
+
+    override suspend fun unarchiveWallet(id: Long) {
+        walletDao.unarchiveWallet(id)
+    }
+
+    override suspend fun deleteWallet(id: Long) {
+        walletDao.deleteWalletById(id)
     }
 
     override fun observeFinancialSummary(fromMillis: Long, toMillis: Long): Flow<FinancialSummary> {
@@ -229,6 +250,14 @@ class FinanceRepositoryImpl @Inject constructor(
         pocketDao.archivePocket(id)
     }
 
+    override suspend fun unarchivePocket(id: Long) {
+        pocketDao.unarchivePocket(id)
+    }
+
+    override suspend fun deletePocket(id: Long) {
+        pocketDao.deletePocketById(id)
+    }
+
     override suspend fun contributeToPocket(pocketId: Long, walletId: Long, amount: Money): Boolean {
         ledgerDao.contributeToPocket(
             pocketId = pocketId,
@@ -265,6 +294,10 @@ class FinanceRepositoryImpl @Inject constructor(
 
     override suspend fun updateCategory(category: Category) {
         categoryDao.updateCategory(category.toEntity())
+    }
+
+    override suspend fun deleteCategory(id: Long) {
+        categoryDao.deleteCategoryById(id)
     }
 
     override suspend fun resetDemoData() {

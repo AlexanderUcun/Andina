@@ -16,7 +16,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
 
-// Esquema de Colores Claro Oficial: "Andean Mist & Moss"
+// Esquema de Colores Claro Oficial: "Páramo Diurno & Cristal de Cuarzo" (Light Mineral Glass)
 private val LightColorScheme = lightColorScheme(
     primary = AndeanPrimary,
     onPrimary = AndeanOnPrimary,
@@ -26,13 +26,13 @@ private val LightColorScheme = lightColorScheme(
     onSecondary = AndeanOnSecondary,
     secondaryContainer = AndeanSecondaryContainer,
     onSecondaryContainer = AndeanOnSecondaryContainer,
-    surface = AndeanSurface,
-    onSurface = AndeanOnSurface,
-    surfaceContainer = AndeanSurfaceContainer,
-    surfaceContainerHigh = AndeanSurfaceContainerHigh,
+    surface = AndeanMistCanvasTop,
+    onSurface = AndeanSlateInk,
+    surfaceContainer = AndeanQuartzGlass,
+    surfaceContainerHigh = Color.White,
     onSurfaceVariant = AndeanOnSurfaceVariant,
     outline = AndeanOutline,
-    outlineVariant = AndeanOutlineVariant,
+    outlineVariant = AndeanFrostBorderBottom,
     error = AndeanError,
     onError = AndeanOnError,
     errorContainer = AndeanErrorContainer,

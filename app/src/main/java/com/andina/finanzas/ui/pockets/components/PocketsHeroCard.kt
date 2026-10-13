@@ -39,10 +39,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.andina.finanzas.domain.model.Money
+import com.andina.finanzas.ui.components.FrostedGlassCard
 import com.andina.finanzas.ui.components.ecosystem.FrailejonView
-import com.andina.finanzas.ui.theme.AndinaAmber
-import com.andina.finanzas.ui.theme.AndinaDeepForest
-import com.andina.finanzas.ui.theme.AndinaMossGreen
+import com.andina.finanzas.ui.components.bouncyClick
+import com.andina.finanzas.ui.theme.specularGlassBorder
+import com.andina.finanzas.ui.theme.AndeanEmeraldDeep
+import com.andina.finanzas.ui.theme.AndeanSlateInk
+import com.andina.finanzas.ui.theme.FrailejonGold
 
 /**
  * Tarjeta Hero superior de la pantalla de Bolsillos.
@@ -64,143 +67,132 @@ fun PocketsHeroCard(
 
     val progressPercent = (overallProgress * 100).toInt()
 
-    Card(
-        modifier = modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(26.dp)),
-        shape = RoundedCornerShape(26.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.Transparent)
+    FrostedGlassCard(
+        modifier = modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(26.dp)
     ) {
-        Box(
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(
-                    Brush.verticalGradient(
-                        colors = listOf(
-                            AndinaDeepForest,
-                            Color(0xFF2C3E28)
-                        )
-                    )
-                )
                 .padding(22.dp)
         ) {
-            Column(modifier = Modifier.fillMaxWidth()) {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Column {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(6.dp)
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Savings,
-                                contentDescription = null,
-                                tint = AndinaAmber,
-                                modifier = Modifier.size(16.dp)
-                            )
-                            Text(
-                                text = "TOTAL RESERVADO EN METAS",
-                                style = MaterialTheme.typography.labelSmall.copy(
-                                    fontWeight = FontWeight.Bold,
-                                    letterSpacing = 1.2.sp,
-                                    color = Color.White.copy(alpha = 0.75f)
-                                )
-                            )
-                        }
-
-                        Spacer(modifier = Modifier.height(6.dp))
-
-                        Text(
-                            text = totalReserved.formatCop(),
-                            style = MaterialTheme.typography.headlineLarge.copy(
-                                fontWeight = FontWeight.Bold,
-                                color = Color.White,
-                                fontSize = 30.sp
-                            )
-                        )
-                    }
-
-                    // Frailejón maestro del páramo
-                    Box(
-                        modifier = Modifier
-                            .size(64.dp)
-                            .clip(CircleShape)
-                            .background(Color.White.copy(alpha = 0.12f)),
-                        contentAlignment = Alignment.Center
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(6.dp)
                     ) {
-                        FrailejonView(
-                            progress = animatedProgress,
-                            size = 56.dp,
-                            animateSway = true
+                        Icon(
+                            imageVector = Icons.Default.Savings,
+                            contentDescription = null,
+                            tint = FrailejonGold,
+                            modifier = Modifier.size(16.dp)
+                        )
+                        Text(
+                            text = "TOTAL RESERVADO EN METAS",
+                            style = MaterialTheme.typography.labelSmall.copy(
+                                fontWeight = FontWeight.Bold,
+                                letterSpacing = 1.2.sp,
+                                color = AndeanSlateInk.copy(alpha = 0.65f)
+                            )
                         )
                     }
+
+                    Spacer(modifier = Modifier.height(6.dp))
+
+                    Text(
+                        text = totalReserved.formatCop(),
+                        style = MaterialTheme.typography.headlineLarge.copy(
+                            fontWeight = FontWeight.ExtraBold,
+                            color = FrailejonGold,
+                            fontSize = 30.sp,
+                            fontFeatureSettings = "tnum"
+                        )
+                    )
                 }
 
-                Spacer(modifier = Modifier.height(18.dp))
-
-                // Barra de progreso global
-                LinearProgressIndicator(
-                    progress = { animatedProgress },
+                // Frailejón maestro del páramo en halo de cuarzo
+                Box(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .height(10.dp)
-                        .clip(RoundedCornerShape(5.dp)),
-                    color = AndinaAmber,
-                    trackColor = Color.White.copy(alpha = 0.2f),
-                    strokeCap = StrokeCap.Round
+                        .size(64.dp)
+                        .clip(CircleShape)
+                        .background(AndeanEmeraldDeep.copy(alpha = 0.08f)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    FrailejonView(
+                        progress = animatedProgress,
+                        size = 56.dp,
+                        animateSway = true
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(18.dp))
+
+            // Barra de progreso global
+            LinearProgressIndicator(
+                progress = { animatedProgress },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(10.dp)
+                    .clip(RoundedCornerShape(5.dp)),
+                color = FrailejonGold,
+                trackColor = AndeanSlateInk.copy(alpha = 0.1f),
+                strokeCap = StrokeCap.Round
+            )
+
+            Spacer(modifier = Modifier.height(14.dp))
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "$progressPercent% del objetivo (${totalGoals.formatCop()})",
+                    style = MaterialTheme.typography.bodySmall.copy(
+                        color = AndeanSlateInk.copy(alpha = 0.75f),
+                        fontWeight = FontWeight.Medium,
+                        fontSize = 11.sp,
+                        fontFeatureSettings = "tnum"
+                    ),
+                    maxLines = 1,
+                    modifier = Modifier.weight(1f, fill = false)
                 )
 
-                Spacer(modifier = Modifier.height(14.dp))
+                Spacer(modifier = Modifier.width(8.dp))
 
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
+                // Botón para crear nueva meta
+                Surface(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(12.dp))
+                        .bouncyClick(onClick = onCreatePocketClick),
+                    shape = RoundedCornerShape(12.dp),
+                    color = AndeanEmeraldDeep.copy(alpha = 0.12f)
                 ) {
-                    Text(
-                        text = "$progressPercent% del objetivo (${totalGoals.formatCop()})",
-                        style = MaterialTheme.typography.bodySmall.copy(
-                            color = Color.White.copy(alpha = 0.85f),
-                            fontWeight = FontWeight.Medium,
-                            fontSize = 11.sp
-                        ),
-                        maxLines = 1,
-                        modifier = Modifier.weight(1f, fill = false)
-                    )
-
-                    Spacer(modifier = Modifier.width(8.dp))
-
-                    // Botón para crear nueva meta
-                    Surface(
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(12.dp))
-                            .clickable(onClick = onCreatePocketClick),
-                        shape = RoundedCornerShape(12.dp),
-                        color = Color.White.copy(alpha = 0.2f)
+                    Row(
+                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
-                        Row(
-                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(4.dp)
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Add,
-                                contentDescription = "Nueva Meta",
-                                tint = Color.White,
-                                modifier = Modifier.size(14.dp)
+                        Icon(
+                            imageVector = Icons.Default.Add,
+                            contentDescription = "Nueva Meta",
+                            tint = AndeanEmeraldDeep,
+                            modifier = Modifier.size(14.dp)
+                        )
+                        Text(
+                            text = "Nueva Meta",
+                            maxLines = 1,
+                            style = MaterialTheme.typography.labelSmall.copy(
+                                fontWeight = FontWeight.Bold,
+                                color = AndeanEmeraldDeep
                             )
-                            Text(
-                                text = "Nueva Meta",
-                                maxLines = 1,
-                                style = MaterialTheme.typography.labelSmall.copy(
-                                    fontWeight = FontWeight.Bold,
-                                    color = Color.White
-                                )
-                            )
-                        }
+                        )
                     }
                 }
             }

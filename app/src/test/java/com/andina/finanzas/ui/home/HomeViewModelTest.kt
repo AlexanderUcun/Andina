@@ -243,11 +243,14 @@ private class FakeFinanceRepository : FinanceRepository {
     )
 
     override fun observeWallets(): Flow<List<Wallet>> = flowOf(testWallets)
+    override fun observeArchivedWallets(): Flow<List<Wallet>> = flowOf(emptyList())
     override fun observeWallet(id: Long): Flow<Wallet?> = flowOf(testWallets.find { it.id == id })
     override suspend fun getWalletById(id: Long): Wallet? = testWallets.find { it.id == id }
     override suspend fun createWallet(wallet: Wallet): Long = wallet.id
     override suspend fun updateWallet(wallet: Wallet) {}
     override suspend fun archiveWallet(id: Long) {}
+    override suspend fun unarchiveWallet(id: Long) {}
+    override suspend fun deleteWallet(id: Long) {}
 
     override fun observeFinancialSummary(fromMillis: Long, toMillis: Long): Flow<FinancialSummary> {
         return flowOf(
@@ -285,6 +288,8 @@ private class FakeFinanceRepository : FinanceRepository {
     override suspend fun createPocket(pocket: Pocket): Long = 1L
     override suspend fun updatePocket(pocket: Pocket) {}
     override suspend fun archivePocket(id: Long) {}
+    override suspend fun unarchivePocket(id: Long) {}
+    override suspend fun deletePocket(id: Long) {}
     override suspend fun contributeToPocket(pocketId: Long, walletId: Long, amount: Money): Boolean = true
     override suspend fun withdrawFromPocket(pocketId: Long, walletId: Long, amount: Money): Boolean = true
 
@@ -292,5 +297,6 @@ private class FakeFinanceRepository : FinanceRepository {
     override suspend fun getCategoryById(id: Long): Category? = null
     override suspend fun createCategory(category: Category): Long = 1L
     override suspend fun updateCategory(category: Category) {}
+    override suspend fun deleteCategory(id: Long) {}
     override suspend fun resetDemoData() {}
 }

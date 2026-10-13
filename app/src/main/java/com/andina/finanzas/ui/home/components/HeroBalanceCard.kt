@@ -50,6 +50,7 @@ import com.andina.finanzas.ui.components.FrostedGlassCard
 import com.andina.finanzas.ui.theme.AndeanPrimary
 import com.andina.finanzas.ui.theme.AndeanPrimaryContainer
 import com.andina.finanzas.ui.theme.CornerLarge
+import com.andina.finanzas.ui.theme.financialAmbientGlow
 
 /**
  * Tarjeta Hero de Patrimonio Consolidado y Privacidad Andina.
@@ -72,16 +73,58 @@ fun HeroBalanceCard(
 ) {
     val haptic = LocalHapticFeedback.current
 
-    val displayedAmount = if (isPrivacyMode) {
-        "••••••••"
-    } else {
-        totalNetWorth.formatCop()
+    // Jerarquía visual tipográfica para dinero de alta gama con Oro Frailejón
+    val annotatedAmount = androidx.compose.ui.text.buildAnnotatedString {
+        if (isPrivacyMode) {
+            append("••••••••")
+        } else {
+            // Símbolo de moneda en Oro Frailejón cálido
+            pushStyle(
+                androidx.compose.ui.text.SpanStyle(
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = com.andina.finanzas.ui.theme.FrailejonGold
+                )
+            )
+            append(if (totalNetWorth.pesos < 0) "-$ " else "$ ")
+            pop()
+
+            // Cifra entera principal en gran formato con números tabulares
+            pushStyle(
+                androidx.compose.ui.text.SpanStyle(
+                    fontSize = 40.sp,
+                    fontWeight = FontWeight.ExtraBold,
+                    letterSpacing = (-0.5).sp,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+            )
+            append(totalNetWorth.formatCop(includeSymbol = false, includeCode = false))
+            pop()
+
+            // Código de divisa sutil
+            pushStyle(
+                androidx.compose.ui.text.SpanStyle(
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    letterSpacing = 0.5.sp,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
+                )
+            )
+            append(" COP")
+            pop()
+        }
     }
 
     FrostedGlassCard(
-        modifier = modifier.fillMaxWidth(),
+        modifier = modifier
+            .fillMaxWidth()
+            .financialAmbientGlow(
+                glowColor = com.andina.finanzas.ui.theme.AndeanEmeraldLight,
+                glowRadiusMultiplier = 0.9f,
+                alpha = 0.22f
+            ),
         shape = CornerLarge,
-        elevation = 3.dp,
+        elevation = 4.dp,
         onClick = onCardClick,
         contentPadding = 20.dp
     ) {
@@ -95,63 +138,68 @@ fun HeroBalanceCard(
                 Text(
                     text = "PATRIMONIO CONSOLIDADO",
                     style = MaterialTheme.typography.labelSmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    letterSpacing = 1.2.sp
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.8f),
+                    fontWeight = FontWeight.SemiBold,
+                    letterSpacing = 1.3.sp
                 )
 
-                Spacer(modifier = Modifier.height(4.dp))
+                Spacer(modifier = Modifier.height(5.dp))
 
-                // Píldora de Nivel de Salud Andina
+                // Píldora Joya de Nivel de Salud Andina
                 Surface(
                     shape = RoundedCornerShape(12.dp),
-                    color = AndeanPrimaryContainer.copy(alpha = 0.5f),
-                    contentColor = AndeanPrimary
+                    color = AndeanPrimary.copy(alpha = 0.12f),
+                    contentColor = AndeanPrimary,
+                    border = androidx.compose.foundation.BorderStroke(0.8.dp, AndeanPrimary.copy(alpha = 0.25f))
                 ) {
                     Row(
-                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp),
+                        modifier = Modifier.padding(horizontal = 9.dp, vertical = 3.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Icon(
                             imageVector = Icons.Default.Eco,
                             contentDescription = null,
-                            modifier = Modifier.size(13.dp)
+                            modifier = Modifier.size(12.dp)
                         )
-                        Spacer(modifier = Modifier.width(4.dp))
+                        Spacer(modifier = Modifier.width(5.dp))
                         Text(
                             text = paramoHealthLevel,
                             style = MaterialTheme.typography.labelSmall.copy(fontSize = 11.sp),
-                            fontWeight = FontWeight.SemiBold
+                            fontWeight = FontWeight.Bold
                         )
                     }
                 }
             }
 
-            // Botón interactivo de privacidad con área táctil accesible >= 48dp
+            // Botón interactivo de privacidad con acabado translúcido
             IconButton(
                 onClick = {
                     haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                     onTogglePrivacy()
                 },
                 modifier = Modifier
-                    .defaultMinSize(minWidth = 48.dp, minHeight = 48.dp)
+                    .defaultMinSize(minWidth = 44.dp, minHeight = 44.dp)
                     .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.45f))
+                    .background(
+                        if (isPrivacyMode) MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.7f)
+                        else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f)
+                    )
                     .semantics { role = Role.Button }
             ) {
                 Icon(
                     imageVector = if (isPrivacyMode) Icons.Default.VisibilityOff else Icons.Default.Visibility,
                     contentDescription = if (isPrivacyMode) "Mostrar saldo" else "Ocultar saldo",
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.size(22.dp)
+                    tint = if (isPrivacyMode) AndeanPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.size(20.dp)
                 )
             }
         }
 
-        Spacer(modifier = Modifier.height(18.dp))
+        Spacer(modifier = Modifier.height(20.dp))
 
-        // Fila Central: Odómetro de Saldo Maestro
+        // Fila Central: Odómetro de Saldo Maestro con jerarquía tipográfica
         AnimatedContent(
-            targetState = displayedAmount,
+            targetState = annotatedAmount,
             transitionSpec = {
                 if (targetState.length >= initialState.length) {
                     slideInVertically { height -> height } + fadeIn() togetherWith
@@ -159,14 +207,13 @@ fun HeroBalanceCard(
                 } else {
                     slideInVertically { height -> -height } + fadeIn() togetherWith
                         slideOutVertically { height -> height } + fadeOut()
-                }.using(SizeTransform(clip = false))
+                }
             },
             label = "HeroBalanceOdometer"
-        ) { formattedText ->
+        ) { targetAnnotatedString ->
             Text(
-                text = formattedText,
-                style = MaterialTheme.typography.displayLarge,
-                color = MaterialTheme.colorScheme.onSurface,
+                text = targetAnnotatedString,
+                style = MaterialTheme.typography.displayLarge.copy(fontSize = 38.sp),
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )

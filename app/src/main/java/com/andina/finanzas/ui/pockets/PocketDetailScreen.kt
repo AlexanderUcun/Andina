@@ -56,10 +56,18 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.andina.finanzas.domain.model.Money
 import com.andina.finanzas.domain.model.Pocket
+import com.andina.finanzas.ui.components.FrostedGlassCard
 import com.andina.finanzas.ui.components.ecosystem.FrailejonView
+import com.andina.finanzas.ui.components.bouncyClick
+import com.andina.finanzas.ui.theme.specularGlassBorder
+import com.andina.finanzas.ui.theme.AndeanMistCanvasBottom
+import com.andina.finanzas.ui.theme.AndeanMistCanvasTop
+import com.andina.finanzas.ui.theme.AndeanEmeraldDeep
+import com.andina.finanzas.ui.theme.AndeanSlateInk
 import com.andina.finanzas.ui.theme.AndinaAmber
 import com.andina.finanzas.ui.theme.AndinaDeepForest
 import com.andina.finanzas.ui.theme.AndinaMossGreen
+import com.andina.finanzas.ui.theme.FrailejonGold
 import kotlin.math.ceil
 
 /**
@@ -98,10 +106,7 @@ fun PocketDetailScreen(
             .fillMaxSize()
             .background(
                 Brush.verticalGradient(
-                    colors = listOf(
-                        Color(0xFFF5F3EF),
-                        Color(0xFFEBE6DC)
-                    )
+                    colors = listOf(AndeanMistCanvasTop, AndeanMistCanvasBottom)
                 )
             )
             .statusBarsPadding()
@@ -118,12 +123,11 @@ fun PocketDetailScreen(
                 onClick = onBackClick,
                 modifier = Modifier
                     .clip(CircleShape)
-                    .background(Color.White)
             ) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                     contentDescription = "Volver",
-                    tint = AndinaDeepForest
+                    tint = AndeanSlateInk
                 )
             }
 
@@ -133,7 +137,7 @@ fun PocketDetailScreen(
                 text = pocket.name,
                 style = MaterialTheme.typography.titleLarge.copy(
                     fontWeight = FontWeight.Bold,
-                    color = AndinaDeepForest
+                    color = AndeanSlateInk
                 )
             )
         }
@@ -145,11 +149,9 @@ fun PocketDetailScreen(
                 .padding(horizontal = 20.dp, vertical = 12.dp),
             contentAlignment = Alignment.Center
         ) {
-            Card(
+            FrostedGlassCard(
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(28.dp),
-                colors = CardDefaults.cardColors(containerColor = Color.White),
-                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+                shape = RoundedCornerShape(28.dp)
             ) {
                 Column(
                     modifier = Modifier
@@ -215,15 +217,17 @@ fun PocketDetailScreen(
                         text = pocket.currentBalance.formatCop(),
                         style = MaterialTheme.typography.headlineLarge.copy(
                             fontWeight = FontWeight.ExtraBold,
-                            color = AndinaDeepForest,
-                            fontSize = 32.sp
+                            color = FrailejonGold,
+                            fontSize = 32.sp,
+                            fontFeatureSettings = "tnum"
                         )
                     )
 
                     Text(
                         text = "de ${pocket.goal.formatCop()}",
                         style = MaterialTheme.typography.bodyMedium.copy(
-                            color = Color(0xFF6B7280)
+                            color = AndeanSlateInk.copy(alpha = 0.7f),
+                            fontFeatureSettings = "tnum"
                         )
                     )
 
@@ -236,8 +240,8 @@ fun PocketDetailScreen(
                             .fillMaxWidth()
                             .height(10.dp)
                             .clip(RoundedCornerShape(5.dp)),
-                        color = if (pocket.isCompleted) AndinaAmber else AndinaMossGreen,
-                        trackColor = Color(0xFFE5E7EB),
+                        color = if (pocket.isCompleted) AndeanEmeraldDeep else FrailejonGold,
+                        trackColor = AndeanSlateInk.copy(alpha = 0.1f),
                         strokeCap = StrokeCap.Round
                     )
 
@@ -247,7 +251,7 @@ fun PocketDetailScreen(
                         text = if (pocket.isCompleted) "¡Tu frailejón ha florecido por completo!"
                         else "Te faltan ${pocket.remaining.formatCop()} para completar tu meta",
                         style = MaterialTheme.typography.bodySmall.copy(
-                            color = Color(0xFF4B5563),
+                            color = AndeanSlateInk.copy(alpha = 0.75f),
                             fontWeight = FontWeight.Medium
                         )
                     )
@@ -270,8 +274,8 @@ fun PocketDetailScreen(
                     .height(48.dp),
                 shape = RoundedCornerShape(16.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = Color.White,
-                    contentColor = AndinaDeepForest,
+                    containerColor = Color.White.copy(alpha = 0.85f),
+                    contentColor = AndeanSlateInk,
                     disabledContainerColor = Color(0xFFF3F4F6),
                     disabledContentColor = Color(0xFF9CA3AF)
                 ),
@@ -279,7 +283,7 @@ fun PocketDetailScreen(
             ) {
                 Icon(Icons.Default.Remove, contentDescription = null, modifier = Modifier.size(18.dp))
                 Spacer(modifier = Modifier.width(6.dp))
-                Text("Retirar Dinero", fontWeight = FontWeight.SemiBold)
+                Text("Retirar", fontWeight = FontWeight.SemiBold)
             }
 
             Button(
@@ -288,7 +292,7 @@ fun PocketDetailScreen(
                     .weight(1f)
                     .height(48.dp),
                 shape = RoundedCornerShape(16.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = AndinaMossGreen)
+                colors = ButtonDefaults.buttonColors(containerColor = AndeanEmeraldDeep)
             ) {
                 Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(18.dp), tint = Color.White)
                 Spacer(modifier = Modifier.width(6.dp))
@@ -300,13 +304,11 @@ fun PocketDetailScreen(
 
         // "La Vara del Páramo" — Simulador Visual de Bolsillos
         if (!pocket.isCompleted) {
-            Card(
+            FrostedGlassCard(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 20.dp, vertical = 6.dp),
-                shape = RoundedCornerShape(24.dp),
-                colors = CardDefaults.cardColors(containerColor = Color.White),
-                elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+                shape = RoundedCornerShape(24.dp)
             ) {
                 Column(
                     modifier = Modifier

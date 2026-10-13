@@ -20,11 +20,14 @@ interface FinanceRepository {
 
     // --- Billeteras y Libro Mayor ---
     fun observeWallets(): Flow<List<Wallet>>
+    fun observeArchivedWallets(): Flow<List<Wallet>>
     fun observeWallet(id: Long): Flow<Wallet?>
     suspend fun getWalletById(id: Long): Wallet?
     suspend fun createWallet(wallet: Wallet): Long
     suspend fun updateWallet(wallet: Wallet)
     suspend fun archiveWallet(id: Long)
+    suspend fun unarchiveWallet(id: Long)
+    suspend fun deleteWallet(id: Long)
 
     // --- Resumen Financiero Consolidado ---
     fun observeFinancialSummary(fromMillis: Long, toMillis: Long): Flow<FinancialSummary>
@@ -53,6 +56,8 @@ interface FinanceRepository {
     suspend fun createPocket(pocket: Pocket): Long
     suspend fun updatePocket(pocket: Pocket)
     suspend fun archivePocket(id: Long)
+    suspend fun unarchivePocket(id: Long)
+    suspend fun deletePocket(id: Long)
     suspend fun contributeToPocket(pocketId: Long, walletId: Long, amount: Money): Boolean
     suspend fun withdrawFromPocket(pocketId: Long, walletId: Long, amount: Money): Boolean
 
@@ -61,6 +66,7 @@ interface FinanceRepository {
     suspend fun getCategoryById(id: Long): Category?
     suspend fun createCategory(category: Category): Long
     suspend fun updateCategory(category: Category)
+    suspend fun deleteCategory(id: Long)
 
     // --- Reinicio y Mantenimiento ---
     suspend fun resetDemoData()

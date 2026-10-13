@@ -35,8 +35,14 @@ interface PocketDao {
     @Delete
     suspend fun deletePocket(pocket: PocketEntity)
 
+    @Query("DELETE FROM pockets WHERE id = :id")
+    suspend fun deletePocketById(id: Long)
+
     @Query("UPDATE pockets SET archived = 1 WHERE id = :id")
     suspend fun archivePocket(id: Long)
+
+    @Query("UPDATE pockets SET archived = 0 WHERE id = :id")
+    suspend fun unarchivePocket(id: Long)
 
     @Query("SELECT * FROM pockets ORDER BY sortOrder ASC, id ASC")
     suspend fun getAllPockets(): List<PocketEntity>

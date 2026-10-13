@@ -55,9 +55,16 @@ import com.andina.finanzas.core.intelligence.triage.TriageLevel
 import com.andina.finanzas.domain.model.Money
 import com.andina.finanzas.ui.components.muggy.MuggyAvatar
 import com.andina.finanzas.ui.components.muggy.MuggyPose
+import com.andina.finanzas.ui.components.FrostedGlassCard
+import com.andina.finanzas.ui.components.bouncyClick
 import com.andina.finanzas.ui.help.AntExpenseMirrorCard
 import com.andina.finanzas.ui.help.PocketSimulatorCard
+import com.andina.finanzas.ui.theme.AndeanMistCanvasBottom
+import com.andina.finanzas.ui.theme.AndeanMistCanvasTop
+import com.andina.finanzas.ui.theme.AndeanSlateInk
 import com.andina.finanzas.ui.theme.AndeanPrimary
+import com.andina.finanzas.ui.theme.FrailejonGold
+import androidx.compose.ui.graphics.Brush
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -127,20 +134,29 @@ fun ConsultorioScreen(
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surface
+                    containerColor = Color.Transparent
                 )
             )
         },
-        containerColor = MaterialTheme.colorScheme.background,
+        containerColor = Color.Transparent,
         modifier = modifier
     ) { innerPadding ->
-        Column(
+        Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding)
-                .verticalScroll(rememberScrollState())
-                .padding(horizontal = 20.dp, vertical = 12.dp)
+                .background(
+                    Brush.verticalGradient(
+                        colors = listOf(AndeanMistCanvasTop, AndeanMistCanvasBottom)
+                    )
+                )
         ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding)
+                    .verticalScroll(rememberScrollState())
+                    .padding(horizontal = 20.dp, vertical = 12.dp)
+            ) {
             val diagnosis = uiState.diagnosis
 
             if (diagnosis != null) {
@@ -259,6 +275,7 @@ fun ConsultorioScreen(
         }
     }
 }
+}
 
 @Composable
 private fun HeroConsultorioCard(
@@ -282,11 +299,9 @@ private fun HeroConsultorioCard(
         TriageLevel.TRIAGE_CRITICO -> "Nivel: Crítico"
     }
 
-    Card(
-        shape = RoundedCornerShape(26.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-        modifier = Modifier.fillMaxWidth()
+    FrostedGlassCard(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(26.dp)
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -357,7 +372,7 @@ private fun HeroConsultorioCard(
                     text = "Autonomía Financiera",
                     fontSize = 15.sp,
                     fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onSurface
+                    color = AndeanSlateInk
                 )
 
                 Spacer(modifier = Modifier.height(2.dp))
@@ -365,7 +380,7 @@ private fun HeroConsultorioCard(
                 Text(
                     text = "Gasto diario estimado: ~${Money(dailyBurnRate).formatCop()}",
                     fontSize = 12.sp,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = AndeanSlateInk.copy(alpha = 0.7f)
                 )
             }
         }
@@ -377,17 +392,16 @@ private fun TopCategoriesSection(
     topCategories: List<Pair<String, Money>>,
     totalExpenses: Money
 ) {
-    Card(
-        shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFFFFFFFF)),
-        modifier = Modifier.fillMaxWidth()
+    FrostedGlassCard(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(20.dp)
     ) {
         Column(modifier = Modifier.padding(18.dp)) {
             Text(
                 text = "Distribución del Caudal este Mes",
                 fontSize = 15.sp,
                 fontWeight = FontWeight.Bold,
-                color = Color(0xFF1D1B19)
+                color = AndeanSlateInk
             )
 
             Spacer(modifier = Modifier.height(14.dp))

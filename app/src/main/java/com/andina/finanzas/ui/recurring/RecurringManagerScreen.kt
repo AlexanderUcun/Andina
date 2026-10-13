@@ -233,7 +233,10 @@ fun RecurringTransactionsScreen(
                                 horizontalArrangement = Arrangement.SpaceBetween,
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                Row(
+                                    modifier = Modifier.weight(1f).padding(end = 12.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
                                     Box(
                                         modifier = Modifier
                                             .size(36.dp)
@@ -252,11 +255,13 @@ fun RecurringTransactionsScreen(
                                         )
                                     }
                                     Spacer(modifier = Modifier.width(10.dp))
-                                    Column {
+                                    Column(modifier = Modifier.weight(1f, fill = false)) {
                                         Text(
                                             text = item.title,
                                             fontSize = 15.sp,
                                             fontWeight = FontWeight.Bold,
+                                            maxLines = 1,
+                                            overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
                                             color = MaterialTheme.colorScheme.onSurface
                                         )
                                         Text(
@@ -271,6 +276,8 @@ fun RecurringTransactionsScreen(
                                     text = Money(item.amount).formatCop(),
                                     fontSize = 16.sp,
                                     fontWeight = FontWeight.ExtraBold,
+                                    maxLines = 1,
+                                    softWrap = false,
                                     color = if (item.type == RecurringType.INGRESO) AndeanPrimary else Color(0xFFB55800)
                                 )
                             }
@@ -339,7 +346,10 @@ fun RecurringTransactionsScreen(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
+                        Row(
+                            modifier = Modifier.weight(1f).padding(end = 12.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
                             Icon(
                                 imageVector = if (item.isConfirmedThisCycle) Icons.Default.CheckCircle else Icons.Default.Schedule,
                                 contentDescription = null,
@@ -347,11 +357,13 @@ fun RecurringTransactionsScreen(
                                 modifier = Modifier.size(22.dp)
                             )
                             Spacer(modifier = Modifier.width(10.dp))
-                            Column {
+                            Column(modifier = Modifier.weight(1f, fill = false)) {
                                 Text(
                                     text = item.title,
                                     fontSize = 14.sp,
                                     fontWeight = FontWeight.SemiBold,
+                                    maxLines = 1,
+                                    overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
                                     color = MaterialTheme.colorScheme.onSurface
                                 )
                                 Text(
@@ -366,6 +378,8 @@ fun RecurringTransactionsScreen(
                             text = Money(item.amount).formatCop(),
                             fontSize = 14.sp,
                             fontWeight = FontWeight.Bold,
+                            maxLines = 1,
+                            softWrap = false,
                             color = if (item.type == RecurringType.INGRESO) AndeanPrimary else MaterialTheme.colorScheme.onSurface
                         )
                     }

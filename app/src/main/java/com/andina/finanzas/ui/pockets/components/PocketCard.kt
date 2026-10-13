@@ -40,10 +40,15 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.andina.finanzas.domain.model.Pocket
+import com.andina.finanzas.ui.components.FrostedGlassCard
 import com.andina.finanzas.ui.components.ecosystem.FrailejonView
+import com.andina.finanzas.ui.components.bouncyClick
+import com.andina.finanzas.ui.theme.AndeanEmeraldDeep
+import com.andina.finanzas.ui.theme.AndeanSlateInk
 import com.andina.finanzas.ui.theme.AndinaAmber
 import com.andina.finanzas.ui.theme.AndinaDeepForest
 import com.andina.finanzas.ui.theme.AndinaMossGreen
+import com.andina.finanzas.ui.theme.FrailejonGold
 
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
@@ -85,16 +90,10 @@ fun PocketCard(
         AndinaMossGreen
     }
 
-    Card(
-        modifier = modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(22.dp))
-            .clickable(onClick = onClick),
+    FrostedGlassCard(
+        modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(22.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = Color.White
-        ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        onClick = onClick
     ) {
         Column(
             modifier = Modifier
@@ -111,7 +110,7 @@ fun PocketCard(
                     modifier = Modifier
                         .size(68.dp)
                         .clip(RoundedCornerShape(16.dp))
-                        .background(AndinaMossGreen.copy(alpha = 0.08f)),
+                        .background(AndeanEmeraldDeep.copy(alpha = 0.08f)),
                     contentAlignment = Alignment.Center
                 ) {
                     FrailejonView(
@@ -132,7 +131,7 @@ fun PocketCard(
                             text = pocket.name,
                             style = MaterialTheme.typography.titleMedium.copy(
                                 fontWeight = FontWeight.Bold,
-                                color = AndinaDeepForest
+                                color = AndeanSlateInk
                             )
                         )
                     }
@@ -142,7 +141,7 @@ fun PocketCard(
                     Text(
                         text = if (pocket.isCompleted) "¡Meta completada!" else "Faltan ${pocket.remaining.formatCop()}",
                         style = MaterialTheme.typography.bodySmall.copy(
-                            color = if (pocket.isCompleted) AndinaMossGreen else Color(0xFF6B7280),
+                            color = if (pocket.isCompleted) AndeanEmeraldDeep else AndeanSlateInk.copy(alpha = 0.65f),
                             fontWeight = if (pocket.isCompleted) FontWeight.SemiBold else FontWeight.Normal
                         )
                     )
@@ -264,14 +263,15 @@ fun PocketCard(
                     Text(
                         text = "Ahorrado",
                         style = MaterialTheme.typography.labelSmall.copy(
-                            color = Color(0xFF6B7280)
+                            color = AndeanSlateInk.copy(alpha = 0.65f)
                         )
                     )
                     Text(
                         text = pocket.currentBalance.formatCop(),
                         style = MaterialTheme.typography.titleMedium.copy(
                             fontWeight = FontWeight.Bold,
-                            color = AndinaDeepForest
+                            color = FrailejonGold,
+                            fontFeatureSettings = "tnum"
                         )
                     )
                 }
@@ -280,14 +280,15 @@ fun PocketCard(
                     Text(
                         text = "Meta",
                         style = MaterialTheme.typography.labelSmall.copy(
-                            color = Color(0xFF6B7280)
+                            color = AndeanSlateInk.copy(alpha = 0.65f)
                         )
                     )
                     Text(
                         text = pocket.goal.formatCop(),
                         style = MaterialTheme.typography.bodyMedium.copy(
                             fontWeight = FontWeight.SemiBold,
-                            color = Color(0xFF4B5563)
+                            color = AndeanSlateInk,
+                            fontFeatureSettings = "tnum"
                         )
                     )
                 }

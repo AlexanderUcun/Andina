@@ -33,11 +33,13 @@ object CategoryIconHelper {
         return when (iconName.lowercase().trim()) {
             "coffee", "cafe", "snack", "snacks" -> Icons.Default.LocalCafe
             "restaurant", "fastfood", "food", "alimentacion", "almuerzo", "cena" -> Icons.Default.Restaurant
-            "directions_bus", "transport", "transporte", "bus", "gasolina" -> Icons.Default.DirectionsBus
+            "directions_bus", "transport", "transporte", "bus", "gasolina", "vehiculo" -> Icons.Default.DirectionsBus
             "delivery_dining", "delivery", "domicilios", "domicilio" -> Icons.Default.DeliveryDining
             "home", "casa", "servicios del hogar", "servicios y hogar", "servicios" -> Icons.Default.Home
-            "movie", "entertainment", "ocio", "entretenimiento" -> Icons.Default.Movie
-            "favorite", "health", "salud", "salud y cuidado", "bienestar" -> Icons.Default.Favorite
+            "movie", "entertainment", "ocio", "entretenimiento", "cine" -> Icons.Default.Movie
+            "favorite", "health", "salud", "salud y cuidado", "salud y bienestar", "bienestar" -> Icons.Default.Favorite
+            "spa", "cuidado personal", "belleza" -> Icons.Default.Favorite
+            "family_restroom", "familia", "familia y hogar" -> Icons.Default.Home
             "local_hospital", "hospital", "medicina" -> Icons.Default.LocalHospital
             "school", "education", "educacion", "estudio" -> Icons.Default.School
             "payments", "salary", "salario", "sueldo", "quincena" -> Icons.Default.Payments
@@ -45,6 +47,7 @@ object CategoryIconHelper {
             "trending_up", "investment", "inversiones", "rendimientos" -> Icons.AutoMirrored.Filled.TrendingUp
             "shopping_bag", "compras", "mercado", "ropa" -> Icons.Default.ShoppingBag
             "receipt", "factura", "servicios publicos" -> Icons.Default.Receipt
+            "ant", "hormiga", "gasto hormiga", "compras hormiga", "bug" -> Icons.Default.Category
             "add_circle", "otros ingresos" -> Icons.Default.AddCircle
             "more_horiz", "otros", "otros gastos" -> Icons.Default.MoreHoriz
             else -> Icons.Default.Category

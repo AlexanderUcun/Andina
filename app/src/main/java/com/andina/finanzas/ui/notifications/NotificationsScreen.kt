@@ -43,8 +43,14 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.andina.finanzas.ui.components.FrostedGlassCard
+import com.andina.finanzas.ui.components.bouncyClick
 import com.andina.finanzas.ui.theme.AndeanAntExpenseAmber
 import com.andina.finanzas.ui.theme.AndeanPrimary
+import com.andina.finanzas.ui.theme.AndeanMistCanvasBottom
+import com.andina.finanzas.ui.theme.AndeanMistCanvasTop
+import com.andina.finanzas.ui.theme.AndeanSlateInk
+import androidx.compose.ui.graphics.Brush
 
 data class AndinaAlert(
     val id: String,
@@ -111,92 +117,100 @@ fun NotificationsScreen(
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
-        containerColor = MaterialTheme.colorScheme.background,
+        containerColor = Color.Transparent,
         topBar = {
             TopAppBar(
                 title = {
                     Text(
                         text = "Centro de Alertas",
-                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
+                        style = MaterialTheme.typography.titleMedium.copy(
+                            fontWeight = FontWeight.Bold,
+                            color = AndeanSlateInk
+                        )
                     )
                 },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Regresar"
+                            contentDescription = "Regresar",
+                            tint = AndeanSlateInk
                         )
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surface
+                    containerColor = Color.Transparent
                 )
             )
         }
     ) { innerPadding ->
-        LazyColumn(
+        Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding)
-                .padding(horizontal = 20.dp, vertical = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+                .background(
+                    Brush.verticalGradient(
+                        colors = listOf(AndeanMistCanvasTop, AndeanMistCanvasBottom)
+                    )
+                )
         ) {
-            item {
-                Card(
-                    shape = RoundedCornerShape(16.dp),
-                    colors = CardDefaults.cardColors(containerColor = AndeanPrimary.copy(alpha = 0.12f)),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable { onNavigateToRecurring() }
-                ) {
-                    Row(
-                        modifier = Modifier.padding(16.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding)
+                    .padding(horizontal = 20.dp, vertical = 16.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                item {
+                    FrostedGlassCard(
+                        shape = RoundedCornerShape(18.dp),
+                        onClick = onNavigateToRecurring,
+                        modifier = Modifier.fillMaxWidth()
                     ) {
                         Row(
+                            modifier = Modifier.padding(16.dp),
                             verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier.weight(1f)
+                            horizontalArrangement = Arrangement.SpaceBetween
                         ) {
-                            Icon(
-                                imageVector = Icons.Default.Savings,
-                                contentDescription = null,
-                                tint = AndeanPrimary,
-                                modifier = Modifier.size(24.dp)
-                            )
-                            Spacer(modifier = Modifier.width(12.dp))
-                            Column {
-                                Text(
-                                    text = "Movimientos Fijos & Recurrentes",
-                                    fontSize = 14.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = MaterialTheme.colorScheme.onSurface
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier.weight(1f)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Savings,
+                                    contentDescription = null,
+                                    tint = AndeanPrimary,
+                                    modifier = Modifier.size(24.dp)
                                 )
-                                Text(
-                                    text = "Administrar pagos con confirmación a 1 tap",
-                                    fontSize = 12.sp,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                                )
+                                Spacer(modifier = Modifier.width(12.dp))
+                                Column {
+                                    Text(
+                                        text = "Movimientos Fijos & Recurrentes",
+                                        fontSize = 14.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = AndeanSlateInk
+                                    )
+                                    Text(
+                                        text = "Administrar pagos con confirmación a 1 tap",
+                                        fontSize = 12.sp,
+                                        color = AndeanSlateInk.copy(alpha = 0.7f)
+                                    )
+                                }
                             }
+                            Text(
+                                text = "Ver",
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 13.sp,
+                                color = AndeanPrimary
+                            )
                         }
-                        Text(
-                            text = "Ver",
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 13.sp,
-                            color = AndeanPrimary
-                        )
                     }
                 }
-            }
 
-            items(alerts, key = { it.id }) { alert ->
-                Card(
-                    shape = RoundedCornerShape(16.dp),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f)
-                    ),
-                    modifier = Modifier.fillMaxWidth()
-                ) {
+                items(alerts, key = { it.id }) { alert ->
+                    FrostedGlassCard(
+                        shape = RoundedCornerShape(18.dp),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -229,19 +243,19 @@ fun NotificationsScreen(
                                 Text(
                                     text = alert.title,
                                     style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
-                                    color = MaterialTheme.colorScheme.onSurface
+                                    color = AndeanSlateInk
                                 )
                                 Text(
                                     text = alert.timeAgo,
                                     style = MaterialTheme.typography.labelSmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    color = AndeanSlateInk.copy(alpha = 0.65f)
                                 )
                             }
                             Spacer(modifier = Modifier.height(4.dp))
                             Text(
                                 text = alert.message,
                                 style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                                color = AndeanSlateInk.copy(alpha = 0.85f)
                             )
                         }
                     }
@@ -249,4 +263,5 @@ fun NotificationsScreen(
             }
         }
     }
+}
 }

@@ -228,20 +228,20 @@ fun PocketsScreen(
             onDismissRequest = { viewModel.processAction(PocketsAction.DismissDeletePocket) },
             title = {
                 Text(
-                    text = "Eliminar Bolsillo",
+                    text = "Eliminar Meta de Bolsillo",
                     style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
                 )
             },
             text = {
                 Text(
-                    text = "¿Confirmas que deseas eliminar el bolsillo '${pocketToDelete.name}'? Tu saldo ahorrado de ${pocketToDelete.currentBalance.formatCop()} permanecerá seguro."
+                    text = "¿Confirmas que deseas eliminar el bolsillo '${pocketToDelete.name}'? Tu saldo reservado de ${pocketToDelete.currentBalance.formatCop()} permanecerá a salvo en tus cuentas."
                 )
             },
             confirmButton = {
                 androidx.compose.material3.TextButton(
                     onClick = { viewModel.processAction(PocketsAction.ConfirmDeletePocket(pocketToDelete.id)) }
                 ) {
-                    Text("Eliminar", fontWeight = FontWeight.Bold, color = Color(0xFFBA1A1A))
+                    Text("Eliminar Definitivamente", fontWeight = FontWeight.Bold, color = Color(0xFFBA1A1A))
                 }
             },
             dismissButton = {

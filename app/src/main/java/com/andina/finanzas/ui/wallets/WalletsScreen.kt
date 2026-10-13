@@ -23,10 +23,14 @@ import androidx.compose.material.icons.filled.AccountBalance
 import androidx.compose.material.icons.filled.AccountBalanceWallet
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.CreditCard
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Inventory2
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Payments
 import androidx.compose.material.icons.filled.Savings
+import androidx.compose.material.icons.filled.Unarchive
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -40,8 +44,18 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import com.andina.finanzas.ui.components.FrostedGlassCard
+import com.andina.finanzas.ui.components.WalletBrandGlyph
+import com.andina.finanzas.ui.components.bouncyClick
+import com.andina.finanzas.ui.theme.specularGlassBorder
+import com.andina.finanzas.ui.theme.AndeanMistCanvasBottom
+import com.andina.finanzas.ui.theme.AndeanMistCanvasTop
+import com.andina.finanzas.ui.theme.AndeanSlateInk
+import com.andina.finanzas.ui.theme.FrailejonGold
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -90,17 +104,22 @@ fun WalletsScreen(
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
-        containerColor = MaterialTheme.colorScheme.background,
+        containerColor = Color.Transparent,
         topBar = {
             TopAppBar(
                 title = {
                     Text(
                         text = "Billeteras & Cuentas",
-                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
+                        style = MaterialTheme.typography.titleMedium.copy(
+                            fontWeight = FontWeight.Bold,
+                            color = AndeanSlateInk
+                        )
                     )
                 },
                 actions = {
-                    IconButton(onClick = { viewModel.onEvent(WalletsEvent.OnOpenAddWallet) }) {
+                    IconButton(
+                        onClick = { viewModel.onEvent(WalletsEvent.OnOpenAddWallet) }
+                    ) {
                         Icon(
                             imageVector = Icons.Default.Add,
                             contentDescription = "Añadir billetera",
@@ -109,81 +128,160 @@ fun WalletsScreen(
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surface
+                    containerColor = Color.Transparent
                 )
             )
         }
     ) { innerPadding ->
-        if (state.isLoading) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(innerPadding),
-                contentAlignment = Alignment.Center
-            ) {
-                CircularProgressIndicator(color = AndeanPrimary)
-            }
-        } else {
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(innerPadding)
-                    .padding(horizontal = 20.dp, vertical = 16.dp),
-                verticalArrangement = Arrangement.spacedBy(14.dp)
-            ) {
-                // 1. Tarjeta Resumen de Saldo Consolidado
-                item {
-                    Card(
-                        shape = RoundedCornerShape(20.dp),
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.45f)
-                        ),
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(20.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(
+                    Brush.verticalGradient(
+                        colors = listOf(AndeanMistCanvasTop, AndeanMistCanvasBottom)
+                    )
+                )
+        ) {
+            if (state.isLoading) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(innerPadding),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator(color = AndeanPrimary)
+                }
+            } else {
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(innerPadding)
+                        .padding(horizontal = 20.dp, vertical = 16.dp),
+                    verticalArrangement = Arrangement.spacedBy(14.dp)
+                ) {
+                    // 1. Tarjeta Resumen de Saldo Consolidado (Cristal de Cuarzo)
+                    item {
+                        FrostedGlassCard(
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(24.dp)
                         ) {
-                            Text(
-                                text = "Saldo Total en Billeteras",
-                                style = MaterialTheme.typography.labelMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                            Spacer(modifier = Modifier.height(4.dp))
-                            Text(
-                                text = formatPesos(state.totalBalance),
-                                style = MaterialTheme.typography.headlineLarge.copy(
-                                    fontWeight = FontWeight.ExtraBold,
-                                    fontSize = 32.sp,
-                                    fontFeatureSettings = "tnum"
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(22.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                Text(
+                                    text = "Saldo Total en Billeteras",
+                                    style = MaterialTheme.typography.labelMedium,
+                                    color = AndeanSlateInk.copy(alpha = 0.7f)
+                                )
+                                Spacer(modifier = Modifier.height(6.dp))
+                                Text(
+                                    text = formatPesos(state.totalBalance),
+                                    style = MaterialTheme.typography.headlineLarge.copy(
+                                        fontWeight = FontWeight.ExtraBold,
+                                        fontSize = 32.sp,
+                                        fontFeatureSettings = "tnum"
+                                    ),
+                                    color = FrailejonGold
+                                )
+                                Spacer(modifier = Modifier.height(6.dp))
+                                Text(
+                                    text = "${state.wallets.size} cuentas activas · ${state.archivedWallets.size} archivadas",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = AndeanSlateInk.copy(alpha = 0.7f)
+                                )
+                            }
+                        }
+                    }
+
+                    // 2. Selector de Pestañas: Activas vs Archivadas
+                    item {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(10.dp)
+                        ) {
+                            androidx.compose.material3.FilterChip(
+                                selected = state.selectedTab == WalletsTab.ACTIVAS,
+                                onClick = { viewModel.onEvent(WalletsEvent.OnSelectTab(WalletsTab.ACTIVAS)) },
+                                label = { Text("Activas (${state.wallets.size})", fontWeight = FontWeight.SemiBold) },
+                                colors = androidx.compose.material3.FilterChipDefaults.filterChipColors(
+                                    selectedContainerColor = AndeanPrimary.copy(alpha = 0.15f),
+                                    selectedLabelColor = AndeanPrimary
                                 ),
-                                color = AndeanPrimary
+                                shape = RoundedCornerShape(12.dp)
                             )
-                            Spacer(modifier = Modifier.height(6.dp))
-                            Text(
-                                text = "${state.wallets.size} cuentas activas locales",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            androidx.compose.material3.FilterChip(
+                                selected = state.selectedTab == WalletsTab.ARCHIVADAS,
+                                onClick = { viewModel.onEvent(WalletsEvent.OnSelectTab(WalletsTab.ARCHIVADAS)) },
+                                label = { Text("Archivadas (${state.archivedWallets.size})", fontWeight = FontWeight.SemiBold) },
+                                colors = androidx.compose.material3.FilterChipDefaults.filterChipColors(
+                                    selectedContainerColor = AndeanPrimary.copy(alpha = 0.15f),
+                                    selectedLabelColor = AndeanPrimary
+                                ),
+                                shape = RoundedCornerShape(12.dp)
                             )
                         }
                     }
-                }
 
-                // 2. Lista de Billeteras
-                items(state.wallets, key = { it.id }) { wallet ->
-                    WalletItemCard(
-                        wallet = wallet,
-                        onClick = { selectedWalletForDetail = wallet },
-                        onEdit = { viewModel.onEvent(WalletsEvent.OnOpenEditWallet(wallet)) },
-                        onArchive = { viewModel.onEvent(WalletsEvent.OnArchiveWallet(wallet.id)) }
-                    )
-                }
+                    // 3. Lista de Billeteras según la pestaña seleccionada
+                    val currentList = if (state.selectedTab == WalletsTab.ACTIVAS) state.wallets else state.archivedWallets
 
-                // Espaciador inferior para la barra de navegación
-                item {
-                    Spacer(modifier = Modifier.height(80.dp))
+                    if (currentList.isEmpty()) {
+                        item {
+                            FrostedGlassCard(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 12.dp),
+                                shape = RoundedCornerShape(20.dp)
+                            ) {
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(28.dp),
+                                    horizontalAlignment = Alignment.CenterHorizontally
+                                ) {
+                                    Icon(
+                                        imageVector = if (state.selectedTab == WalletsTab.ACTIVAS) Icons.Default.AccountBalanceWallet else Icons.Default.Inventory2,
+                                        contentDescription = null,
+                                        tint = AndeanSlateInk.copy(alpha = 0.4f),
+                                        modifier = Modifier.size(36.dp)
+                                    )
+                                    Spacer(modifier = Modifier.height(10.dp))
+                                    Text(
+                                        text = if (state.selectedTab == WalletsTab.ACTIVAS) "No tienes cuentas activas" else "No hay cuentas archivadas",
+                                        style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
+                                        color = AndeanSlateInk
+                                    )
+                                    Spacer(modifier = Modifier.height(4.dp))
+                                    Text(
+                                        text = if (state.selectedTab == WalletsTab.ACTIVAS) "Pulsa el botón + para registrar una nueva cuenta." else "Las cuentas que archives aparecerán aquí para restaurarlas cuando quieras.",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = AndeanSlateInk.copy(alpha = 0.65f),
+                                        textAlign = androidx.compose.ui.text.style.TextAlign.Center
+                                    )
+                                }
+                            }
+                        }
+                    } else {
+                        items(currentList, key = { it.id }) { wallet ->
+                            WalletItemCard(
+                                wallet = wallet,
+                                isArchived = state.selectedTab == WalletsTab.ARCHIVADAS,
+                                onClick = { selectedWalletForDetail = wallet },
+                                onEdit = { viewModel.onEvent(WalletsEvent.OnOpenEditWallet(wallet)) },
+                                onArchive = { viewModel.onEvent(WalletsEvent.OnArchiveWallet(wallet.id)) },
+                                onUnarchive = { viewModel.onEvent(WalletsEvent.OnUnarchiveWallet(wallet.id)) },
+                                onDelete = { viewModel.onEvent(WalletsEvent.OnRequestDeleteWallet(wallet)) }
+                            )
+                        }
+                    }
+
+                    // Espaciador inferior para la barra de navegación
+                    item {
+                        Spacer(modifier = Modifier.height(80.dp))
+                    }
                 }
             }
         }
@@ -194,7 +292,7 @@ fun WalletsScreen(
         androidx.compose.material3.ModalBottomSheet(
             onDismissRequest = { selectedWalletForDetail = null },
             sheetState = androidx.compose.material3.rememberModalBottomSheetState(skipPartiallyExpanded = true),
-            containerColor = MaterialTheme.colorScheme.surface
+            containerColor = AndeanMistCanvasTop
         ) {
             Column(
                 modifier = Modifier
@@ -211,23 +309,15 @@ fun WalletsScreen(
 
                 Box(
                     modifier = Modifier
-                        .size(64.dp)
-                        .clip(RoundedCornerShape(18.dp))
-                        .background(detailColor.copy(alpha = 0.16f)),
+                        .size(72.dp)
+                        .clip(RoundedCornerShape(20.dp))
+                        .background(detailColor.copy(alpha = 0.14f)),
                     contentAlignment = Alignment.Center
                 ) {
-                    Icon(
-                        imageVector = when (wallet.type) {
-                            WalletType.EFECTIVO -> Icons.Default.Payments
-                            WalletType.TARJETA_CREDITO -> Icons.Default.CreditCard
-                            WalletType.BANCOLOMBIA -> Icons.Default.AccountBalance
-                            WalletType.NEQUI -> Icons.Default.AccountBalanceWallet
-                            WalletType.DAVIPLATA -> Icons.Default.Savings
-                            WalletType.OTRA -> Icons.Default.AccountBalanceWallet
-                        },
-                        contentDescription = null,
+                    WalletBrandGlyph(
+                        walletType = wallet.type,
                         tint = detailColor,
-                        modifier = Modifier.size(34.dp)
+                        size = 46.dp
                     )
                 }
 
@@ -235,8 +325,10 @@ fun WalletsScreen(
 
                 Text(
                     text = wallet.name,
-                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
-                    color = MaterialTheme.colorScheme.onSurface
+                    style = MaterialTheme.typography.titleLarge.copy(
+                        fontWeight = FontWeight.Bold,
+                        color = AndeanSlateInk
+                    )
                 )
 
                 Text(
@@ -249,24 +341,25 @@ fun WalletsScreen(
                         WalletType.OTRA -> "Cuenta Local"
                     },
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = AndeanSlateInk.copy(alpha = 0.65f)
                 )
 
                 Spacer(modifier = Modifier.height(14.dp))
 
-                Surface(
-                    shape = RoundedCornerShape(16.dp),
-                    color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.45f),
+                FrostedGlassCard(
+                    shape = RoundedCornerShape(18.dp),
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Column(
-                        modifier = Modifier.padding(16.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Text(
                             text = "Saldo Disponible",
                             style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                            color = AndeanSlateInk.copy(alpha = 0.65f)
                         )
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
@@ -275,7 +368,7 @@ fun WalletsScreen(
                                 fontWeight = FontWeight.ExtraBold,
                                 fontFeatureSettings = "tnum"
                             ),
-                            color = if (wallet.currentBalance.pesos < 0) Color(0xFFBA1A1A) else AndeanPrimary
+                            color = if (wallet.currentBalance.pesos < 0) Color(0xFFBA1A1A) else FrailejonGold
                         )
                     }
                 }
@@ -338,14 +431,49 @@ fun WalletsScreen(
             onDismiss = { viewModel.onEvent(WalletsEvent.OnDismissDialog) }
         )
     }
+
+    // Diálogo de Confirmación para Eliminar Definitivamente
+    state.walletToDelete?.let { walletToDelete ->
+        AlertDialog(
+            onDismissRequest = { viewModel.onEvent(WalletsEvent.OnDismissDeleteDialog) },
+            title = {
+                Text(
+                    text = "Eliminar Cuenta Definitivamente",
+                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
+                )
+            },
+            text = {
+                Text(
+                    text = "¿Confirmas que deseas eliminar la cuenta '${walletToDelete.name}'? Si tiene transacciones asociadas, considera archivarla en su lugar para preservar tu historial contable."
+                )
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = { viewModel.onEvent(WalletsEvent.OnConfirmDeleteWallet(walletToDelete.id)) }
+                ) {
+                    Text("Eliminar Definitivamente", fontWeight = FontWeight.Bold, color = Color(0xFFBA1A1A))
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = { viewModel.onEvent(WalletsEvent.OnDismissDeleteDialog) }
+                ) {
+                    Text("Cancelar")
+                }
+            }
+        )
+    }
 }
 
 @Composable
 private fun WalletItemCard(
     wallet: Wallet,
+    isArchived: Boolean,
     onClick: () -> Unit,
     onEdit: () -> Unit,
-    onArchive: () -> Unit
+    onArchive: () -> Unit,
+    onUnarchive: () -> Unit,
+    onDelete: () -> Unit
 ) {
     var menuExpanded by remember { mutableStateOf(false) }
 
@@ -353,15 +481,6 @@ private fun WalletItemCard(
         Color(android.graphics.Color.parseColor(wallet.colorHex))
     } catch (_: Exception) {
         AndeanPrimary
-    }
-
-    val icon = when (wallet.type) {
-        WalletType.EFECTIVO -> Icons.Default.Payments
-        WalletType.TARJETA_CREDITO -> Icons.Default.CreditCard
-        WalletType.BANCOLOMBIA -> Icons.Default.AccountBalance
-        WalletType.NEQUI -> Icons.Default.AccountBalanceWallet
-        WalletType.DAVIPLATA -> Icons.Default.Savings
-        WalletType.OTRA -> Icons.Default.AccountBalanceWallet
     }
 
     val categorySubtitle = when (wallet.type) {
@@ -373,14 +492,10 @@ private fun WalletItemCard(
         WalletType.OTRA -> "Cuenta Local"
     }
 
-    Card(
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.35f)
-        ),
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable { onClick() }
+    FrostedGlassCard(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(18.dp),
+        onClick = onClick
     ) {
         Row(
             modifier = Modifier
@@ -393,20 +508,11 @@ private fun WalletItemCard(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.weight(1f)
             ) {
-                Box(
-                    modifier = Modifier
-                        .size(46.dp)
-                        .clip(RoundedCornerShape(12.dp))
-                        .background(walletColor.copy(alpha = 0.16f)),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        imageVector = icon,
-                        contentDescription = null,
-                        tint = walletColor,
-                        modifier = Modifier.size(24.dp)
-                    )
-                }
+                WalletBrandGlyph(
+                    walletType = wallet.type,
+                    tint = walletColor,
+                    size = 46.dp
+                )
 
                 Spacer(modifier = Modifier.width(14.dp))
 
@@ -414,12 +520,12 @@ private fun WalletItemCard(
                     Text(
                         text = wallet.name,
                         style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
-                        color = MaterialTheme.colorScheme.onSurface
+                        color = AndeanSlateInk
                     )
                     Text(
-                        text = categorySubtitle,
+                        text = if (isArchived) "$categorySubtitle · Archivada" else categorySubtitle,
                         style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = if (isArchived) Color(0xFFBA1A1A).copy(alpha = 0.8f) else AndeanSlateInk.copy(alpha = 0.65f)
                     )
                 }
             }
@@ -450,16 +556,45 @@ private fun WalletItemCard(
                     ) {
                         DropdownMenuItem(
                             text = { Text("Editar Billetera") },
+                            leadingIcon = {
+                                Icon(Icons.Default.Edit, contentDescription = null, modifier = Modifier.size(18.dp))
+                            },
                             onClick = {
                                 menuExpanded = false
                                 onEdit()
                             }
                         )
+                        if (!isArchived) {
+                            DropdownMenuItem(
+                                text = { Text("Archivar Cuenta") },
+                                leadingIcon = {
+                                    Icon(Icons.Default.Inventory2, contentDescription = null, modifier = Modifier.size(18.dp))
+                                },
+                                onClick = {
+                                    menuExpanded = false
+                                    onArchive()
+                                }
+                            )
+                        } else {
+                            DropdownMenuItem(
+                                text = { Text("Restaurar a Activas") },
+                                leadingIcon = {
+                                    Icon(Icons.Default.Unarchive, contentDescription = null, modifier = Modifier.size(18.dp))
+                                },
+                                onClick = {
+                                    menuExpanded = false
+                                    onUnarchive()
+                                }
+                            )
+                        }
                         DropdownMenuItem(
-                            text = { Text("Archivar Cuenta") },
+                            text = { Text("Eliminar Definitivamente", color = Color(0xFFBA1A1A)) },
+                            leadingIcon = {
+                                Icon(Icons.Default.Delete, contentDescription = null, tint = Color(0xFFBA1A1A), modifier = Modifier.size(18.dp))
+                            },
                             onClick = {
                                 menuExpanded = false
-                                onArchive()
+                                onDelete()
                             }
                         )
                     }

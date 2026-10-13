@@ -65,8 +65,7 @@ fun AddWalletModal(
     var initialBalanceInput by remember {
         mutableStateOf(
             editingWallet?.let {
-                if (it.currentBalance.pesos > 0L) it.currentBalance.pesos.toString()
-                else it.initialBalance.pesos.toString()
+                it.currentBalance.pesos.toString()
             } ?: ""
         )
     }
@@ -75,22 +74,21 @@ fun AddWalletModal(
     }
 
     val palette = listOf(
-        "#700054", // Nequi Magenta
-        "#B32D2D", // Daviplata Rojo
-        "#C58934", // Bancolombia Ámbar
-        "#435C3C", // Efectivo Musgo
-        "#820AD1", // NuBank Morado
-        "#1E88E5", // Banco Azul
+        "#700054", // Magenta Billetera Digital
+        "#1E88E5", // Azul Cuenta Bancaria
+        "#435C3C", // Verde Efectivo en Mano
+        "#820AD1", // Morado Tarjeta de Crédito
+        "#B32D2D", // Rojo
+        "#C58934", // Ámbar
         "#00897B", // Esmeralda
         "#5D4037"  // Café Cuero
     )
 
     val availableTypes: List<Pair<WalletType, String>> = listOf(
-        WalletType.NEQUI to "Nequi",
-        WalletType.DAVIPLATA to "Daviplata",
-        WalletType.BANCOLOMBIA to "Bancolombia",
-        WalletType.EFECTIVO to "Efectivo",
-        WalletType.TARJETA_CREDITO to "Tarjeta",
+        WalletType.NEQUI to "Billetera Digital",
+        WalletType.BANCOLOMBIA to "Cuenta Bancaria",
+        WalletType.EFECTIVO to "Efectivo en Mano",
+        WalletType.TARJETA_CREDITO to "Tarjeta de Crédito",
         WalletType.OTRA to "Otra Cuenta"
     )
 
@@ -139,12 +137,11 @@ fun AddWalletModal(
                             onClick = {
                                 selectedType = type
                                 when (type) {
-                                    WalletType.NEQUI -> selectedColorHex = "#700054"
-                                    WalletType.DAVIPLATA -> selectedColorHex = "#B32D2D"
-                                    WalletType.BANCOLOMBIA -> selectedColorHex = "#C58934"
+                                    WalletType.NEQUI, WalletType.DAVIPLATA -> selectedColorHex = "#700054"
+                                    WalletType.BANCOLOMBIA -> selectedColorHex = "#1E88E5"
                                     WalletType.EFECTIVO -> selectedColorHex = "#435C3C"
                                     WalletType.TARJETA_CREDITO -> selectedColorHex = "#820AD1"
-                                    WalletType.OTRA -> selectedColorHex = "#1E88E5"
+                                    WalletType.OTRA -> selectedColorHex = "#00897B"
                                 }
                             },
                             label = { Text(label, style = MaterialTheme.typography.labelSmall) },

@@ -32,6 +32,7 @@ class WalletsViewModel @Inject constructor(
 
     init {
         observeWallets()
+        observeArchivedWallets()
     }
 
     private fun observeWallets() {
@@ -49,8 +50,21 @@ class WalletsViewModel @Inject constructor(
         }
     }
 
+    private fun observeArchivedWallets() {
+        viewModelScope.launch {
+            repository.observeArchivedWallets().collect { archivedList ->
+                _state.update {
+                    it.copy(archivedWallets = archivedList)
+                }
+            }
+        }
+    }
+
     fun onEvent(event: WalletsEvent) {
         when (event) {
+            is WalletsEvent.OnSelectTab -> {
+                _state.update { it.copy(selectedTab = event.tab) }
+            }
             is WalletsEvent.OnOpenAddWallet -> {
                 _state.update { it.copy(showAddEditDialog = true, editingWallet = null) }
             }
@@ -65,6 +79,18 @@ class WalletsViewModel @Inject constructor(
             }
             is WalletsEvent.OnArchiveWallet -> {
                 archiveWallet(event.walletId)
+            }
+            is WalletsEvent.OnUnarchiveWallet -> {
+                unarchiveWallet(event.walletId)
+            }
+            is WalletsEvent.OnRequestDeleteWallet -> {
+                _state.update { it.copy(walletToDelete = event.wallet) }
+            }
+            is WalletsEvent.OnDismissDeleteDialog -> {
+                _state.update { it.copy(walletToDelete = null) }
+            }
+            is WalletsEvent.OnConfirmDeleteWallet -> {
+                deleteWallet(event.walletId)
             }
         }
     }
@@ -104,7 +130,22 @@ class WalletsViewModel @Inject constructor(
     private fun archiveWallet(walletId: Long) {
         viewModelScope.launch {
             repository.archiveWallet(walletId)
-            _effects.send(WalletsEffect.ShowSnackbar("Billetera archivada"))
+            _effects.send(WalletsEffect.ShowSnackbar("Billetera archivada. Puedes verla en 'Archivadas'"))
+        }
+    }
+
+    private fun unarchiveWallet(walletId: Long) {
+        viewModelScope.launch {
+            repository.unarchiveWallet(walletId)
+            _effects.send(WalletsEffect.ShowSnackbar("Billetera restaurada a tus cuentas activas 🌿"))
+        }
+    }
+
+    private fun deleteWallet(walletId: Long) {
+        viewModelScope.launch {
+            repository.deleteWallet(walletId)
+            _state.update { it.copy(walletToDelete = null) }
+            _effects.send(WalletsEffect.ShowSnackbar("Billetera eliminada definitivamente"))
         }
     }
 }

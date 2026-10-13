@@ -70,4 +70,24 @@ class CustomizationViewModel @Inject constructor(
             )
         }
     }
+
+    fun createCategory(name: String, kind: CategoryKind, icon: String = "category", colorHex: String = "#435C3C") {
+        viewModelScope.launch {
+            financeRepository.createCategory(
+                Category(
+                    id = 0L,
+                    name = name.trim(),
+                    kind = kind,
+                    icon = icon,
+                    colorHex = colorHex
+                )
+            )
+        }
+    }
+
+    fun deleteCategory(categoryId: Long) {
+        viewModelScope.launch {
+            financeRepository.deleteCategory(categoryId)
+        }
+    }
 }

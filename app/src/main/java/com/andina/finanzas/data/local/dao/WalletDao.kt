@@ -43,11 +43,20 @@ interface WalletDao {
     @Update
     suspend fun updateWallet(wallet: WalletEntity)
 
+    @Query("SELECT * FROM wallets WHERE archived = 1 ORDER BY sortOrder ASC, id ASC")
+    fun observeArchivedWallets(): Flow<List<WalletEntity>>
+
     @Delete
     suspend fun deleteWallet(wallet: WalletEntity)
 
+    @Query("DELETE FROM wallets WHERE id = :id")
+    suspend fun deleteWalletById(id: Long)
+
     @Query("UPDATE wallets SET archived = 1 WHERE id = :id")
     suspend fun archiveWallet(id: Long)
+
+    @Query("UPDATE wallets SET archived = 0 WHERE id = :id")
+    suspend fun unarchiveWallet(id: Long)
 
     // --- Consultas al Libro Mayor (WalletBalanceView) ---
 

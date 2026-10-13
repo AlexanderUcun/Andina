@@ -38,8 +38,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.andina.finanzas.domain.model.Money
+import com.andina.finanzas.ui.components.FrostedGlassCard
 import com.andina.finanzas.ui.components.muggy.MuggyAvatar
 import com.andina.finanzas.ui.components.muggy.MuggyPose
+import com.andina.finanzas.ui.theme.AndeanSlateInk
+import com.andina.finanzas.ui.theme.FrailejonGold
 
 data class AntSampleItem(
     val emoji: String,
@@ -80,10 +83,8 @@ fun AntExpenseMirrorCard(
         else -> "Un fin de semana inolvidable de descanso en Villa de Leyva."
     }
 
-    Card(
+    FrostedGlassCard(
         shape = RoundedCornerShape(24.dp),
-        colors = CardDefaults.cardColors(containerColor = Color(0xFFF9F7F3)),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
         modifier = modifier.fillMaxWidth()
     ) {
         Column(modifier = Modifier.padding(20.dp)) {

@@ -55,6 +55,7 @@ import androidx.compose.ui.unit.sp
 import com.andina.finanzas.ui.navigation.AndinaNavTab
 import com.andina.finanzas.ui.theme.AndeanPrimaryContainer
 import com.andina.finanzas.ui.theme.AndinaTheme
+import com.andina.finanzas.ui.theme.specularGlassBorder
 
 /**
  * Barra de navegación inferior insignia de Andina Finanzas.
@@ -86,72 +87,75 @@ fun AndinaBottomBar(
             .navigationBarsPadding(),
         contentAlignment = Alignment.BottomCenter
     ) {
-        // Superficie base de la barra
+        // Superficie suspendida flotante de cristal de cuarzo
         Surface(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(72.dp),
-            color = MaterialTheme.colorScheme.surface,
-            tonalElevation = 6.dp,
-            shadowElevation = 8.dp
-        ) {
-            Column(modifier = Modifier.fillMaxWidth()) {
-                // Línea divisoria sutil superior
-                HorizontalDivider(
-                    thickness = 0.8.dp,
-                    color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.35f)
+                .padding(horizontal = 16.dp, vertical = 8.dp)
+                .height(68.dp)
+                .shadow(
+                    elevation = 10.dp,
+                    shape = RoundedCornerShape(26.dp),
+                    ambientColor = Color(0x1A1D1B19),
+                    spotColor = Color(0x141D1B19)
                 )
-
+                .clip(RoundedCornerShape(26.dp))
+                .specularGlassBorder(
+                    strokeWidth = 1.dp,
+                    shape = RoundedCornerShape(26.dp),
+                    topLightColor = Color.White.copy(alpha = 0.90f),
+                    bottomShadowColor = Color.White.copy(alpha = 0.15f)
+                ),
+            color = MaterialTheme.colorScheme.surfaceContainer.copy(alpha = 0.88f)
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                // Pestañas izquierdas: [ Inicio ] y [ Bolsillos ]
                 Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .weight(1f)
-                        .padding(horizontal = 8.dp),
+                    modifier = Modifier.weight(1f),
+                    horizontalArrangement = Arrangement.SpaceEvenly,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    // Pestañas izquierdas: [ Inicio ] y [ Bolsillos ]
-                    Row(
-                        modifier = Modifier.weight(1f),
-                        horizontalArrangement = Arrangement.SpaceEvenly,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        AndinaNavTab.leftTabs.forEach { tab ->
-                            BottomBarTabItem(
-                                tab = tab,
-                                isSelected = tab == currentTab,
-                                onClick = {
-                                    if (tab != currentTab) {
-                                        haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
-                                        onTabSelected(tab)
-                                    }
-                                },
-                                modifier = Modifier.weight(1f)
-                            )
-                        }
+                    AndinaNavTab.leftTabs.forEach { tab ->
+                        BottomBarTabItem(
+                            tab = tab,
+                            isSelected = tab == currentTab,
+                            onClick = {
+                                if (tab != currentTab) {
+                                    haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                                    onTabSelected(tab)
+                                }
+                            },
+                            modifier = Modifier.weight(1f)
+                        )
                     }
+                }
 
-                    // Espaciador central reservado para el botón flotante (+)
-                    Spacer(modifier = Modifier.width(68.dp))
+                // Espaciador central reservado para el botón flotante (+)
+                Spacer(modifier = Modifier.width(64.dp))
 
-                    // Pestañas derechas: [ Billeteras ] y [ Movimientos ]
-                    Row(
-                        modifier = Modifier.weight(1f),
-                        horizontalArrangement = Arrangement.SpaceEvenly,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        AndinaNavTab.rightTabs.forEach { tab ->
-                            BottomBarTabItem(
-                                tab = tab,
-                                isSelected = tab == currentTab,
-                                onClick = {
-                                    if (tab != currentTab) {
-                                        haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
-                                        onTabSelected(tab)
-                                    }
-                                },
-                                modifier = Modifier.weight(1f)
-                            )
-                        }
+                // Pestañas derechas: [ Billeteras ] y [ Movimientos ]
+                Row(
+                    modifier = Modifier.weight(1f),
+                    horizontalArrangement = Arrangement.SpaceEvenly,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    AndinaNavTab.rightTabs.forEach { tab ->
+                        BottomBarTabItem(
+                            tab = tab,
+                            isSelected = tab == currentTab,
+                            onClick = {
+                                if (tab != currentTab) {
+                                    haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                                    onTabSelected(tab)
+                                }
+                            },
+                            modifier = Modifier.weight(1f)
+                        )
                     }
                 }
             }

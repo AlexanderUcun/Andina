@@ -57,6 +57,13 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.ui.graphics.Brush
+import com.andina.finanzas.ui.components.FrostedGlassCard
+import com.andina.finanzas.ui.components.bouncyClick
+import com.andina.finanzas.ui.theme.AndeanMistCanvasBottom
+import com.andina.finanzas.ui.theme.AndeanMistCanvasTop
+import com.andina.finanzas.ui.theme.AndeanSlateInk
+import com.andina.finanzas.ui.theme.FrailejonGold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -121,20 +128,24 @@ fun TransactionDetailScreen(
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
-        containerColor = MaterialTheme.colorScheme.background,
+        containerColor = Color.Transparent,
         topBar = {
             TopAppBar(
                 title = {
                     Text(
                         text = "Detalle del Movimiento",
-                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
+                        style = MaterialTheme.typography.titleMedium.copy(
+                            fontWeight = FontWeight.Bold,
+                            color = AndeanSlateInk
+                        )
                     )
                 },
                 navigationIcon = {
                     IconButton(onClick = onNavigateBack) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Regresar"
+                            contentDescription = "Regresar",
+                            tint = AndeanSlateInk
                         )
                     }
                 },
@@ -150,30 +161,39 @@ fun TransactionDetailScreen(
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.surface
+                    containerColor = Color.Transparent
                 )
             )
         }
     ) { innerPadding ->
-        if (state.isLoading) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(innerPadding),
-                contentAlignment = Alignment.Center
-            ) {
-                CircularProgressIndicator(color = AndeanPrimary)
-            }
-        } else {
-            val tx = state.transaction
-            if (tx != null) {
-                Column(
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(
+                    Brush.verticalGradient(
+                        colors = listOf(AndeanMistCanvasTop, AndeanMistCanvasBottom)
+                    )
+                )
+        ) {
+            if (state.isLoading) {
+                Box(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(innerPadding)
-                        .verticalScroll(rememberScrollState())
-                        .padding(horizontal = 20.dp, vertical = 16.dp)
+                        .padding(innerPadding),
+                    contentAlignment = Alignment.Center
                 ) {
+                    CircularProgressIndicator(color = AndeanPrimary)
+                }
+            } else {
+                val tx = state.transaction
+                if (tx != null) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(innerPadding)
+                            .verticalScroll(rememberScrollState())
+                            .padding(horizontal = 20.dp, vertical = 16.dp)
+                    ) {
                     // 1. Tarjeta Hero con Cifra y Estado Editable
                     TransactionHeroCard(
                         transaction = tx,
@@ -342,6 +362,7 @@ fun TransactionDetailScreen(
             }
         }
     }
+}
 
     // Modal de edición de Monto
     if (state.showAmountEditDialog) {
@@ -437,12 +458,9 @@ private fun TransactionHeroCard(
         else -> MaterialTheme.colorScheme.onSurface
     }
 
-    Card(
-        shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.45f)
-        ),
-        modifier = Modifier.fillMaxWidth()
+    FrostedGlassCard(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(22.dp)
     ) {
         Column(
             modifier = Modifier
@@ -541,18 +559,15 @@ private fun TransactionMetaCard(
     onCategoryClick: () -> Unit,
     onDateTimeClick: () -> Unit
 ) {
-    Card(
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
-        ),
-        modifier = Modifier.fillMaxWidth()
+    FrostedGlassCard(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(18.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
                 text = "Detalles del Asiento (Toca para editar)",
                 style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                color = AndeanSlateInk.copy(alpha = 0.7f)
             )
             Spacer(modifier = Modifier.height(12.dp))
 

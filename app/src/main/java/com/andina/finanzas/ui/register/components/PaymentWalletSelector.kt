@@ -44,6 +44,7 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.andina.finanzas.ui.components.WalletBrandGlyph
 import com.andina.finanzas.domain.model.Money
 import com.andina.finanzas.domain.model.Wallet
 import com.andina.finanzas.domain.model.WalletType
@@ -164,19 +165,18 @@ fun PaymentWalletSelector(
                         .padding(horizontal = 12.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    // Círculo insignia con el color de marca
+                    // Círculo insignia con glifo de marca oficial
                     Box(
                         modifier = Modifier
                             .size(28.dp)
                             .clip(CircleShape)
-                            .background(brandColor.copy(alpha = 0.2f)),
+                            .background(brandColor.copy(alpha = 0.18f)),
                         contentAlignment = Alignment.Center
                     ) {
-                        Icon(
-                            imageVector = icon,
-                            contentDescription = null,
+                        WalletBrandGlyph(
+                            walletType = wallet.type,
                             tint = brandColor,
-                            modifier = Modifier.size(16.dp)
+                            size = 18.dp
                         )
                     }
 

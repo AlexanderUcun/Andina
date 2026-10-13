@@ -84,7 +84,7 @@ data class CategoryEntity(
                 sortOrder = 5
             ),
             CategoryEntity(
-                name = "Salud y Cuidado",
+                name = "Salud y Bienestar",
                 icon = "favorite",
                 colorHex = "#D32F2F",
                 kind = KIND_GASTO,
@@ -93,13 +93,31 @@ data class CategoryEntity(
                 sortOrder = 6
             ),
             CategoryEntity(
+                name = "Cuidado Personal",
+                icon = "spa",
+                colorHex = "#E91E63",
+                kind = KIND_GASTO,
+                isAntCandidate = false,
+                isDefault = true,
+                sortOrder = 7
+            ),
+            CategoryEntity(
+                name = "Familia y Hogar",
+                icon = "family_restroom",
+                colorHex = "#00897B",
+                kind = KIND_GASTO,
+                isAntCandidate = false,
+                isDefault = true,
+                sortOrder = 8
+            ),
+            CategoryEntity(
                 name = "Educación",
                 icon = "school",
                 colorHex = "#0288D1",
                 kind = KIND_GASTO,
                 isAntCandidate = false,
                 isDefault = true,
-                sortOrder = 7
+                sortOrder = 9
             ),
             CategoryEntity(
                 name = "Otros Gastos",
@@ -108,7 +126,7 @@ data class CategoryEntity(
                 kind = KIND_GASTO,
                 isAntCandidate = false,
                 isDefault = true,
-                sortOrder = 8
+                sortOrder = 10
             ),
 
             // --- INGRESOS ---

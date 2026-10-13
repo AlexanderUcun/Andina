@@ -54,34 +54,56 @@ val AndeanDarkOutlineVariant = Color(0x1AFFFFFF) // 10% blanco sutil para bordes
 val AndeanDarkFrostedGlass = Color(0x261F231D) // 15% blanco + tono musgo nocturno
 
 // ============================================================================
+// 🏔️ PÁRAMO DIURNO LUMINOSO & CRISTAL DE CUARZO (LIGHT MINERAL GLASS)
+// ============================================================================
+val AndeanMistCanvasTop = Color(0xFFECF2EB)      // Pizarra caliza con rocío matutino
+val AndeanMistCanvasBottom = Color(0xFFE4ECE3)   // Base niebla andina suave
+val AndeanQuartzGlass = Color(0xD9FFFFFF)        // 85% blanco cuarzo translúcido
+val AndeanFrostBorderTop = Color(0xF2FFFFFF)     // 95% blanco cenital escarchado
+val AndeanFrostBorderBottom = Color(0x59CAD5C7)  // Bisel inferior fundido con la niebla
+
+// Oro Frailejón Cálido y Esmeralda Andina (Acentos de Valor)
+val FrailejonGold = Color(0xFFDF9E28)            // Oro ámbar cálido para saldos y logros
+val FrailejonGoldDeep = Color(0xFFC8871E)        // Oro ámbar oscuro para bordes y contraste
+val AndeanEmeraldDeep = Color(0xFF15803D)        // Esmeralda pura para ingresos y confirmaciones
+val AndeanEmeraldLight = Color(0xFF10B981)       // Esmeralda luminosa para auras cáusticas
+val AndeanSlateInk = Color(0xFF1F2923)           // Tinta carbón vegetal mineral (WCAG AAA)
+val AndeanVolcanicEmber = Color(0xFFDC2626)      // Rojo brasas para sobregiros y alertas
+
+// ============================================================================
 // 🪟 EFECTO VIDRIO ESMERILADO (QUIET FROSTED GLASS)
 // ============================================================================
-val AndeanFrostedGlassSurface = Color(0xC2FFFFFF) // 76% opacidad
-val AndeanFrostedGlassBorder = Color(0xD9FFFFFF)  // 85% opacidad
-val AndeanFrostedGlassShadow = Color(0x0D1D1B19)  // 5% carbón
+val AndeanFrostedGlassSurface = Color(0xD9FFFFFF) // 85% opacidad cuarzo
+val AndeanFrostedGlassBorder = Color(0xF2FFFFFF)  // 95% opacidad bisel
+val AndeanFrostedGlassShadow = Color(0x0A1D1B19)  // 4% sombra mineral de contacto
 
 // ============================================================================
-// 💳 IDENTIDAD DE BILLETERAS COLOMBIANAS
+// 💳 IDENTIDAD DE BILLETERAS COLOMBIANAS (GEMAS DE CRISTAL)
 // ============================================================================
 object WalletBrandColors {
-    // Nequi
+    // Nequi: Amatista profundo con reflejo neón
     val Nequi = Color(0xFF700054)
+    val NequiAccent = Color(0xFFFF007A)
     val NequiContainer = Color(0x1F700054)
 
-    // Daviplata
+    // Daviplata: Rubí volcánico templado
     val Daviplata = Color(0xFFB32D2D)
+    val DaviplataAccent = Color(0xFFE11D48)
     val DaviplataContainer = Color(0x1FB32D2D)
 
-    // Bancolombia
+    // Bancolombia: Oro mostaza andino metalizado
     val Bancolombia = Color(0xFFC58934)
+    val BancolombiaAccent = Color(0xFFF59E0B)
     val BancolombiaContainer = Color(0x26C58934)
 
-    // Efectivo
-    val Cash = Color(0xFF435C3C)
+    // Efectivo: Jade paramuno satinado
+    val Cash = Color(0xFF2C4427)
+    val CashAccent = Color(0xFF15803D)
     val CashContainer = Color(0x26435C3C)
 
     // NuBank (Billetera adicional colombiana)
     val NuBank = Color(0xFF820AD1)
+    val NuBankAccent = Color(0xFFA855F7)
     val NuBankContainer = Color(0x1F820AD1)
 }
 
@@ -100,11 +122,11 @@ val AndinaErrorRed = Color(0xFFBA1A1A)
 // ============================================================================
 // 🌄 GRADIENTES ANDINOS DE PANTALLA
 // ============================================================================
-val MistGradientTop = Color(0xFFF5F3EF)
-val MistGradientBottom = Color(0xFFEBE6DC)
+val MistGradientTop = AndeanMistCanvasTop
+val MistGradientBottom = AndeanMistCanvasBottom
 
 val AndeanMistGradient = Brush.verticalGradient(
-    colors = listOf(MistGradientTop, MistGradientBottom)
+    colors = listOf(AndeanMistCanvasTop, AndeanMistCanvasBottom)
 )
 
 val AndeanDarkGradient = Brush.verticalGradient(

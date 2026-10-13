@@ -119,20 +119,21 @@ class CopDigitsVisualTransformation : VisualTransformation {
         val offsetMapping = object : OffsetMapping {
             override fun originalToTransformed(offset: Int): Int {
                 val clampedOffset = offset.coerceIn(0, totalDigits)
+                if (clampedOffset == 0) return 0
                 var dots = 0
-                for (k in 0 until (clampedOffset - 1).coerceAtLeast(0)) {
+                for (k in 0 until clampedOffset) {
                     val digitsFromRight = totalDigits - 1 - k
-                    if (digitsFromRight > 0 && digitsFromRight % 3 == 0) {
+                    if (digitsFromRight > 0 && digitsFromRight % 3 == 0 && k < clampedOffset - 1) {
                         dots++
                     }
                 }
-                return (clampedOffset + dots).coerceAtMost(transformed.length)
+                return (clampedOffset + dots).coerceIn(0, transformed.length)
             }
 
             override fun transformedToOriginal(offset: Int): Int {
                 if (offset <= 0) return 0
                 if (offset >= transformed.length) return totalDigits
-                val sub = transformed.text.substring(0, offset)
+                val sub = transformed.text.substring(0, offset.coerceIn(0, transformed.length))
                 val digitCount = sub.count { it.isDigit() }
                 return digitCount.coerceIn(0, totalDigits)
             }
@@ -220,7 +221,11 @@ fun RegisterScreen(
         color = topBackdrop
     ) {
         Column(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier
+                .fillMaxSize()
+                .statusBarsPadding()
+                .imePadding()
+                .navigationBarsPadding(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             // 1. Muggy asomado con colapso reactivo cuando el teclado virtual está desplegado
@@ -353,59 +358,78 @@ fun RegisterScreen(
                             else -> MaterialTheme.colorScheme.onSurface
                         }
 
-                        OutlinedTextField(
-                            value = state.amountDigits,
-                            onValueChange = { onAction(RegisterAction.AmountDigitsChanged(it)) },
+                        Row(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .focusRequester(focusRequester),
-                            textStyle = MaterialTheme.typography.displaySmall.copy(
-                                fontWeight = FontWeight.ExtraBold,
-                                fontSize = 32.sp,
-                                fontFeatureSettings = "tnum",
-                                textAlign = TextAlign.Center,
-                                color = heroColor
-                            ),
-                            prefix = {
-                                Text(
-                                    text = "$ ",
-                                    fontWeight = FontWeight.Bold,
-                                    fontSize = 24.sp,
-                                    color = heroColor
-                                )
-                            },
-                            suffix = {
-                                Text(
-                                    text = " COP",
-                                    fontWeight = FontWeight.SemiBold,
-                                    fontSize = 14.sp,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.55f)
-                                )
-                            },
-                            placeholder = {
-                                Text(
-                                    text = "0",
-                                    modifier = Modifier.fillMaxWidth(),
+                                .padding(vertical = 4.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.Center
+                        ) {
+                            OutlinedTextField(
+                                value = state.amountDigits,
+                                onValueChange = { onAction(RegisterAction.AmountDigitsChanged(it)) },
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .focusRequester(focusRequester),
+                                textStyle = MaterialTheme.typography.displaySmall.copy(
+                                    fontWeight = FontWeight.ExtraBold,
+                                    fontSize = 28.sp,
+                                    lineHeight = 34.sp,
+                                    fontFeatureSettings = "tnum",
                                     textAlign = TextAlign.Center,
-                                    style = MaterialTheme.typography.displaySmall.copy(
+                                    color = heroColor
+                                ),
+                                prefix = {
+                                    Text(
+                                        text = "$ ",
                                         fontWeight = FontWeight.Bold,
-                                        fontSize = 30.sp,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.35f)
+                                        fontSize = 22.sp,
+                                        lineHeight = 28.sp,
+                                        color = heroColor
                                     )
+                                },
+                                placeholder = {
+                                    Text(
+                                        text = "0",
+                                        modifier = Modifier.fillMaxWidth(),
+                                        textAlign = TextAlign.Center,
+                                        style = MaterialTheme.typography.displaySmall.copy(
+                                            fontWeight = FontWeight.Bold,
+                                            fontSize = 28.sp,
+                                            lineHeight = 34.sp,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.35f)
+                                        )
+                                    )
+                                },
+                                visualTransformation = CopDigitsVisualTransformation(),
+                                singleLine = true,
+                                keyboardOptions = KeyboardOptions(
+                                    keyboardType = KeyboardType.Number,
+                                    imeAction = ImeAction.Done
+                                ),
+                                shape = RoundedCornerShape(18.dp),
+                                colors = OutlinedTextFieldDefaults.colors(
+                                    focusedBorderColor = AndeanPrimary,
+                                    unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
                                 )
-                            },
-                            visualTransformation = CopDigitsVisualTransformation(),
-                            singleLine = true,
-                            keyboardOptions = KeyboardOptions(
-                                keyboardType = KeyboardType.Number,
-                                imeAction = ImeAction.Done
-                            ),
-                            shape = RoundedCornerShape(18.dp),
-                            colors = OutlinedTextFieldDefaults.colors(
-                                focusedBorderColor = AndeanPrimary,
-                                unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
                             )
-                        )
+
+                            Spacer(modifier = Modifier.width(8.dp))
+
+                            // Sufijo COP desacoplado como componente Text fijo estilizado
+                            Surface(
+                                shape = RoundedCornerShape(12.dp),
+                                color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.45f)
+                            ) {
+                                Text(
+                                    text = "COP",
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 13.sp,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.75f),
+                                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 12.dp)
+                                )
+                            }
+                        }
 
                         // Confirmación en palabras (ej. "Cincuenta mil pesos")
                         if (state.amountInWords.isNotEmpty()) {
@@ -661,16 +685,23 @@ fun RegisterScreen(
                                 .fillMaxWidth()
                                 .padding(horizontal = 20.dp, vertical = 10.dp)
                         ) {
-                            val ctaText = when (state.type) {
-                                TransactionType.GASTO -> if (state.amountMoney.isZero) "Ingresa un monto" else "Guardar Gasto (${state.amountMoney.formatCop()})"
-                                TransactionType.INGRESO -> if (state.amountMoney.isZero) "Ingresa un monto" else "Guardar Ingreso (${state.amountMoney.formatCop()})"
-                                TransactionType.TRANSFERENCIA -> if (state.amountMoney.isZero) "Ingresa un monto" else "Transferir (${state.amountMoney.formatCop()})"
+                            val isOverdraft = state.type == TransactionType.GASTO &&
+                                    (state.projectedRemainingBalance?.isNegative == true) &&
+                                    !state.amountMoney.isZero
+
+                            val ctaText = when {
+                                state.amountMoney.isZero -> "Ingresa un monto"
+                                isOverdraft -> "Confirmar Gasto (Sobregiro detectado)"
+                                state.type == TransactionType.GASTO -> "Guardar Gasto (${state.amountMoney.formatCop()})"
+                                state.type == TransactionType.INGRESO -> "Guardar Ingreso (${state.amountMoney.formatCop()})"
+                                state.type == TransactionType.TRANSFERENCIA -> "Transferir (${state.amountMoney.formatCop()})"
+                                else -> "Guardar Movimiento"
                             }
 
                             AndinaButton(
                                 text = ctaText,
                                 onClick = { onAction(RegisterAction.Save) },
-                                variant = AndinaButtonVariant.RegisterAction,
+                                variant = if (isOverdraft) AndinaButtonVariant.AntExpense else AndinaButtonVariant.RegisterAction,
                                 isSaving = state.isSaving,
                                 enabled = state.canSave,
                                 modifier = Modifier.fillMaxWidth()

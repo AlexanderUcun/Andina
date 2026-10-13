@@ -24,6 +24,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -75,31 +76,26 @@ fun QuickWalletCard(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                // Insignia circular de la entidad
+                // Insignia / Gema de Cristal con el Glifo Oficial de la entidad
                 Box(
                     modifier = Modifier
-                        .size(32.dp)
+                        .size(34.dp)
                         .clip(CircleShape)
-                        .background(brandBadgeColor.copy(alpha = 0.15f)),
+                        .background(
+                            Brush.linearGradient(
+                                colors = listOf(
+                                    brandBadgeColor.copy(alpha = 0.25f),
+                                    brandBadgeColor.copy(alpha = 0.08f)
+                                )
+                            )
+                        ),
                     contentAlignment = Alignment.Center
                 ) {
-                    if (wallet.type == WalletType.EFECTIVO) {
-                        Icon(
-                            imageVector = Icons.Default.AttachMoney,
-                            contentDescription = "Efectivo",
-                            tint = brandBadgeColor,
-                            modifier = Modifier.size(18.dp)
-                        )
-                    } else {
-                        Text(
-                            text = brandBadgeInitial,
-                            style = MaterialTheme.typography.titleMedium.copy(
-                                fontWeight = FontWeight.Bold,
-                                fontSize = 15.sp
-                            ),
-                            color = brandBadgeColor
-                        )
-                    }
+                    WalletBrandGlyph(
+                        walletType = wallet.type,
+                        tint = brandBadgeColor,
+                        size = 18.dp
+                    )
                 }
 
                 Spacer(modifier = Modifier.width(8.dp))

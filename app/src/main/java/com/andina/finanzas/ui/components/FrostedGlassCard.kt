@@ -32,6 +32,7 @@ import com.andina.finanzas.ui.theme.AndeanFrostedGlassShadow
 import com.andina.finanzas.ui.theme.AndeanFrostedGlassSurface
 import com.andina.finanzas.ui.theme.AndinaTheme
 import com.andina.finanzas.ui.theme.CornerLarge
+import com.andina.finanzas.ui.theme.specularGlassBorder
 
 /**
  * Tarjeta Insignia con Efecto de Vidrio Esmerilado (Apple Frosted Glass).
@@ -73,7 +74,10 @@ fun FrostedGlassCard(
         AndeanFrostedGlassBorder
     }
 
-    // Contenedor principal con sombra y forma
+    val topHighlight = if (isDark) Color(0x4DFFFFFF) else Color(0x80FFFFFF)
+    val bottomHighlight = if (isDark) Color(0x0DFFFFFF) else Color(0x1A000000)
+
+    // Contenedor principal con sombra, forma y reflexión especular
     Surface(
         modifier = modifier
             .shadow(
@@ -83,6 +87,12 @@ fun FrostedGlassCard(
                 spotColor = AndeanFrostedGlassShadow
             )
             .clip(shape)
+            .specularGlassBorder(
+                strokeWidth = 1.dp,
+                shape = shape,
+                topLightColor = borderColor ?: topHighlight,
+                bottomShadowColor = borderColor?.copy(alpha = 0.2f) ?: bottomHighlight
+            )
             .then(
                 if (onClick != null) {
                     Modifier.clickable(
@@ -93,7 +103,7 @@ fun FrostedGlassCard(
             ),
         shape = shape,
         color = resolvedBackground,
-        border = BorderStroke(width = 1.dp, color = resolvedBorderColor)
+        border = null
     ) {
         Column(
             modifier = Modifier

@@ -232,8 +232,9 @@ fun CalendarScreen(
             Spacer(modifier = Modifier.height(14.dp))
 
             // 4. Detalle de movimientos del día seleccionado
+            val monthName = currentYearMonth.month.getDisplayName(TextStyle.FULL, Locale("es", "CO")).replaceFirstChar { it.uppercase() }
             Text(
-                text = "Movimientos del $monthTitle (Día ${state.selectedDay})",
+                text = "Movimientos del ${state.selectedDay} de $monthName de ${currentYearMonth.year}",
                 style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
                 color = MaterialTheme.colorScheme.onSurface
             )
