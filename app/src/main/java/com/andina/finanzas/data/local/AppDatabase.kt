@@ -70,7 +70,6 @@ abstract class AppDatabase : RoomDatabase() {
                         DatabaseSeeder.seedInitialData(db)
                     }
                 })
-                .fallbackToDestructiveMigration()
 
             if (passphrase != null && passphrase.isNotEmpty()) {
                 try {
