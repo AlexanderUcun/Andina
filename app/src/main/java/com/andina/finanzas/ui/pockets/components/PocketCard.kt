@@ -40,9 +40,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.andina.finanzas.domain.model.Pocket
-import com.andina.finanzas.ui.components.FrostedGlassCard
+import com.andina.finanzas.ui.components.AndeanHyperCard
+import com.andina.finanzas.ui.components.HyperCardVariant
 import com.andina.finanzas.ui.components.ecosystem.FrailejonView
 import com.andina.finanzas.ui.components.bouncyClick
+import com.andina.finanzas.ui.theme.LocalAndinaColors
 import com.andina.finanzas.ui.theme.AndeanEmeraldDeep
 import com.andina.finanzas.ui.theme.AndeanSlateInk
 import com.andina.finanzas.ui.theme.AndinaAmber
@@ -75,6 +77,7 @@ fun PocketCard(
     onDeleteClick: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
+    val colors = LocalAndinaColors.current
     var menuExpanded by remember { mutableStateOf(false) }
 
     val animatedProgress by animateFloatAsState(
@@ -87,18 +90,17 @@ fun PocketCard(
     val pocketColor = try {
         Color(android.graphics.Color.parseColor(pocket.colorHex))
     } catch (_: Exception) {
-        AndinaMossGreen
+        colors.accentGold
     }
 
-    FrostedGlassCard(
+    AndeanHyperCard(
         modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(22.dp),
+        variant = HyperCardVariant.CARD,
+        contentPadding = 18.dp,
         onClick = onClick
     ) {
         Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(18.dp)
+            modifier = Modifier.fillMaxWidth()
         ) {
             // Fila superior: Frailejón en miniatura + Info básica + Badge + Menú 3 puntos
             Row(

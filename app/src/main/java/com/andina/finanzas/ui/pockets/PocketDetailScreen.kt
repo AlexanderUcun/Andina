@@ -56,9 +56,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.andina.finanzas.domain.model.Money
 import com.andina.finanzas.domain.model.Pocket
-import com.andina.finanzas.ui.components.FrostedGlassCard
+import com.andina.finanzas.ui.components.AndeanHyperCard
+import com.andina.finanzas.ui.components.HyperCardVariant
 import com.andina.finanzas.ui.components.ecosystem.FrailejonView
 import com.andina.finanzas.ui.components.bouncyClick
+import com.andina.finanzas.ui.theme.LocalAndinaColors
 import com.andina.finanzas.ui.theme.specularGlassBorder
 import com.andina.finanzas.ui.theme.AndeanMistCanvasBottom
 import com.andina.finanzas.ui.theme.AndeanMistCanvasTop
@@ -149,14 +151,13 @@ fun PocketDetailScreen(
                 .padding(horizontal = 20.dp, vertical = 12.dp),
             contentAlignment = Alignment.Center
         ) {
-            FrostedGlassCard(
+            AndeanHyperCard(
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(28.dp)
+                variant = HyperCardVariant.HERO,
+                contentPadding = 24.dp
             ) {
                 Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(24.dp),
+                    modifier = Modifier.fillMaxWidth(),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     // Frailejón en gran formato
@@ -304,16 +305,15 @@ fun PocketDetailScreen(
 
         // "La Vara del Páramo" — Simulador Visual de Bolsillos
         if (!pocket.isCompleted) {
-            FrostedGlassCard(
+            AndeanHyperCard(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 20.dp, vertical = 6.dp),
-                shape = RoundedCornerShape(24.dp)
+                variant = HyperCardVariant.CARD,
+                contentPadding = 20.dp
             ) {
                 Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(20.dp)
+                    modifier = Modifier.fillMaxWidth()
                 ) {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,

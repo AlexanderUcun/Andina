@@ -72,11 +72,11 @@ fun PocketProgressCard(
 
     val progressPercent = (pocket.progress * 100).toInt()
 
-    FrostedGlassCard(
+    AndeanHyperCard(
         modifier = modifier
             .width(240.dp)
             .height(150.dp),
-        shape = CornerMedium,
+        variant = AndeanHyperCardVariant.CARD,
         contentPadding = 14.dp,
         onClick = onClick
     ) {

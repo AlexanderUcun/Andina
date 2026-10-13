@@ -58,11 +58,11 @@ fun QuickWalletCard(
     val brandBadgeColor = resolveBrandColor(wallet.type, wallet.colorHex)
     val brandBadgeInitial = resolveBrandInitial(wallet.type, wallet.name)
 
-    FrostedGlassCard(
+    AndeanHyperCard(
         modifier = modifier
             .width(180.dp)
             .height(115.dp),
-        shape = CornerMedium,
+        variant = AndeanHyperCardVariant.CARD,
         contentPadding = 12.dp,
         onClick = onClick
     ) {

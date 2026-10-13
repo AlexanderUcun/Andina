@@ -39,9 +39,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.andina.finanzas.domain.model.Money
-import com.andina.finanzas.ui.components.FrostedGlassCard
+import com.andina.finanzas.ui.components.AndeanHyperCard
+import com.andina.finanzas.ui.components.HyperCardVariant
 import com.andina.finanzas.ui.components.ecosystem.FrailejonView
 import com.andina.finanzas.ui.components.bouncyClick
+import com.andina.finanzas.ui.theme.LocalAndinaColors
 import com.andina.finanzas.ui.theme.specularGlassBorder
 import com.andina.finanzas.ui.theme.AndeanEmeraldDeep
 import com.andina.finanzas.ui.theme.AndeanSlateInk
@@ -59,6 +61,7 @@ fun PocketsHeroCard(
     onCreatePocketClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val colors = LocalAndinaColors.current
     val animatedProgress by animateFloatAsState(
         targetValue = overallProgress,
         animationSpec = tween(durationMillis = 800, easing = FastOutSlowInEasing),
@@ -67,14 +70,13 @@ fun PocketsHeroCard(
 
     val progressPercent = (overallProgress * 100).toInt()
 
-    FrostedGlassCard(
+    AndeanHyperCard(
         modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(26.dp)
+        variant = HyperCardVariant.HERO,
+        contentPadding = 22.dp
     ) {
         Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(22.dp)
+            modifier = Modifier.fillMaxWidth()
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),

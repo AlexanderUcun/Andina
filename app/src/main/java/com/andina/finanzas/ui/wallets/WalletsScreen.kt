@@ -47,7 +47,9 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
-import com.andina.finanzas.ui.components.FrostedGlassCard
+import com.andina.finanzas.ui.components.AndeanHyperCard
+import com.andina.finanzas.ui.components.HyperCardVariant
+import com.andina.finanzas.ui.theme.LocalAndinaColors
 import com.andina.finanzas.ui.components.WalletBrandGlyph
 import com.andina.finanzas.ui.components.bouncyClick
 import com.andina.finanzas.ui.theme.specularGlassBorder
@@ -196,14 +198,11 @@ fun WalletsScreen(
             )
         }
     ) { innerPadding ->
+        val colors = LocalAndinaColors.current
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .background(
-                    Brush.verticalGradient(
-                        colors = listOf(AndeanMistCanvasTop, AndeanMistCanvasBottom)
-                    )
-                )
+                .background(colors.canvasGradient)
         ) {
             if (state.selectedPatrimonioTab == PatrimonioTab.BOLSILLOS) {
                 com.andina.finanzas.ui.pockets.PocketsScreen(
@@ -220,7 +219,7 @@ fun WalletsScreen(
                         .padding(innerPadding),
                     contentAlignment = Alignment.Center
                 ) {
-                    CircularProgressIndicator(color = AndeanPrimary)
+                    CircularProgressIndicator(color = colors.accentGold)
                 }
             } else {
                 LazyColumn(
@@ -230,22 +229,21 @@ fun WalletsScreen(
                         .padding(horizontal = 20.dp, vertical = 16.dp),
                     verticalArrangement = Arrangement.spacedBy(14.dp)
                 ) {
-                    // 1. Tarjeta Resumen de Saldo Consolidado (Cristal de Cuarzo)
+                    // 1. Tarjeta Resumen de Saldo Consolidado
                     item {
-                        FrostedGlassCard(
+                        AndeanHyperCard(
                             modifier = Modifier.fillMaxWidth(),
-                            shape = RoundedCornerShape(24.dp)
+                            variant = HyperCardVariant.HERO,
+                            contentPadding = 22.dp
                         ) {
                             Column(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(22.dp),
+                                modifier = Modifier.fillMaxWidth(),
                                 horizontalAlignment = Alignment.CenterHorizontally
                             ) {
                                 Text(
                                     text = "Saldo Total en Billeteras",
                                     style = MaterialTheme.typography.labelMedium,
-                                    color = AndeanSlateInk.copy(alpha = 0.7f)
+                                    color = colors.textSecondary
                                 )
                                 Spacer(modifier = Modifier.height(6.dp))
                                 Text(
@@ -255,13 +253,13 @@ fun WalletsScreen(
                                         fontSize = 32.sp,
                                         fontFeatureSettings = "tnum"
                                     ),
-                                    color = FrailejonGold
+                                    color = colors.textMoneyDisplay
                                 )
                                 Spacer(modifier = Modifier.height(6.dp))
                                 Text(
                                     text = "${state.wallets.size} cuentas activas · ${state.archivedWallets.size} archivadas",
                                     style = MaterialTheme.typography.bodySmall,
-                                    color = AndeanSlateInk.copy(alpha = 0.7f)
+                                    color = colors.textSecondary
                                 )
                             }
                         }
@@ -278,8 +276,8 @@ fun WalletsScreen(
                                 onClick = { viewModel.onEvent(WalletsEvent.OnSelectTab(WalletsTab.ACTIVAS)) },
                                 label = { Text("Activas (${state.wallets.size})", fontWeight = FontWeight.SemiBold) },
                                 colors = androidx.compose.material3.FilterChipDefaults.filterChipColors(
-                                    selectedContainerColor = AndeanPrimary.copy(alpha = 0.15f),
-                                    selectedLabelColor = AndeanPrimary
+                                    selectedContainerColor = colors.accentGold.copy(alpha = 0.16f),
+                                    selectedLabelColor = colors.accentGold
                                 ),
                                 shape = RoundedCornerShape(12.dp)
                             )
@@ -288,8 +286,8 @@ fun WalletsScreen(
                                 onClick = { viewModel.onEvent(WalletsEvent.OnSelectTab(WalletsTab.ARCHIVADAS)) },
                                 label = { Text("Archivadas (${state.archivedWallets.size})", fontWeight = FontWeight.SemiBold) },
                                 colors = androidx.compose.material3.FilterChipDefaults.filterChipColors(
-                                    selectedContainerColor = AndeanPrimary.copy(alpha = 0.15f),
-                                    selectedLabelColor = AndeanPrimary
+                                    selectedContainerColor = colors.accentGold.copy(alpha = 0.16f),
+                                    selectedLabelColor = colors.accentGold
                                 ),
                                 shape = RoundedCornerShape(12.dp)
                             )
@@ -301,35 +299,34 @@ fun WalletsScreen(
 
                     if (currentList.isEmpty()) {
                         item {
-                            FrostedGlassCard(
+                            AndeanHyperCard(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .padding(vertical = 12.dp),
-                                shape = RoundedCornerShape(20.dp)
+                                variant = HyperCardVariant.CARD,
+                                contentPadding = 28.dp
                             ) {
                                 Column(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(28.dp),
+                                    modifier = Modifier.fillMaxWidth(),
                                     horizontalAlignment = Alignment.CenterHorizontally
                                 ) {
                                     Icon(
                                         imageVector = if (state.selectedTab == WalletsTab.ACTIVAS) Icons.Default.AccountBalanceWallet else Icons.Default.Inventory2,
                                         contentDescription = null,
-                                        tint = AndeanSlateInk.copy(alpha = 0.4f),
+                                        tint = colors.accentGold,
                                         modifier = Modifier.size(36.dp)
                                     )
                                     Spacer(modifier = Modifier.height(10.dp))
                                     Text(
                                         text = if (state.selectedTab == WalletsTab.ACTIVAS) "No tienes cuentas activas" else "No hay cuentas archivadas",
                                         style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
-                                        color = AndeanSlateInk
+                                        color = colors.textPrimary
                                     )
                                     Spacer(modifier = Modifier.height(4.dp))
                                     Text(
                                         text = if (state.selectedTab == WalletsTab.ACTIVAS) "Pulsa el botón + para registrar una nueva cuenta." else "Las cuentas que archives aparecerán aquí para restaurarlas cuando quieras.",
                                         style = MaterialTheme.typography.bodySmall,
-                                        color = AndeanSlateInk.copy(alpha = 0.65f),
+                                        color = colors.textSecondary,
                                         textAlign = androidx.compose.ui.text.style.TextAlign.Center
                                     )
                                 }
@@ -365,6 +362,7 @@ fun WalletsScreen(
             sheetState = androidx.compose.material3.rememberModalBottomSheetState(skipPartiallyExpanded = true),
             containerColor = AndeanMistCanvasTop
         ) {
+            val colors = LocalAndinaColors.current
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -375,7 +373,7 @@ fun WalletsScreen(
                 val detailColor = try {
                     Color(android.graphics.Color.parseColor(wallet.colorHex))
                 } catch (_: Exception) {
-                    AndeanPrimary
+                    colors.accentGold
                 }
 
                 Box(
@@ -417,20 +415,19 @@ fun WalletsScreen(
 
                 Spacer(modifier = Modifier.height(14.dp))
 
-                FrostedGlassCard(
-                    shape = RoundedCornerShape(18.dp),
-                    modifier = Modifier.fillMaxWidth()
+                AndeanHyperCard(
+                    modifier = Modifier.fillMaxWidth(),
+                    variant = HyperCardVariant.CARD,
+                    contentPadding = 16.dp
                 ) {
                     Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp),
+                        modifier = Modifier.fillMaxWidth(),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Text(
                             text = "Saldo Disponible",
                             style = MaterialTheme.typography.labelSmall,
-                            color = AndeanSlateInk.copy(alpha = 0.65f)
+                            color = colors.textSecondary
                         )
                         Spacer(modifier = Modifier.height(4.dp))
                         Text(
@@ -439,7 +436,7 @@ fun WalletsScreen(
                                 fontWeight = FontWeight.ExtraBold,
                                 fontFeatureSettings = "tnum"
                             ),
-                            color = if (wallet.currentBalance.pesos < 0) Color(0xFFBA1A1A) else FrailejonGold
+                            color = if (wallet.currentBalance.pesos < 0) colors.statusDanger else colors.textMoneyDisplay
                         )
                     }
                 }
@@ -563,15 +560,14 @@ private fun WalletItemCard(
         WalletType.OTRA -> "Cuenta Local"
     }
 
-    FrostedGlassCard(
+    AndeanHyperCard(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(18.dp),
+        variant = HyperCardVariant.CARD,
+        contentPadding = 16.dp,
         onClick = onClick
     ) {
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
+            modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
