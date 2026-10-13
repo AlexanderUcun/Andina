@@ -213,12 +213,11 @@ fun RegisterScreen(
 
     val datePickerState = rememberDatePickerState(initialSelectedDateMillis = state.occurredAt)
 
-    val cardBackground = if (isDark) Color(0xFF161914) else Color.White
-    val topBackdrop = if (isDark) Color(0xFF0F110E) else Color(0xFFEFECE5)
+    val colors = com.andina.finanzas.ui.theme.LocalAndinaColors.current
 
     Surface(
         modifier = modifier.fillMaxSize(),
-        color = topBackdrop
+        color = colors.canvasTop
     ) {
         Column(
             modifier = Modifier
@@ -246,7 +245,7 @@ fun RegisterScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .clip(RoundedCornerShape(topStart = 32.dp, topEnd = 32.dp))
-                    .background(cardBackground)
+                    .background(colors.cardBackground)
             ) {
                 Column(
                     modifier = Modifier.fillMaxSize()
@@ -263,7 +262,8 @@ fun RegisterScreen(
                         val formattedDate = formatShortDate(state.occurredAt)
                         Surface(
                             shape = RoundedCornerShape(12.dp),
-                            color = if (isDark) Color(0xFF222620) else Color(0xFFF1EEE8),
+                            color = colors.canvasBottom,
+                            border = androidx.compose.foundation.BorderStroke(1.dp, colors.cardBorder),
                             modifier = Modifier
                                 .clip(RoundedCornerShape(12.dp))
                                 .clickable { showDatePicker = true }
@@ -275,7 +275,7 @@ fun RegisterScreen(
                                 Icon(
                                     imageVector = Icons.Default.CalendarMonth,
                                     contentDescription = null,
-                                    tint = AndeanPrimary,
+                                    tint = colors.accentGold,
                                     modifier = Modifier.size(15.dp)
                                 )
                                 Spacer(modifier = Modifier.width(5.dp))
@@ -285,7 +285,7 @@ fun RegisterScreen(
                                         fontWeight = FontWeight.SemiBold,
                                         fontSize = 12.sp
                                     ),
-                                    color = MaterialTheme.colorScheme.onSurface
+                                    color = colors.textPrimary
                                 )
                             }
                         }
@@ -293,7 +293,8 @@ fun RegisterScreen(
                         // Botón de Decodificar / Pegar SMS
                         Surface(
                             shape = RoundedCornerShape(12.dp),
-                            color = AndeanPrimary.copy(alpha = 0.12f),
+                            color = colors.accentGold.copy(alpha = 0.12f),
+                            border = androidx.compose.foundation.BorderStroke(1.dp, colors.accentGold.copy(alpha = 0.3f)),
                             modifier = Modifier
                                 .clip(RoundedCornerShape(12.dp))
                                 .clickable { showSmsPasteDialog = true }
@@ -305,7 +306,7 @@ fun RegisterScreen(
                                 Icon(
                                     imageVector = Icons.Default.Sms,
                                     contentDescription = "Pegar SMS",
-                                    tint = AndeanPrimary,
+                                    tint = colors.accentGold,
                                     modifier = Modifier.size(15.dp)
                                 )
                                 Spacer(modifier = Modifier.width(5.dp))
@@ -314,7 +315,7 @@ fun RegisterScreen(
                                     style = MaterialTheme.typography.labelSmall.copy(
                                         fontWeight = FontWeight.Bold,
                                         fontSize = 12.sp,
-                                        color = AndeanPrimary
+                                        color = colors.accentGold
                                     )
                                 )
                             }
@@ -353,9 +354,9 @@ fun RegisterScreen(
 
                         // 4. Input Nativo de Monto con Teclado Numérico Android y VisualTransformation
                         val heroColor = when {
-                            state.amountError != null -> MaterialTheme.colorScheme.error
-                            state.type == TransactionType.INGRESO -> Color(0xFF2E6316)
-                            else -> MaterialTheme.colorScheme.onSurface
+                            state.amountError != null -> colors.statusDanger
+                            state.type == TransactionType.INGRESO -> colors.statusSuccess
+                            else -> colors.textMoneyDisplay
                         }
 
                         Row(
@@ -397,7 +398,7 @@ fun RegisterScreen(
                                             fontWeight = FontWeight.Bold,
                                             fontSize = 28.sp,
                                             lineHeight = 34.sp,
-                                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.35f)
+                                            color = colors.textSecondary.copy(alpha = 0.35f)
                                         )
                                     )
                                 },
@@ -409,8 +410,8 @@ fun RegisterScreen(
                                 ),
                                 shape = RoundedCornerShape(18.dp),
                                 colors = OutlinedTextFieldDefaults.colors(
-                                    focusedBorderColor = AndeanPrimary,
-                                    unfocusedBorderColor = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
+                                    focusedBorderColor = colors.accentGold,
+                                    unfocusedBorderColor = colors.cardBorder
                                 )
                             )
 
@@ -419,13 +420,14 @@ fun RegisterScreen(
                             // Sufijo COP desacoplado como componente Text fijo estilizado
                             Surface(
                                 shape = RoundedCornerShape(12.dp),
-                                color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.45f)
+                                color = colors.canvasBottom,
+                                border = androidx.compose.foundation.BorderStroke(1.dp, colors.cardBorder)
                             ) {
                                 Text(
                                     text = "COP",
                                     fontWeight = FontWeight.Bold,
                                     fontSize = 13.sp,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.75f),
+                                    color = colors.textSecondary,
                                     modifier = Modifier.padding(horizontal = 10.dp, vertical = 12.dp)
                                 )
                             }
@@ -676,7 +678,7 @@ fun RegisterScreen(
 
                     // 8. Botón Principal CTA Fijo en Barra Inferior [ Guardar Gasto ]
                     Surface(
-                        color = cardBackground,
+                        color = colors.cardBackground,
                         tonalElevation = 4.dp,
                         modifier = Modifier.fillMaxWidth()
                     ) {
