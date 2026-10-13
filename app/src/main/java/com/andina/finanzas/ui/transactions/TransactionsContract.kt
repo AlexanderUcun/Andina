@@ -90,11 +90,17 @@ data class TransactionsFilter(
     }
 }
 
+enum class TransactionsViewMode {
+    LISTA,
+    CALENDARIO
+}
+
 /**
  * Estado general de la UI del historial de movimientos.
  */
 data class TransactionsUiState(
     val isLoading: Boolean = false,
+    val viewMode: TransactionsViewMode = TransactionsViewMode.LISTA,
     val filter: TransactionsFilter = TransactionsFilter(),
     val isFilterSheetVisible: Boolean = false,
     val availableWallets: List<Wallet> = emptyList(),
@@ -106,6 +112,7 @@ data class TransactionsUiState(
  * Intenciones de usuario para la pantalla de transacciones.
  */
 sealed interface TransactionsEvent {
+    data class OnViewModeSelected(val viewMode: TransactionsViewMode) : TransactionsEvent
     data class OnQueryChanged(val query: String) : TransactionsEvent
     data class OnTypeSelected(val type: TransactionType?) : TransactionsEvent
     data class OnWalletSelected(val walletId: Long?) : TransactionsEvent

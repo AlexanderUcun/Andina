@@ -91,6 +91,9 @@ class TransactionsViewModel @Inject constructor(
 
     fun onEvent(event: TransactionsEvent) {
         when (event) {
+            is TransactionsEvent.OnViewModeSelected -> {
+                _state.update { it.copy(viewMode = event.viewMode) }
+            }
             is TransactionsEvent.OnQueryChanged -> {
                 _filter.update { it.copy(query = event.query) }
             }

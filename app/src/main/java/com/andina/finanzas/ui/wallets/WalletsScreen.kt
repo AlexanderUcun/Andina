@@ -80,17 +80,28 @@ import com.andina.finanzas.ui.wallets.components.AddWalletModal
 import java.text.NumberFormat
 import java.util.Locale
 
+import com.andina.finanzas.ui.pockets.PocketsAction
+import com.andina.finanzas.ui.pockets.PocketsViewModel
+
 /**
- * Pantalla Principal de Billeteras y Cuentas (Módulo 3 / Sub-fase 3.2).
+ * Pantalla Principal de Patrimonio (Billeteras y Bolsillos & Metas - Módulo 3 / Fase 2.1).
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WalletsScreen(
     onShowSnackbar: (String) -> Unit,
     modifier: Modifier = Modifier,
-    viewModel: WalletsViewModel = hiltViewModel()
+    initialPatrimonioTab: PatrimonioTab = PatrimonioTab.BILLETERAS,
+    viewModel: WalletsViewModel = hiltViewModel(),
+    pocketsViewModel: PocketsViewModel = hiltViewModel()
 ) {
     val state by viewModel.state.collectAsState()
+
+    LaunchedEffect(initialPatrimonioTab) {
+        if (state.selectedPatrimonioTab != initialPatrimonioTab) {
+            viewModel.onEvent(WalletsEvent.OnSelectPatrimonioTab(initialPatrimonioTab))
+        }
+    }
 
     LaunchedEffect(Unit) {
         viewModel.effects.collect { effect ->
@@ -108,21 +119,73 @@ fun WalletsScreen(
         topBar = {
             TopAppBar(
                 title = {
-                    Text(
-                        text = "Billeteras & Cuentas",
-                        style = MaterialTheme.typography.titleMedium.copy(
-                            fontWeight = FontWeight.Bold,
-                            color = AndeanSlateInk
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "Patrimonio",
+                            style = MaterialTheme.typography.titleMedium.copy(
+                                fontWeight = FontWeight.Bold,
+                                color = AndeanSlateInk
+                            )
                         )
-                    )
+
+                        // Segmented bar [ Billeteras | Bolsillos ]
+                        Surface(
+                            shape = RoundedCornerShape(12.dp),
+                            color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
+                            modifier = Modifier.padding(end = 4.dp)
+                        ) {
+                            Row(modifier = Modifier.padding(3.dp)) {
+                                Surface(
+                                    shape = RoundedCornerShape(9.dp),
+                                    color = if (state.selectedPatrimonioTab == PatrimonioTab.BILLETERAS) AndeanPrimary else Color.Transparent,
+                                    modifier = Modifier
+                                        .clip(RoundedCornerShape(9.dp))
+                                        .clickable { viewModel.onEvent(WalletsEvent.OnSelectPatrimonioTab(PatrimonioTab.BILLETERAS)) }
+                                ) {
+                                    Text(
+                                        text = "💳 Cuentas",
+                                        fontSize = 11.sp,
+                                        fontWeight = if (state.selectedPatrimonioTab == PatrimonioTab.BILLETERAS) FontWeight.Bold else FontWeight.Medium,
+                                        color = if (state.selectedPatrimonioTab == PatrimonioTab.BILLETERAS) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
+                                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                                    )
+                                }
+                                Surface(
+                                    shape = RoundedCornerShape(9.dp),
+                                    color = if (state.selectedPatrimonioTab == PatrimonioTab.BOLSILLOS) AndeanPrimary else Color.Transparent,
+                                    modifier = Modifier
+                                        .clip(RoundedCornerShape(9.dp))
+                                        .clickable { viewModel.onEvent(WalletsEvent.OnSelectPatrimonioTab(PatrimonioTab.BOLSILLOS)) }
+                                ) {
+                                    Text(
+                                        text = "🌱 Metas",
+                                        fontSize = 11.sp,
+                                        fontWeight = if (state.selectedPatrimonioTab == PatrimonioTab.BOLSILLOS) FontWeight.Bold else FontWeight.Medium,
+                                        color = if (state.selectedPatrimonioTab == PatrimonioTab.BOLSILLOS) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
+                                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                                    )
+                                }
+                            }
+                        }
+                    }
                 },
                 actions = {
                     IconButton(
-                        onClick = { viewModel.onEvent(WalletsEvent.OnOpenAddWallet) }
+                        onClick = {
+                            if (state.selectedPatrimonioTab == PatrimonioTab.BILLETERAS) {
+                                viewModel.onEvent(WalletsEvent.OnOpenAddWallet)
+                            } else {
+                                pocketsViewModel.processAction(PocketsAction.OpenCreatePocket)
+                            }
+                        }
                     ) {
                         Icon(
                             imageVector = Icons.Default.Add,
-                            contentDescription = "Añadir billetera",
+                            contentDescription = if (state.selectedPatrimonioTab == PatrimonioTab.BILLETERAS) "Añadir billetera" else "Crear meta de bolsillo",
                             tint = AndeanPrimary
                         )
                     }
@@ -142,7 +205,15 @@ fun WalletsScreen(
                     )
                 )
         ) {
-            if (state.isLoading) {
+            if (state.selectedPatrimonioTab == PatrimonioTab.BOLSILLOS) {
+                com.andina.finanzas.ui.pockets.PocketsScreen(
+                    onShowSnackbar = onShowSnackbar,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(innerPadding),
+                    viewModel = pocketsViewModel
+                )
+            } else if (state.isLoading) {
                 Box(
                     modifier = Modifier
                         .fillMaxSize()

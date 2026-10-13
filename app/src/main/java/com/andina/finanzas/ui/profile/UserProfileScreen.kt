@@ -499,17 +499,28 @@ fun UserProfileScreen(
                 Text("Reiniciar Datos de Demostración", fontWeight = FontWeight.Bold)
             }
 
+            var resetConfirmationInput by remember { mutableStateOf("") }
+
             if (showResetConfirmationDialog) {
                 AlertDialog(
                     onDismissRequest = { showResetConfirmationDialog = false },
                     title = { Text("¿Reiniciar Datos de Demostración?", fontWeight = FontWeight.Bold) },
                     text = {
-                        Text("Esta acción eliminará todos los movimientos de prueba y dejará las billeteras listas en $0 COP para que inicies tu contabilidad real. ¿Deseas continuar?")
+                        Column {
+                            Text("Esta acción eliminará todos los movimientos y bolsillos de prueba y re-sembrará las categorías base de Andina.")
+                            Spacer(modifier = Modifier.height(12.dp))
+                            Text(
+                                text = "Te recomendamos generar una copia de seguridad antes de continuar.",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
                     },
                     confirmButton = {
                         Button(
                             onClick = {
                                 showResetConfirmationDialog = false
+                                resetConfirmationInput = ""
                                 showFinalConfirmDialog = true
                             },
                             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFBA1A1A))
@@ -518,8 +529,16 @@ fun UserProfileScreen(
                         }
                     },
                     dismissButton = {
-                        TextButton(onClick = { showResetConfirmationDialog = false }) {
-                            Text("Cancelar")
+                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            TextButton(onClick = {
+                                showResetConfirmationDialog = false
+                                onNavigateToReportExport()
+                            }) {
+                                Text("Crear Respaldo")
+                            }
+                            TextButton(onClick = { showResetConfirmationDialog = false }) {
+                                Text("Cancelar")
+                            }
                         }
                     }
                 )
@@ -530,16 +549,30 @@ fun UserProfileScreen(
                     onDismissRequest = { showFinalConfirmDialog = false },
                     title = { Text("Confirmación Definitiva", fontWeight = FontWeight.Bold, color = Color(0xFFBA1A1A)) },
                     text = {
-                        Text("Confirma por favor: ¿Deseas borrar definitivamente las transacciones de prueba?")
+                        Column {
+                            Text("Para confirmar la eliminación definitiva, escribe 'REINICIAR' en el campo inferior:")
+                            Spacer(modifier = Modifier.height(12.dp))
+                            OutlinedTextField(
+                                value = resetConfirmationInput,
+                                onValueChange = { resetConfirmationInput = it },
+                                placeholder = { Text("REINICIAR") },
+                                singleLine = true,
+                                shape = RoundedCornerShape(10.dp),
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                        }
                     },
                     confirmButton = {
                         Button(
                             onClick = {
-                                showFinalConfirmDialog = false
-                                viewModel.resetDemoData {
-                                    onShowSnackbar("Datos de demostración reiniciados. ¡Bienvenido a tu contabilidad real!")
+                                if (resetConfirmationInput.trim() == "REINICIAR") {
+                                    showFinalConfirmDialog = false
+                                    viewModel.resetDemoData {
+                                        onShowSnackbar("Datos de demostración reiniciados. ¡Bienvenido a tu contabilidad real!")
+                                    }
                                 }
                             },
+                            enabled = resetConfirmationInput.trim() == "REINICIAR",
                             colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFBA1A1A))
                         ) {
                             Text("Borrar y Reiniciar", fontWeight = FontWeight.Bold)

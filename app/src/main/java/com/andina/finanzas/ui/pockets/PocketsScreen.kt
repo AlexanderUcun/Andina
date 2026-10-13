@@ -256,10 +256,11 @@ fun PocketsScreen(
 }
 
 @Composable
-private fun PocketsDashboardContent(
+internal fun PocketsDashboardContent(
     state: PocketsUiState,
     onAction: (PocketsAction) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    showHeader: Boolean = true
 ) {
     var selectedFilter by remember { mutableStateOf(PocketFilter.ALL) }
 
@@ -281,47 +282,48 @@ private fun PocketsDashboardContent(
                         Color(0xFFEBE6DC)
                     )
                 )
-            )
-            .statusBarsPadding(),
+            ),
         contentPadding = PaddingValues(horizontal = 20.dp, vertical = 16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         // Cabecera Editorial
-        item {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Column {
-                    Text(
-                        text = "Bolsillos & Metas",
-                        style = MaterialTheme.typography.headlineLarge.copy(
-                            fontWeight = FontWeight.Bold,
-                            color = AndinaDeepForest
-                        )
-                    )
-                    Text(
-                        text = "Ahorros protegidos que crecen en tu páramo",
-                        style = MaterialTheme.typography.bodyMedium.copy(
-                            color = Color(0xFF6B7280)
-                        )
-                    )
-                }
-
-                Box(
-                    modifier = Modifier
-                        .size(44.dp)
-                        .clip(CircleShape)
-                        .background(Color.White),
-                    contentAlignment = Alignment.Center
+        if (showHeader) {
+            item {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.Savings,
-                        contentDescription = null,
-                        tint = AndinaMossGreen,
-                        modifier = Modifier.size(24.dp)
-                    )
+                    Column {
+                        Text(
+                            text = "Bolsillos & Metas",
+                            style = MaterialTheme.typography.headlineLarge.copy(
+                                fontWeight = FontWeight.Bold,
+                                color = AndinaDeepForest
+                            )
+                        )
+                        Text(
+                            text = "Ahorros protegidos que crecen en tu páramo",
+                            style = MaterialTheme.typography.bodyMedium.copy(
+                                color = Color(0xFF6B7280)
+                            )
+                        )
+                    }
+
+                    Box(
+                        modifier = Modifier
+                            .size(44.dp)
+                            .clip(CircleShape)
+                            .background(Color.White),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Savings,
+                            contentDescription = null,
+                            tint = AndinaMossGreen,
+                            modifier = Modifier.size(24.dp)
+                        )
+                    }
                 }
             }
         }

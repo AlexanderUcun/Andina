@@ -79,30 +79,35 @@ class NavigationBackStackTest {
 
     @Test
     fun `test bottom bar tab configuration matches approved specs`() {
-        // Deben ser exactamente 4 pestañas
+        // Deben ser exactamente 4 pestañas aprobadas para la barra simétrica
         assertEquals(4, AndinaNavTab.entries.size)
 
-        // Pestañas izquierdas
-        assertEquals(listOf(AndinaNavTab.HOME, AndinaNavTab.POCKETS), AndinaNavTab.leftTabs)
+        // Pestañas izquierdas: [ Inicio ] · [ Movimientos ]
+        assertEquals(listOf(AndinaNavTab.HOME, AndinaNavTab.TRANSACTIONS), AndinaNavTab.leftTabs)
 
-        // Pestañas derechas
-        assertEquals(listOf(AndinaNavTab.WALLETS, AndinaNavTab.TRANSACTIONS), AndinaNavTab.rightTabs)
+        // Pestañas derechas: [ Patrimonio ] · [ Plan & IA ]
+        assertEquals(listOf(AndinaNavTab.WALLETS, AndinaNavTab.CONSULTORIO), AndinaNavTab.rightTabs)
 
         // Títulos aprobados
         assertEquals("Inicio", AndinaNavTab.HOME.title)
-        assertEquals("Bolsillos", AndinaNavTab.POCKETS.title)
-        assertEquals("Billeteras", AndinaNavTab.WALLETS.title)
         assertEquals("Movimientos", AndinaNavTab.TRANSACTIONS.title)
+        assertEquals("Patrimonio", AndinaNavTab.WALLETS.title)
+        assertEquals("Plan & IA", AndinaNavTab.CONSULTORIO.title)
 
-        // Mapeo inverso de rutas a pestañas
+        // Mapeo inverso de rutas a pestañas principales
         assertEquals(AndinaNavTab.HOME, AndinaNavTab.fromDestination(HomeRoute))
-        assertEquals(AndinaNavTab.POCKETS, AndinaNavTab.fromDestination(PocketsRoute))
-        assertEquals(AndinaNavTab.WALLETS, AndinaNavTab.fromDestination(WalletsRoute))
         assertEquals(AndinaNavTab.TRANSACTIONS, AndinaNavTab.fromDestination(TransactionsRoute))
+        assertEquals(AndinaNavTab.WALLETS, AndinaNavTab.fromDestination(WalletsRoute))
+        assertEquals(AndinaNavTab.CONSULTORIO, AndinaNavTab.fromDestination(ConsultorioRoute))
 
-        // Rutas externas no deben mapear a pestañas de barra
+        // Redirecciones funcionales de Fase 2
+        assertEquals(AndinaNavTab.WALLETS, AndinaNavTab.fromDestination(PocketsRoute))
+        assertEquals(AndinaNavTab.TRANSACTIONS, AndinaNavTab.fromDestination(CalendarRoute))
+        assertEquals(AndinaNavTab.CONSULTORIO, AndinaNavTab.fromDestination(StatsRoute))
+
+        // Rutas secundarias no deben mapear a pestañas de barra
         assertNull(AndinaNavTab.fromDestination(RegisterRoute()))
-        assertNull(AndinaNavTab.fromDestination(StatsRoute))
+        assertNull(AndinaNavTab.fromDestination(UserProfileRoute))
     }
 
     @Test
@@ -114,27 +119,27 @@ class NavigationBackStackTest {
         navigationStack.add(AndinaNavTab.HOME)
         assertEquals(AndinaNavTab.HOME, navigationStack.last())
 
-        // 2. Navega a POCKETS con popUpTo(HOME) { saveState = true }
-        if (navigationStack.contains(AndinaNavTab.POCKETS)) {
-            navigationStack.remove(AndinaNavTab.POCKETS)
+        // 2. Navega a TRANSACTIONS
+        if (navigationStack.contains(AndinaNavTab.TRANSACTIONS)) {
+            navigationStack.remove(AndinaNavTab.TRANSACTIONS)
         }
-        navigationStack.add(AndinaNavTab.POCKETS)
-        assertEquals(AndinaNavTab.POCKETS, navigationStack.last())
+        navigationStack.add(AndinaNavTab.TRANSACTIONS)
+        assertEquals(AndinaNavTab.TRANSACTIONS, navigationStack.last())
 
-        // 3. Navega a WALLETS
+        // 3. Navega a WALLETS (Patrimonio)
         navigationStack.add(AndinaNavTab.WALLETS)
         assertEquals(AndinaNavTab.WALLETS, navigationStack.last())
 
-        // 4. Navega a TRANSACTIONS
-        navigationStack.add(AndinaNavTab.TRANSACTIONS)
-        assertEquals(AndinaNavTab.TRANSACTIONS, navigationStack.last())
+        // 4. Navega a CONSULTORIO (Plan & IA)
+        navigationStack.add(AndinaNavTab.CONSULTORIO)
+        assertEquals(AndinaNavTab.CONSULTORIO, navigationStack.last())
 
         // 5. Presionar atrás regresa hacia la pila previa
         navigationStack.removeLast()
         assertEquals(AndinaNavTab.WALLETS, navigationStack.last())
 
         navigationStack.removeLast()
-        assertEquals(AndinaNavTab.POCKETS, navigationStack.last())
+        assertEquals(AndinaNavTab.TRANSACTIONS, navigationStack.last())
 
         navigationStack.removeLast()
         assertEquals(AndinaNavTab.HOME, navigationStack.last())

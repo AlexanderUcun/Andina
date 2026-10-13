@@ -62,6 +62,9 @@ class WalletsViewModel @Inject constructor(
 
     fun onEvent(event: WalletsEvent) {
         when (event) {
+            is WalletsEvent.OnSelectPatrimonioTab -> {
+                _state.update { it.copy(selectedPatrimonioTab = event.tab) }
+            }
             is WalletsEvent.OnSelectTab -> {
                 _state.update { it.copy(selectedTab = event.tab) }
             }

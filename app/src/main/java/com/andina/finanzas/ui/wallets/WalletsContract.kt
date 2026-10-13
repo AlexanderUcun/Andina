@@ -8,11 +8,17 @@ enum class WalletsTab {
     ARCHIVADAS
 }
 
+enum class PatrimonioTab {
+    BILLETERAS,
+    BOLSILLOS
+}
+
 /**
  * Estado de UI para la pantalla de gestión de billeteras.
  */
 data class WalletsUiState(
     val isLoading: Boolean = true,
+    val selectedPatrimonioTab: PatrimonioTab = PatrimonioTab.BILLETERAS,
     val selectedTab: WalletsTab = WalletsTab.ACTIVAS,
     val wallets: List<Wallet> = emptyList(),
     val archivedWallets: List<Wallet> = emptyList(),
@@ -27,6 +33,7 @@ data class WalletsUiState(
  * Eventos para la gestión de billeteras.
  */
 sealed interface WalletsEvent {
+    data class OnSelectPatrimonioTab(val tab: PatrimonioTab) : WalletsEvent
     data class OnSelectTab(val tab: WalletsTab) : WalletsEvent
     data object OnOpenAddWallet : WalletsEvent
     data class OnOpenEditWallet(val wallet: Wallet) : WalletsEvent

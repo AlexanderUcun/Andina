@@ -70,15 +70,6 @@ fun CalendarScreen(
     modifier: Modifier = Modifier,
     viewModel: CalendarViewModel = hiltViewModel()
 ) {
-    val state by viewModel.state.collectAsStateWithLifecycle()
-
-    val daysOfWeek = listOf("Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom")
-    val currentYearMonth = state.yearMonth
-    val monthTitle = "${currentYearMonth.month.getDisplayName(TextStyle.FULL, Locale("es", "CO")).replaceFirstChar { it.uppercase() }} ${currentYearMonth.year}"
-    val daysInMonth = currentYearMonth.lengthOfMonth()
-    val firstDayOfWeek = currentYearMonth.atDay(1).dayOfWeek.value // 1 (Mon) to 7 (Sun)
-    val leadingEmptyCells = firstDayOfWeek - 1
-
     Scaffold(
         modifier = modifier.fillMaxSize(),
         containerColor = MaterialTheme.colorScheme.background,
@@ -104,13 +95,39 @@ fun CalendarScreen(
             )
         }
     ) { innerPadding ->
-        Column(
+        CalendarContent(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding)
-                .padding(horizontal = 20.dp, vertical = 10.dp)
-        ) {
-            // 1. Selector de Mes
+                .padding(innerPadding),
+            viewModel = viewModel
+        )
+    }
+}
+
+/**
+ * Contenido reutilizable del Calendario Financiero Interactivo.
+ * Puede alojarse directamente en CalendarScreen o integrarse en la pestaña de Movimientos.
+ */
+@Composable
+fun CalendarContent(
+    modifier: Modifier = Modifier,
+    viewModel: CalendarViewModel = hiltViewModel()
+) {
+    val state by viewModel.state.collectAsStateWithLifecycle()
+
+    val daysOfWeek = listOf("Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom")
+    val currentYearMonth = state.yearMonth
+    val monthTitle = "${currentYearMonth.month.getDisplayName(TextStyle.FULL, Locale("es", "CO")).replaceFirstChar { it.uppercase() }} ${currentYearMonth.year}"
+    val daysInMonth = currentYearMonth.lengthOfMonth()
+    val firstDayOfWeek = currentYearMonth.atDay(1).dayOfWeek.value // 1 (Mon) to 7 (Sun)
+    val leadingEmptyCells = firstDayOfWeek - 1
+
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(horizontal = 20.dp, vertical = 10.dp)
+    ) {
+        // 1. Selector de Mes
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -362,4 +379,3 @@ fun CalendarScreen(
             }
         }
     }
-}

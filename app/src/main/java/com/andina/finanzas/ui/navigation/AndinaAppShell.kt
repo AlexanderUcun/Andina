@@ -93,9 +93,9 @@ class AndinaAppState(
             val destination = backStackEntry?.destination ?: return AndinaNavTab.HOME
             return when {
                 destination.hasRoute<HomeRoute>() -> AndinaNavTab.HOME
-                destination.hasRoute<PocketsRoute>() -> AndinaNavTab.POCKETS
-                destination.hasRoute<WalletsRoute>() -> AndinaNavTab.WALLETS
-                destination.hasRoute<TransactionsRoute>() -> AndinaNavTab.TRANSACTIONS
+                destination.hasRoute<TransactionsRoute>() || destination.hasRoute<CalendarRoute>() -> AndinaNavTab.TRANSACTIONS
+                destination.hasRoute<WalletsRoute>() || destination.hasRoute<PocketsRoute>() -> AndinaNavTab.WALLETS
+                destination.hasRoute<ConsultorioRoute>() || destination.hasRoute<StatsRoute>() -> AndinaNavTab.CONSULTORIO
                 else -> null
             }
         }
@@ -301,10 +301,10 @@ fun AndinaAppShell(
             composable<HomeRoute> {
                 HomeScreen(
                     onNavigateToWallet = { appState.navigateToTab(AndinaNavTab.WALLETS) },
-                    onNavigateToPocket = { appState.navigateToTab(AndinaNavTab.POCKETS) },
+                    onNavigateToPocket = { appState.navigateToTab(AndinaNavTab.WALLETS) },
                     onNavigateToTransaction = { id -> appState.navigateToTransactionDetail(id) },
                     onNavigateToWalletsTab = { appState.navigateToTab(AndinaNavTab.WALLETS) },
-                    onNavigateToPocketsTab = { appState.navigateToTab(AndinaNavTab.POCKETS) },
+                    onNavigateToPocketsTab = { appState.navigateToTab(AndinaNavTab.WALLETS) },
                     onNavigateToTransactionsTab = { appState.navigateToTab(AndinaNavTab.TRANSACTIONS) },
                     onNavigateToRegister = { appState.navigateToRegister() },
                     onNavigateToSettings = { appState.navigateToProfile() },
@@ -318,21 +318,7 @@ fun AndinaAppShell(
                 )
             }
 
-            // Pestaña 2: Bolsillos de Ahorro
-            composable<PocketsRoute> {
-                com.andina.finanzas.ui.pockets.PocketsScreen(
-                    onShowSnackbar = { msg -> appState.showSnackbar(msg) }
-                )
-            }
-
-            // Pestaña 3: Billeteras & Cuentas (Módulo 3 / Sub-fase 3.2)
-            composable<WalletsRoute> {
-                com.andina.finanzas.ui.wallets.WalletsScreen(
-                    onShowSnackbar = { msg -> appState.showSnackbar(msg) }
-                )
-            }
-
-            // Pestaña 4: Movimientos (Libro Mayor & Auditoría Financiera)
+            // Pestaña 2: Movimientos (Libro Mayor & Auditoría Financiera)
             composable<TransactionsRoute> {
                 com.andina.finanzas.ui.transactions.TransactionsScreen(
                     onNavigateToDetail = { id -> appState.navigateToTransactionDetail(id) },
@@ -341,6 +327,22 @@ fun AndinaAppShell(
                         appState.showSnackbarWithAction(msg, action, onAction)
                     },
                     onNavigateToCalendar = { appState.navigateToCalendar() }
+                )
+            }
+
+            // Pestaña 3: Patrimonio (Billeteras & Bolsillos integrados)
+            composable<WalletsRoute> {
+                com.andina.finanzas.ui.wallets.WalletsScreen(
+                    onShowSnackbar = { msg -> appState.showSnackbar(msg) },
+                    initialPatrimonioTab = com.andina.finanzas.ui.wallets.PatrimonioTab.BILLETERAS
+                )
+            }
+
+            // Redirección de PocketsRoute a Patrimonio › Bolsillos
+            composable<PocketsRoute> {
+                com.andina.finanzas.ui.wallets.WalletsScreen(
+                    onShowSnackbar = { msg -> appState.showSnackbar(msg) },
+                    initialPatrimonioTab = com.andina.finanzas.ui.wallets.PatrimonioTab.BOLSILLOS
                 )
             }
 
@@ -383,7 +385,7 @@ fun AndinaAppShell(
                     onNavigateToRegister = { _, _, _, _, _ ->
                         appState.navigateToRegister()
                     },
-                    onNavigateToPockets = { appState.navigateToTab(AndinaNavTab.POCKETS) }
+                    onNavigateToPockets = { appState.navigateToTab(AndinaNavTab.WALLETS) }
                 )
             }
 

@@ -90,6 +90,7 @@ fun TransactionsScreen(
     onShowSnackbar: (String) -> Unit,
     onShowSnackbarWithAction: (message: String, actionLabel: String, onAction: () -> Unit) -> Unit,
     modifier: Modifier = Modifier,
+    initialViewMode: TransactionsViewMode = TransactionsViewMode.LISTA,
     onNavigateToCalendar: () -> Unit = {},
     viewModel: TransactionsViewModel = hiltViewModel()
 ) {
@@ -97,6 +98,12 @@ fun TransactionsScreen(
     val filter by viewModel.filter.collectAsState()
     val pagingItems: LazyPagingItems<Transaction> = viewModel.transactionsPagingFlow.collectAsLazyPagingItems()
     val focusManager = LocalFocusManager.current
+
+    LaunchedEffect(initialViewMode) {
+        if (state.viewMode != initialViewMode) {
+            viewModel.onEvent(TransactionsEvent.OnViewModeSelected(initialViewMode))
+        }
+    }
 
     // Escucha de efectos secundarios (navegación y snackbar de deshacer)
     LaunchedEffect(Unit) {
@@ -122,10 +129,11 @@ fun TransactionsScreen(
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             TransactionsTopHeader(
+                viewMode = state.viewMode,
                 filter = filter,
                 onQueryChanged = { viewModel.onEvent(TransactionsEvent.OnQueryChanged(it)) },
                 onFilterClick = { viewModel.onEvent(TransactionsEvent.OnSetFilterSheetVisible(true)) },
-                onNavigateToCalendar = onNavigateToCalendar,
+                onViewModeSelected = { viewModel.onEvent(TransactionsEvent.OnViewModeSelected(it)) },
                 onQuickTypeSelected = { type ->
                     val newType = if (filter.type == type) null else type
                     viewModel.onEvent(TransactionsEvent.OnTypeSelected(newType))
@@ -141,7 +149,11 @@ fun TransactionsScreen(
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
-            when {
+            if (state.viewMode == TransactionsViewMode.CALENDARIO) {
+                com.andina.finanzas.ui.calendar.CalendarContent(
+                    modifier = Modifier.fillMaxSize()
+                )
+            } else when {
                 // Estado de carga inicial
                 pagingItems.loadState.refresh is LoadState.Loading && pagingItems.itemCount == 0 -> {
                     Box(
@@ -261,10 +273,11 @@ fun TransactionsScreen(
  */
 @Composable
 private fun TransactionsTopHeader(
+    viewMode: TransactionsViewMode,
     filter: TransactionsFilter,
     onQueryChanged: (String) -> Unit,
     onFilterClick: () -> Unit,
-    onNavigateToCalendar: () -> Unit,
+    onViewModeSelected: (TransactionsViewMode) -> Unit,
     onQuickTypeSelected: (TransactionType) -> Unit,
     onQuickToggleAnt: () -> Unit
 ) {
@@ -313,27 +326,31 @@ private fun TransactionsTopHeader(
                     Row(modifier = Modifier.padding(3.dp)) {
                         Surface(
                             shape = RoundedCornerShape(9.dp),
-                            color = AndeanPrimary,
-                            modifier = Modifier.padding(end = 2.dp)
+                            color = if (viewMode == TransactionsViewMode.LISTA) AndeanPrimary else Color.Transparent,
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(9.dp))
+                                .clickable { onViewModeSelected(TransactionsViewMode.LISTA) }
                         ) {
                             Text(
                                 text = "📋 Lista",
                                 fontSize = 11.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = Color.White,
+                                fontWeight = if (viewMode == TransactionsViewMode.LISTA) FontWeight.Bold else FontWeight.Medium,
+                                color = if (viewMode == TransactionsViewMode.LISTA) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
                                 modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
                             )
                         }
                         Surface(
                             shape = RoundedCornerShape(9.dp),
-                            color = Color.Transparent,
-                            modifier = Modifier.clickable(onClick = onNavigateToCalendar)
+                            color = if (viewMode == TransactionsViewMode.CALENDARIO) AndeanPrimary else Color.Transparent,
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(9.dp))
+                                .clickable { onViewModeSelected(TransactionsViewMode.CALENDARIO) }
                         ) {
                             Text(
                                 text = "📅 Calendario",
                                 fontSize = 11.sp,
-                                fontWeight = FontWeight.Medium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                fontWeight = if (viewMode == TransactionsViewMode.CALENDARIO) FontWeight.Bold else FontWeight.Medium,
+                                color = if (viewMode == TransactionsViewMode.CALENDARIO) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
                                 modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
                             )
                         }

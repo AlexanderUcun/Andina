@@ -113,10 +113,10 @@ data object CalendarRoute : AndinaDestination
 data object ReportExportRoute : AndinaDestination
 
 /**
- * Definición estructurada de las 4 pestañas de navegación inferior de Andina.
+ * Definición estructurada de las 4 pestañas maestras de navegación inferior de Andina.
  *
- * Distribución simétrica aprobada:
- * [ Inicio ] · [ Bolsillos ] · 🟢 (+) Central · [ Billeteras ] · [ Movimientos ]
+ * Distribución simétrica aprobada (Fase 2.1):
+ * [ Inicio ] · [ Movimientos ] · 🟢 (+) Central · [ Patrimonio ] · [ Plan & IA ]
  */
 enum class AndinaNavTab(
     val title: String,
@@ -130,35 +130,38 @@ enum class AndinaNavTab(
         unselectedIcon = Icons.Outlined.Home,
         destination = HomeRoute
     ),
-    POCKETS(
-        title = "Bolsillos",
-        selectedIcon = Icons.Filled.Savings,
-        unselectedIcon = Icons.Outlined.Savings,
-        destination = PocketsRoute
-    ),
-    WALLETS(
-        title = "Billeteras",
-        selectedIcon = Icons.Filled.AccountBalanceWallet,
-        unselectedIcon = Icons.Outlined.AccountBalanceWallet,
-        destination = WalletsRoute
-    ),
     TRANSACTIONS(
         title = "Movimientos",
         selectedIcon = Icons.AutoMirrored.Filled.ReceiptLong,
         unselectedIcon = Icons.AutoMirrored.Outlined.ReceiptLong,
         destination = TransactionsRoute
+    ),
+    WALLETS(
+        title = "Patrimonio",
+        selectedIcon = Icons.Filled.AccountBalanceWallet,
+        unselectedIcon = Icons.Outlined.AccountBalanceWallet,
+        destination = WalletsRoute
+    ),
+    CONSULTORIO(
+        title = "Plan & IA",
+        selectedIcon = Icons.Filled.Savings,
+        unselectedIcon = Icons.Outlined.Savings,
+        destination = ConsultorioRoute
     );
 
     companion object {
-        val leftTabs = listOf(HOME, POCKETS)
-        val rightTabs = listOf(WALLETS, TRANSACTIONS)
+        val leftTabs = listOf(HOME, TRANSACTIONS)
+        val rightTabs = listOf(WALLETS, CONSULTORIO)
 
         fun fromDestination(destination: Any?): AndinaNavTab? {
             return when (destination) {
                 is HomeRoute, HomeRoute::class -> HOME
-                is PocketsRoute, PocketsRoute::class -> POCKETS
-                is WalletsRoute, WalletsRoute::class -> WALLETS
                 is TransactionsRoute, TransactionsRoute::class -> TRANSACTIONS
+                is CalendarRoute, CalendarRoute::class -> TRANSACTIONS // Redirección a Movimientos
+                is WalletsRoute, WalletsRoute::class -> WALLETS
+                is PocketsRoute, PocketsRoute::class -> WALLETS // Redirección a Patrimonio
+                is ConsultorioRoute, ConsultorioRoute::class -> CONSULTORIO
+                is StatsRoute, StatsRoute::class -> CONSULTORIO // Redirección a Plan & IA
                 else -> null
             }
         }

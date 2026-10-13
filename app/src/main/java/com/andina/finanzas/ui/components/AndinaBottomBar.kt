@@ -340,7 +340,7 @@ private fun AndinaBottomBarPreviewHome() {
 private fun AndinaBottomBarPreviewDark() {
     AndinaTheme(darkTheme = true) {
         AndinaBottomBar(
-            currentTab = AndinaNavTab.POCKETS,
+            currentTab = AndinaNavTab.TRANSACTIONS,
             onTabSelected = {},
             onRegisterClick = {}
         )
