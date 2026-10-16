@@ -89,6 +89,7 @@ fun MuggyAvatar(
     modifier: Modifier = Modifier,
     size: Dp = 96.dp,
     pose: MuggyPose = MuggyPose.OBSERVING,
+    mood: MuggyMood? = null,
     circadianPhase: CircadianPhase = calculateCircadianPhase(),
     isInteractive: Boolean = true,
     onClick: (() -> Unit)? = null
@@ -110,8 +111,18 @@ fun MuggyAvatar(
 
     // 2. Parpadeo estocástico (impredecible)
     var isBlinking by remember { mutableStateOf(false) }
-    LaunchedEffect(pose) {
-        if (pose == MuggyPose.PRIVACY_GUARD || pose == MuggyPose.SLEEPING) {
+    val resolvedPose = when {
+        mood != null -> when (mood) {
+            MuggyMood.HOLGADO -> MuggyPose.SERENE
+            MuggyMood.PREVENTIVO -> MuggyPose.OBSERVING
+            MuggyMood.AJUSTE -> MuggyPose.REFLECTIVE
+            MuggyMood.CRITICO -> MuggyPose.PRIVACY_GUARD
+        }
+        else -> pose
+    }
+
+    LaunchedEffect(resolvedPose) {
+        if (resolvedPose == MuggyPose.PRIVACY_GUARD || resolvedPose == MuggyPose.SLEEPING) {
             isBlinking = true
             return@LaunchedEffect
         }
@@ -143,10 +154,10 @@ fun MuggyAvatar(
         label = "MuggyTapSquash"
     )
 
-    val effectivePose = if (circadianPhase == CircadianPhase.NIGHT && pose == MuggyPose.SERENE) {
+    val effectivePose = if (circadianPhase == CircadianPhase.NIGHT && resolvedPose == MuggyPose.SERENE) {
         MuggyPose.SLEEPING
     } else {
-        pose
+        resolvedPose
     }
 
     Box(
@@ -188,7 +199,8 @@ fun MuggyAvatar(
 }
 
 /**
- * Renderizado de alta fidelidad vectorial sobre Canvas en GPU.
+ * Renderizado de alta fidelidad 2.5D volumétrico sobre Canvas en GPU.
+ * Representa a Muggy, el Oso de Anteojos Andino (Tremarctos ornatus).
  */
 @Composable
 private fun MuggyCanvas(
@@ -201,40 +213,49 @@ private fun MuggyCanvas(
         val w = size.width
         val h = size.height
 
-        // Paleta oficial de Muggy (MUGGY.md §2.1)
-        val furColor = Color(0xFF2C241E)          // Pelo marrón oscuro andino
-        val innerEarColor = Color(0xFF5A493D)     // Interior de orejas
-        val muzzleColor = Color(0xFFEAD8BC)       // Anteojeras y hocico crema ámbar
-        val spectacleAmber = Color(0xFF845400)    // Marco anteojos ámbar espectral
-        val darkPupil = Color(0xFF151413)         // Pupilas
-        val whiteGleam = Color(0xFFFFFFFF)        // Destello ocular
-        val flowerGold = Color(0xFFFAB438)        // Flor de frailejón dorada
-        val flowerCore = Color(0xFF7A4800)        // Centro de flor
-        val leafGreen = Color(0xFF435C3C)         // Hoja de frailejón verde musgo
+        // Gradientes volumétricos 2.5D
+        val outerFurGradient = androidx.compose.ui.graphics.Brush.radialGradient(
+            colors = listOf(Color(0xFF38312B), Color(0xFF241F1C), Color(0xFF14110F)),
+            radius = w * 0.45f
+        )
+        val innerEarGradient = androidx.compose.ui.graphics.Brush.radialGradient(
+            colors = listOf(Color(0xFF5A493D), Color(0xFF3D3028), Color(0xFF281F1A)),
+            radius = w * 0.15f
+        )
+        val headGradient = androidx.compose.ui.graphics.Brush.verticalGradient(
+            colors = listOf(Color(0xFF3A332E), Color(0xFF251F1C), Color(0xFF161210)),
+            startY = h * 0.25f,
+            endY = h * 0.98f
+        )
+        val muzzleGradient = androidx.compose.ui.graphics.Brush.verticalGradient(
+            colors = listOf(Color(0xFFF5E8D2), Color(0xFFE5D1B5), Color(0xFFD4BBA0)),
+            startY = h * 0.44f,
+            endY = h * 0.85f
+        )
+        val goldGlassesBrush = androidx.compose.ui.graphics.Brush.linearGradient(
+            colors = listOf(Color(0xFFFBE4B5), Color(0xFFD99B26), Color(0xFF8F5E10)),
+            start = Offset(w * 0.20f, h * 0.45f),
+            end = Offset(w * 0.80f, h * 0.70f)
+        )
 
-        // 1. Orejas
-        val earRadius = w * 0.15f
+        val darkPupil = Color(0xFF151413)
+        val whiteGleam = Color(0xFFFFFFFF)
+        val noseColor = Color(0xFF1A1311)
+
+        // 1. Orejas redondeadas con volumen
+        val earRadius = w * 0.155f
         val earY = h * 0.28f
         // Oreja Izquierda
-        drawCircle(color = furColor, radius = earRadius, center = Offset(w * 0.24f, earY))
-        drawCircle(color = innerEarColor, radius = earRadius * 0.6f, center = Offset(w * 0.24f, earY))
+        val leftEarCenter = Offset(w * 0.24f, earY)
+        drawCircle(brush = outerFurGradient, radius = earRadius, center = leftEarCenter)
+        drawCircle(brush = innerEarGradient, radius = earRadius * 0.60f, center = leftEarCenter)
 
         // Oreja Derecha
-        drawCircle(color = furColor, radius = earRadius, center = Offset(w * 0.76f, earY))
-        drawCircle(color = innerEarColor, radius = earRadius * 0.6f, center = Offset(w * 0.76f, earY))
+        val rightEarCenter = Offset(w * 0.76f, earY)
+        drawCircle(brush = outerFurGradient, radius = earRadius, center = rightEarCenter)
+        drawCircle(brush = innerEarGradient, radius = earRadius * 0.60f, center = rightEarCenter)
 
-        // 2. Flor de Frailejón en la oreja izquierda
-        val flowerCenter = Offset(w * 0.30f, h * 0.22f)
-        val petalRadius = w * 0.045f
-        for (i in 0 until 6) {
-            val angle = (i * 60.0) * Math.PI / 180.0
-            val px = flowerCenter.x + (petalRadius * 1.35f * Math.cos(angle)).toFloat()
-            val py = flowerCenter.y + (petalRadius * 1.35f * Math.sin(angle)).toFloat()
-            drawCircle(color = flowerGold, radius = petalRadius, center = Offset(px, py))
-        }
-        drawCircle(color = flowerCore, radius = petalRadius * 0.75f, center = flowerCenter)
-
-        // 3. Cabeza Principal
+        // 2. Cabeza Principal (Forma orgánica con iluminación 3D superior)
         val headPath = Path().apply {
             moveTo(w * 0.16f, h * 0.90f)
             cubicTo(
@@ -249,9 +270,9 @@ private fun MuggyCanvas(
             )
             close()
         }
-        drawPath(path = headPath, color = furColor)
+        drawPath(path = headPath, brush = headGradient)
 
-        // 4. Manchas Anteojeras crema andinas
+        // 3. Manchas Anteojeras crema andinas (Tremarctos ornatus)
         val leftSpectaclePatch = Path().apply {
             addRoundRect(
                 RoundRect(
@@ -260,7 +281,7 @@ private fun MuggyCanvas(
                 )
             )
         }
-        drawPath(path = leftSpectaclePatch, color = muzzleColor)
+        drawPath(path = leftSpectaclePatch, brush = muzzleGradient)
 
         val rightSpectaclePatch = Path().apply {
             addRoundRect(
@@ -270,31 +291,63 @@ private fun MuggyCanvas(
                 )
             )
         }
-        drawPath(path = rightSpectaclePatch, color = muzzleColor)
+        drawPath(path = rightSpectaclePatch, brush = muzzleGradient)
 
-        // 5. Marco de Anteojos Intelectuales
+        // Hocico inferior unificador crema
+        val snoutPatch = Path().apply {
+            addRoundRect(
+                RoundRect(
+                    rect = Rect(w * 0.36f, h * 0.62f, w * 0.64f, h * 0.88f),
+                    cornerRadius = CornerRadius(w * 0.14f, h * 0.13f)
+                )
+            )
+        }
+        drawPath(path = snoutPatch, brush = muzzleGradient)
+
+        // 4. Marco de Anteojos Intelectuales en Oro Frailejón Cepillado
         val glassesRadius = w * 0.125f
         val leftEyeCenter = Offset(w * 0.34f, h * 0.57f)
         val rightEyeCenter = Offset(w * 0.66f, h * 0.57f)
-        val glassesStroke = Stroke(width = w * 0.032f, cap = StrokeCap.Round)
+        val glassesStroke = Stroke(width = w * 0.034f, cap = StrokeCap.Round)
 
-        // Lentes
-        drawCircle(color = spectacleAmber, radius = glassesRadius, center = leftEyeCenter, style = glassesStroke)
-        drawCircle(color = spectacleAmber, radius = glassesRadius, center = rightEyeCenter, style = glassesStroke)
-        // Puente central de anteojos
+        // Reflejo tenue de cristal dentro de los lentes
+        drawCircle(
+            color = whiteGleam.copy(alpha = 0.12f),
+            radius = glassesRadius * 0.92f,
+            center = leftEyeCenter
+        )
+        drawCircle(
+            color = whiteGleam.copy(alpha = 0.12f),
+            radius = glassesRadius * 0.92f,
+            center = rightEyeCenter
+        )
+
+        // Línea diagonal especular en el lente izquierdo
         drawLine(
-            color = spectacleAmber,
-            start = Offset(w * 0.45f, h * 0.57f),
-            end = Offset(w * 0.55f, h * 0.57f),
-            strokeWidth = w * 0.032f,
+            color = whiteGleam.copy(alpha = 0.35f),
+            start = Offset(leftEyeCenter.x - glassesRadius * 0.55f, leftEyeCenter.y - glassesRadius * 0.55f),
+            end = Offset(leftEyeCenter.x - glassesRadius * 0.15f, leftEyeCenter.y - glassesRadius * 0.15f),
+            strokeWidth = w * 0.016f,
             cap = StrokeCap.Round
         )
 
-        // 6. Ojos y Expresión
+        // Aros de oro cepillado
+        drawCircle(brush = goldGlassesBrush, radius = glassesRadius, center = leftEyeCenter, style = glassesStroke)
+        drawCircle(brush = goldGlassesBrush, radius = glassesRadius, center = rightEyeCenter, style = glassesStroke)
+
+        // Puente central de anteojos
+        drawLine(
+            brush = goldGlassesBrush,
+            start = Offset(w * 0.445f, h * 0.57f),
+            end = Offset(w * 0.555f, h * 0.57f),
+            strokeWidth = w * 0.034f,
+            cap = StrokeCap.Round
+        )
+
+        // 5. Ojos y Expresión
         val isEyesClosed = isBlinking || pose == MuggyPose.SLEEPING || pose == MuggyPose.PRIVACY_GUARD
 
         if (isEyesClosed) {
-            // Ojos cerrados (línea arqueada serena)
             val leftArch = Path().apply {
                 moveTo(leftEyeCenter.x - w * 0.05f, leftEyeCenter.y)
                 quadraticTo(leftEyeCenter.x, leftEyeCenter.y + h * 0.035f, leftEyeCenter.x + w * 0.05f, leftEyeCenter.y)
@@ -307,31 +360,44 @@ private fun MuggyCanvas(
             }
             drawPath(path = rightArch, color = darkPupil, style = Stroke(width = w * 0.024f, cap = StrokeCap.Round))
         } else {
-            // Ojos abiertos vivaces
-            val pupilRadius = if (pose == MuggyPose.CELEBRATING) w * 0.055f else w * 0.048f
+            val pupilRadius = if (pose == MuggyPose.CELEBRATING) w * 0.054f else w * 0.048f
             drawCircle(color = darkPupil, radius = pupilRadius, center = leftEyeCenter)
             drawCircle(color = darkPupil, radius = pupilRadius, center = rightEyeCenter)
 
-            // Destello blanco de curiosidad
+            // Destello de vida blanco en los ojos
             val gleamRadius = pupilRadius * 0.38f
-            drawCircle(color = whiteGleam, radius = gleamRadius, center = Offset(leftEyeCenter.x + pupilRadius * 0.35f, leftEyeCenter.y - pupilRadius * 0.35f))
-            drawCircle(color = whiteGleam, radius = gleamRadius, center = Offset(rightEyeCenter.x + pupilRadius * 0.35f, rightEyeCenter.y - pupilRadius * 0.35f))
+            drawCircle(
+                color = whiteGleam,
+                radius = gleamRadius,
+                center = Offset(leftEyeCenter.x + pupilRadius * 0.35f, leftEyeCenter.y - pupilRadius * 0.35f)
+            )
+            drawCircle(
+                color = whiteGleam,
+                radius = gleamRadius,
+                center = Offset(rightEyeCenter.x + pupilRadius * 0.35f, rightEyeCenter.y - pupilRadius * 0.35f)
+            )
         }
 
-        // 7. Hocico y Nariz
-        val noseCenter = Offset(w * 0.50f, h * 0.73f)
+        // 6. Nariz y Sonrisa
+        val noseCenter = Offset(w * 0.50f, h * 0.72f)
         val nosePath = Path().apply {
-            moveTo(noseCenter.x - w * 0.045f, noseCenter.y - h * 0.015f)
-            lineTo(noseCenter.x + w * 0.045f, noseCenter.y - h * 0.015f)
+            moveTo(noseCenter.x - w * 0.048f, noseCenter.y - h * 0.015f)
+            lineTo(noseCenter.x + w * 0.048f, noseCenter.y - h * 0.015f)
             quadraticTo(
-                noseCenter.x, noseCenter.y + h * 0.035f,
-                noseCenter.x - w * 0.045f, noseCenter.y - h * 0.015f
+                noseCenter.x, noseCenter.y + h * 0.038f,
+                noseCenter.x - w * 0.048f, noseCenter.y - h * 0.015f
             )
             close()
         }
-        drawPath(path = nosePath, color = darkPupil)
+        drawPath(path = nosePath, color = noseColor)
+        // Destello especular en la nariz
+        drawCircle(
+            color = Color.White.copy(alpha = 0.75f),
+            radius = w * 0.012f,
+            center = Offset(noseCenter.x - w * 0.015f, noseCenter.y - h * 0.005f)
+        )
 
-        // Sonrisa tenue de sabiduría
+        // Sonrisa
         val smilePath = Path().apply {
             moveTo(noseCenter.x, noseCenter.y + h * 0.025f)
             lineTo(noseCenter.x, noseCenter.y + h * 0.045f)
@@ -345,35 +411,30 @@ private fun MuggyCanvas(
         }
         drawPath(path = smilePath, color = darkPupil, style = Stroke(width = w * 0.018f, cap = StrokeCap.Round))
 
-        // 8. Capas especiales según pose:
-        // A. Modo Privacidad: Patitas cubriendo los ojos (MUGGY.md §3 Pose 6)
+        // 7. Capas especiales según pose:
+        // A. Modo Privacidad: Patitas cubriendo los ojos
         if (pose == MuggyPose.PRIVACY_GUARD) {
             val pawRadius = w * 0.13f
-            // Pata izquierda cubriendo lente izquierdo
+            val furColor = Color(0xFF2C241E)
+            val muzzleColor = Color(0xFFEAD8BC)
             drawCircle(color = furColor, radius = pawRadius, center = Offset(leftEyeCenter.x, leftEyeCenter.y + h * 0.03f))
             drawCircle(color = muzzleColor, radius = pawRadius * 0.5f, center = Offset(leftEyeCenter.x, leftEyeCenter.y + h * 0.03f))
 
-            // Pata derecha cubriendo lente derecho
             drawCircle(color = furColor, radius = pawRadius, center = Offset(rightEyeCenter.x, rightEyeCenter.y + h * 0.03f))
             drawCircle(color = muzzleColor, radius = pawRadius * 0.5f, center = Offset(rightEyeCenter.x, rightEyeCenter.y + h * 0.03f))
         }
 
-        // B. Celebración: Patitas arriba con confeti (Pose 2)
+        // B. Celebración: Patitas arriba
         if (pose == MuggyPose.CELEBRATING) {
             val pawRadius = w * 0.10f
+            val furColor = Color(0xFF2C241E)
+            val muzzleColor = Color(0xFFEAD8BC)
             drawCircle(color = furColor, radius = pawRadius, center = Offset(w * 0.12f, h * 0.40f))
             drawCircle(color = muzzleColor, radius = pawRadius * 0.5f, center = Offset(w * 0.12f, h * 0.40f))
 
             drawCircle(color = furColor, radius = pawRadius, center = Offset(w * 0.88f, h * 0.40f))
             drawCircle(color = muzzleColor, radius = pawRadius * 0.5f, center = Offset(w * 0.88f, h * 0.40f))
         }
-
-        // C. Indicador de noche / sueño (Zetas Zzz)
-        if (pose == MuggyPose.SLEEPING || circadianPhase == CircadianPhase.NIGHT) {
-            val zColor = Color(0x99FAB438)
-            drawLine(zColor, Offset(w * 0.78f, h * 0.18f), Offset(w * 0.86f, h * 0.18f), strokeWidth = 3f)
-            drawLine(zColor, Offset(w * 0.86f, h * 0.18f), Offset(w * 0.78f, h * 0.26f), strokeWidth = 3f)
-            drawLine(zColor, Offset(w * 0.78f, h * 0.26f), Offset(w * 0.86f, h * 0.26f), strokeWidth = 3f)
-        }
     }
 }
+

@@ -196,23 +196,17 @@ private fun BottomBarTabItem(
 ) {
     val colors = LocalAndinaColors.current
 
-    // Colores vivos con identidad de lujo (Platinum Light Luxury)
-    val tabActiveColor = when (tab) {
-        AndinaNavTab.HOME -> colors.navHome                // Oro Solar Champagne
-        AndinaNavTab.TRANSACTIONS -> colors.navTransactions // Azul Zafiro Glaciar
-        AndinaNavTab.WALLETS -> colors.navWallets          // Esmeralda Andina Vibrante
-        AndinaNavTab.CONSULTORIO -> colors.navConsultorio  // Amatista Cuarzo / Violeta IA
-    }
-    val inactiveColor = colors.navInactive
+    val selectedColor = MaterialTheme.colorScheme.primary
+    val inactiveColor = MaterialTheme.colorScheme.onSurfaceVariant
 
     val contentColor by animateColorAsState(
-        targetValue = if (isSelected) tabActiveColor else inactiveColor,
+        targetValue = if (isSelected) selectedColor else inactiveColor,
         animationSpec = spring(stiffness = Spring.StiffnessMediumLow),
         label = "BottomBarColor_${tab.name}"
     )
 
     val capsuleBgColor by animateColorAsState(
-        targetValue = if (isSelected) tabActiveColor.copy(alpha = 0.14f) else Color.Transparent,
+        targetValue = if (isSelected) selectedColor.copy(alpha = 0.12f) else Color.Transparent,
         animationSpec = spring(stiffness = Spring.StiffnessMediumLow),
         label = "BottomBarCapsule_${tab.name}"
     )

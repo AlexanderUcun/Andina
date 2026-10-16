@@ -74,6 +74,7 @@ fun CustomizationHubScreen(
     onNavigateBack: () -> Unit,
     onShowSnackbar: (String) -> Unit,
     modifier: Modifier = Modifier,
+    onNavigateToCategoryManagement: () -> Unit = {},
     viewModel: CustomizationViewModel = hiltViewModel()
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -286,18 +287,33 @@ fun CustomizationHubScreen(
                             style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold),
                             color = MaterialTheme.colorScheme.onSurface
                         )
-                        Surface(
-                            shape = RoundedCornerShape(8.dp),
-                            color = AndeanPrimary.copy(alpha = 0.12f),
-                            modifier = Modifier.clickable { showCreateCategoryDialog = true }
-                        ) {
-                            Text(
-                                text = "+ Crear Nueva",
-                                fontSize = 12.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = AndeanPrimary,
-                                modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp)
-                            )
+                        Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                            Surface(
+                                shape = RoundedCornerShape(8.dp),
+                                color = AndeanPrimary.copy(alpha = 0.12f),
+                                modifier = Modifier.clickable { onNavigateToCategoryManagement() }
+                            ) {
+                                Text(
+                                    text = "🎨 Estudio Completo",
+                                    fontSize = 12.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = AndeanPrimary,
+                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 6.dp)
+                                )
+                            }
+                            Surface(
+                                shape = RoundedCornerShape(8.dp),
+                                color = AndeanPrimary.copy(alpha = 0.12f),
+                                modifier = Modifier.clickable { showCreateCategoryDialog = true }
+                            ) {
+                                Text(
+                                    text = "+ Rápida",
+                                    fontSize = 12.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = AndeanPrimary,
+                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 6.dp)
+                                )
+                            }
                         }
                     }
 

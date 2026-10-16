@@ -134,7 +134,7 @@ fun WalletsScreen(
                             )
                         )
 
-                        // Segmented bar [ Billeteras | Bolsillos ]
+                        // Segmented bar [ Billeteras | Bolsillos | Deudas ]
                         Surface(
                             shape = RoundedCornerShape(12.dp),
                             color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
@@ -171,6 +171,21 @@ fun WalletsScreen(
                                         modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
                                     )
                                 }
+                                Surface(
+                                    shape = RoundedCornerShape(9.dp),
+                                    color = if (state.selectedPatrimonioTab == PatrimonioTab.DEUDAS) AndeanPrimary else Color.Transparent,
+                                    modifier = Modifier
+                                        .clip(RoundedCornerShape(9.dp))
+                                        .clickable { viewModel.onEvent(WalletsEvent.OnSelectPatrimonioTab(PatrimonioTab.DEUDAS)) }
+                                ) {
+                                    Text(
+                                        text = "🤝 Deudas",
+                                        fontSize = 11.sp,
+                                        fontWeight = if (state.selectedPatrimonioTab == PatrimonioTab.DEUDAS) FontWeight.Bold else FontWeight.Medium,
+                                        color = if (state.selectedPatrimonioTab == PatrimonioTab.DEUDAS) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
+                                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                                    )
+                                }
                             }
                         }
                     }
@@ -178,16 +193,20 @@ fun WalletsScreen(
                 actions = {
                     IconButton(
                         onClick = {
-                            if (state.selectedPatrimonioTab == PatrimonioTab.BILLETERAS) {
-                                viewModel.onEvent(WalletsEvent.OnOpenAddWallet)
-                            } else {
-                                pocketsViewModel.processAction(PocketsAction.OpenCreatePocket)
+                            when (state.selectedPatrimonioTab) {
+                                PatrimonioTab.BILLETERAS -> viewModel.onEvent(WalletsEvent.OnOpenAddWallet)
+                                PatrimonioTab.BOLSILLOS -> pocketsViewModel.processAction(PocketsAction.OpenCreatePocket)
+                                PatrimonioTab.DEUDAS -> viewModel.onEvent(WalletsEvent.OnOpenCreateDebt)
                             }
                         }
                     ) {
                         Icon(
                             imageVector = Icons.Default.Add,
-                            contentDescription = if (state.selectedPatrimonioTab == PatrimonioTab.BILLETERAS) "Añadir billetera" else "Crear meta de bolsillo",
+                            contentDescription = when (state.selectedPatrimonioTab) {
+                                PatrimonioTab.BILLETERAS -> "Añadir billetera"
+                                PatrimonioTab.BOLSILLOS -> "Crear meta de bolsillo"
+                                PatrimonioTab.DEUDAS -> "Nueva deuda o préstamo"
+                            },
                             tint = AndeanPrimary
                         )
                     }
@@ -211,6 +230,14 @@ fun WalletsScreen(
                         .fillMaxSize()
                         .padding(innerPadding),
                     viewModel = pocketsViewModel
+                )
+            } else if (state.selectedPatrimonioTab == PatrimonioTab.DEUDAS) {
+                com.andina.finanzas.ui.wallets.components.DebtsTabContent(
+                    state = state,
+                    onEvent = viewModel::onEvent,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(innerPadding)
                 )
             } else if (state.isLoading) {
                 Box(

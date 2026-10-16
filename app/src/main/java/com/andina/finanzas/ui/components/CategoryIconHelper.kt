@@ -1,27 +1,11 @@
 package com.andina.finanzas.ui.components
 
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.Category
-import androidx.compose.material.icons.filled.Coffee
-import androidx.compose.material.icons.filled.DeliveryDining
-import androidx.compose.material.icons.filled.DirectionsBus
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.LocalAtm
-import androidx.compose.material.icons.filled.LocalCafe
-import androidx.compose.material.icons.filled.LocalHospital
-import androidx.compose.material.icons.filled.MoreHoriz
-import androidx.compose.material.icons.filled.Movie
-import androidx.compose.material.icons.filled.Payments
-import androidx.compose.material.icons.filled.Receipt
-import androidx.compose.material.icons.filled.Restaurant
-import androidx.compose.material.icons.filled.School
-import androidx.compose.material.icons.filled.ShoppingBag
-import androidx.compose.material.icons.automirrored.filled.TrendingUp
-import androidx.compose.material.icons.filled.Work
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import com.andina.finanzas.ui.icons.CategoryIconCatalog
+import com.andina.finanzas.ui.theme.FrailejonGold
 import com.andina.finanzas.ui.theme.LegacyColorMapper
 
 /**
@@ -31,33 +15,46 @@ object CategoryIconHelper {
 
     fun getIcon(iconName: String?): ImageVector {
         if (iconName.isNullOrBlank()) return Icons.Default.Category
-        return when (iconName.lowercase().trim()) {
-            "coffee", "cafe", "snack", "snacks" -> Icons.Default.LocalCafe
-            "restaurant", "fastfood", "food", "alimentacion", "almuerzo", "cena" -> Icons.Default.Restaurant
-            "directions_bus", "transport", "transporte", "bus", "gasolina", "vehiculo" -> Icons.Default.DirectionsBus
-            "delivery_dining", "delivery", "domicilios", "domicilio" -> Icons.Default.DeliveryDining
-            "home", "casa", "servicios del hogar", "servicios y hogar", "servicios" -> Icons.Default.Home
-            "movie", "entertainment", "ocio", "entretenimiento", "cine" -> Icons.Default.Movie
-            "favorite", "health", "salud", "salud y cuidado", "salud y bienestar", "bienestar" -> Icons.Default.Favorite
-            "spa", "cuidado personal", "belleza" -> Icons.Default.Favorite
-            "family_restroom", "familia", "familia y hogar" -> Icons.Default.Home
-            "local_hospital", "hospital", "medicina" -> Icons.Default.LocalHospital
-            "school", "education", "educacion", "estudio" -> Icons.Default.School
-            "payments", "salary", "salario", "sueldo", "quincena" -> Icons.Default.Payments
-            "work", "freelance", "honorarios", "trabajo" -> Icons.Default.Work
-            "trending_up", "investment", "inversiones", "rendimientos" -> Icons.AutoMirrored.Filled.TrendingUp
-            "shopping_bag", "compras", "mercado", "ropa" -> Icons.Default.ShoppingBag
-            "receipt", "factura", "servicios publicos" -> Icons.Default.Receipt
-            "ant", "hormiga", "gasto hormiga", "compras hormiga", "bug" -> Icons.Default.Category
-            "add_circle", "otros ingresos" -> Icons.Default.AddCircle
-            "more_horiz", "otros", "otros gastos" -> Icons.Default.MoreHoriz
-            else -> Icons.Default.Category
+        val normalized = iconName.lowercase().trim()
+
+        // 1. Coincidencia directa con las claves del catálogo
+        CategoryIconCatalog.options.find { it.key == normalized }?.let { return it.icon }
+
+        // 2. Mapeo de sinónimos y términos en español a claves maestras del catálogo
+        val resolvedKey = when (normalized) {
+            "cafe", "snack", "snacks" -> "coffee"
+            "fastfood", "food", "alimentacion", "almuerzo", "cena" -> "restaurant"
+            "transport", "transporte", "bus", "vehiculo" -> "directions_bus"
+            "delivery", "domicilios", "domicilio" -> "delivery_dining"
+            "casa", "servicios del hogar", "servicios y hogar", "familia", "familia y hogar" -> "home"
+            "entertainment", "ocio", "entretenimiento", "cine" -> "movie"
+            "health", "salud", "salud y cuidado", "salud y bienestar", "bienestar", "spa", "cuidado personal", "belleza" -> "favorite"
+            "hospital", "medicina", "farmacia" -> "local_hospital"
+            "gym", "gimnasio", "deporte", "ejercicio" -> "fitness_center"
+            "perro", "gato", "veterinaria" -> "pets"
+            "education", "educacion", "estudio", "colegio", "universidad" -> "school"
+            "viaje", "turismo", "vuelo", "vacaciones" -> "flight"
+            "tech", "tecnologia", "suscripciones", "software" -> "computer"
+            "regalo", "donacion" -> "card_giftcard"
+            "fiesta", "celebracion" -> "celebration"
+            "salary", "salario", "quincena" -> "payments"
+            "freelance", "honorarios" -> "work"
+            "investment", "inversiones", "rendimientos" -> "trending_up"
+            "ropa", "mercado" -> "shopping_bag"
+            "supermercado" -> "shopping_cart"
+            "factura", "servicios publicos" -> "receipt"
+            "combustible" -> "local_gas_station"
+            "alcancia", "metas" -> "savings"
+            else -> "category"
         }
+
+        return CategoryIconCatalog.options.find { it.key == resolvedKey }?.icon ?: Icons.Default.Category
     }
 
-    fun parseColor(hex: String, fallback: Color = Color(0xFFC5A059)): Color {
+    fun parseColor(hex: String, fallback: Color = FrailejonGold): Color {
         return runCatching {
             LegacyColorMapper.mapLegacyHex(hex)
         }.getOrDefault(fallback)
     }
 }
+

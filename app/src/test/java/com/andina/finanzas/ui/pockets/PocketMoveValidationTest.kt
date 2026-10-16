@@ -3,6 +3,7 @@ package com.andina.finanzas.ui.pockets
 import androidx.lifecycle.SavedStateHandle
 import com.andina.finanzas.domain.model.Category
 import com.andina.finanzas.domain.model.CategoryKind
+import com.andina.finanzas.domain.model.Debt
 import com.andina.finanzas.domain.model.FinancialSummary
 import com.andina.finanzas.domain.model.Money
 import com.andina.finanzas.domain.model.Pocket
@@ -374,4 +375,9 @@ private class FakePocketsFinanceRepository : FinanceRepository {
     override suspend fun updateCategory(category: Category) {}
     override suspend fun deleteCategory(id: Long) {}
     override suspend fun resetDemoData() {}
+
+    override fun observeDebts(): Flow<List<Debt>> = flowOf(emptyList())
+    override suspend fun createDebt(debt: Debt, affectWalletBalance: Boolean): Result<Long> = Result.success(1L)
+    override suspend fun registerDebtPayment(debtId: Long, paymentAmount: Money, walletId: Long, note: String): Result<Unit> = Result.success(Unit)
+    override suspend fun deleteDebt(debtId: Long): Result<Unit> = Result.success(Unit)
 }

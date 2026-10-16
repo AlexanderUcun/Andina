@@ -350,9 +350,11 @@ fun RegisterScreen(
 
                         // 4. Input Nativo de Monto con Teclado Numérico Android y VisualTransformation
                         val heroColor = when {
-                            state.amountError != null -> colors.statusDanger
-                            state.type == TransactionType.INGRESO -> colors.statusSuccess
-                            else -> colors.textMoneyDisplay
+                            state.amountError != null -> com.andina.finanzas.ui.theme.SemanticExpenseCoral
+                            state.type == TransactionType.GASTO -> com.andina.finanzas.ui.theme.SemanticExpenseCoral
+                            state.type == TransactionType.INGRESO -> com.andina.finanzas.ui.theme.SemanticIncomeEmerald
+                            state.type == TransactionType.TRANSFERENCIA -> com.andina.finanzas.ui.theme.SemanticTransferCyan
+                            else -> com.andina.finanzas.ui.theme.SemanticExpenseCoral
                         }
 
                         Row(
@@ -558,7 +560,7 @@ fun RegisterScreen(
                             if (state.type == TransactionType.GASTO) {
                                 val isAnt = state.isAntExpense
                                 val antBg = if (isAnt) AndeanAntExpenseAmber else AndeanAntExpenseAmber.copy(alpha = 0.12f)
-                                val antText = if (isAnt) Color.White else AndeanAntExpenseAmber
+                                val antText = if (isAnt) com.andina.finanzas.ui.theme.AndeanOnPrimary else AndeanAntExpenseAmber
 
                                 Row(
                                     modifier = Modifier

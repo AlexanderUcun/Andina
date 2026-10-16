@@ -6,7 +6,6 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -23,11 +22,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AccountBalance
 import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.CreditCard
-import androidx.compose.material.icons.filled.Payments
-import androidx.compose.material.icons.filled.Smartphone
+import androidx.compose.material.icons.filled.WarningAmber
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -37,22 +33,22 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.andina.finanzas.ui.components.WalletBrandGlyph
 import com.andina.finanzas.domain.model.Money
 import com.andina.finanzas.domain.model.Wallet
 import com.andina.finanzas.domain.model.WalletType
+import com.andina.finanzas.ui.components.WalletBrandGlyph
+import com.andina.finanzas.ui.theme.LocalAndinaColors
 import com.andina.finanzas.ui.theme.WalletBrandColors
 
 /**
- * Carrusel interactivo de billeteras y cuentas con identidades de marca colombianas
- * y previsualización de saldo proyectado en tiempo real.
+ * Selector horizontal compacto de billeteras para registro rápido con una sola mano.
+ * Paleta armonizada con Andina Tokens y advertencia sutil sin sobrecargar.
  */
 @Composable
 fun PaymentWalletSelector(
@@ -64,62 +60,62 @@ fun PaymentWalletSelector(
     labelTitle: String = "Método de pago"
 ) {
     val haptic = LocalHapticFeedback.current
-    val isDark = isSystemInDarkTheme()
+    val colors = LocalAndinaColors.current
 
     val selectedWallet = wallets.find { it.id == selectedWalletId }
+    val showWarning = selectedWallet != null &&
+            projectedRemainingBalance != null &&
+            projectedRemainingBalance.isNegative &&
+            projectedRemainingBalance != selectedWallet.currentBalance
 
     Column(
         modifier = modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+        verticalArrangement = Arrangement.spacedBy(4.dp)
     ) {
         // Título de la sección
         Text(
             text = labelTitle,
-            style = MaterialTheme.typography.labelLarge.copy(
-                fontWeight = FontWeight.SemiBold
+            style = MaterialTheme.typography.labelSmall.copy(
+                fontWeight = FontWeight.Bold,
+                fontSize = 11.sp
             ),
-            color = MaterialTheme.colorScheme.onSurface,
+            color = colors.textSecondary,
             modifier = Modifier.padding(horizontal = 4.dp)
         )
 
-        // Previsualización de saldo proyectado en caja independiente y limpia
+        // Advertencia compacta en una sola línea sutil
         AnimatedVisibility(
-            visible = selectedWallet != null && projectedRemainingBalance != null,
+            visible = showWarning,
             enter = fadeIn(),
             exit = fadeOut()
         ) {
             if (selectedWallet != null && projectedRemainingBalance != null) {
-                val isNegative = projectedRemainingBalance.isNegative
-                val bgColor = if (isNegative) {
-                    MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.4f)
-                } else {
-                    MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.35f)
-                }
-                val textColor = if (isNegative) {
-                    MaterialTheme.colorScheme.error
-                } else {
-                    MaterialTheme.colorScheme.primary
-                }
-
                 Surface(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 2.dp),
-                    shape = RoundedCornerShape(10.dp),
-                    color = bgColor
+                    shape = RoundedCornerShape(8.dp),
+                    color = colors.statusWarning.copy(alpha = 0.12f),
+                    border = androidx.compose.foundation.BorderStroke(0.6.dp, colors.statusWarning.copy(alpha = 0.3f))
                 ) {
                     Row(
-                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
+                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
+                        Icon(
+                            imageVector = Icons.Default.WarningAmber,
+                            contentDescription = null,
+                            tint = colors.statusWarning,
+                            modifier = Modifier.size(13.dp)
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
                         Text(
-                            text = if (isNegative) "⚠️ Advertencia: Saldo insuficiente. Quedarían ${projectedRemainingBalance.formatCop()} en ${selectedWallet.name}"
-                            else "Te quedarán ${projectedRemainingBalance.formatCop()} en ${selectedWallet.name}",
-                            style = MaterialTheme.typography.bodySmall.copy(
+                            text = "Quedarían ${projectedRemainingBalance.formatCop()} en ${selectedWallet.name}",
+                            style = MaterialTheme.typography.labelSmall.copy(
                                 fontWeight = FontWeight.SemiBold,
-                                fontSize = 12.sp
+                                fontSize = 11.sp
                             ),
-                            color = textColor
+                            color = colors.statusWarning
                         )
                     }
                 }
@@ -129,31 +125,25 @@ fun PaymentWalletSelector(
         // Carrusel horizontal de chips de billeteras
         LazyRow(
             modifier = Modifier.fillMaxWidth(),
-            contentPadding = PaddingValues(horizontal = 4.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
+            contentPadding = PaddingValues(horizontal = 2.dp),
+            horizontalArrangement = Arrangement.spacedBy(6.dp)
         ) {
             items(wallets, key = { it.id }) { wallet ->
                 val isSelected = wallet.id == selectedWalletId
                 val brandColor = getWalletColor(wallet.type)
-                val icon = getWalletIcon(wallet.type)
 
-                val cardBg = if (isSelected) {
-                    if (isDark) brandColor.copy(alpha = 0.32f) else brandColor.copy(alpha = 0.16f)
-                } else {
-                    if (isDark) Color(0xFF1E211D) else Color(0xFFF1EEE8)
-                }
-
-                val borderColor = if (isSelected) brandColor else Color.Transparent
+                val cardBg = if (isSelected) colors.accentGold.copy(alpha = 0.12f) else colors.canvasBottom
+                val borderColor = if (isSelected) colors.accentGold else colors.cardBorder
 
                 Row(
                     modifier = Modifier
-                        .height(50.dp)
-                        .clip(RoundedCornerShape(16.dp))
+                        .height(42.dp)
+                        .clip(RoundedCornerShape(12.dp))
                         .background(cardBg)
                         .border(
-                            width = if (isSelected) 2.dp else 0.dp,
+                            width = if (isSelected) 1.5.dp else 0.8.dp,
                             color = borderColor,
-                            shape = RoundedCornerShape(16.dp)
+                            shape = RoundedCornerShape(12.dp)
                         )
                         .clickable(
                             role = Role.RadioButton,
@@ -162,13 +152,13 @@ fun PaymentWalletSelector(
                                 onWalletSelected(wallet.id)
                             }
                         )
-                        .padding(horizontal = 12.dp),
+                        .padding(horizontal = 10.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     // Círculo insignia con glifo de marca oficial
                     Box(
                         modifier = Modifier
-                            .size(28.dp)
+                            .size(24.dp)
                             .clip(CircleShape)
                             .background(brandColor.copy(alpha = 0.18f)),
                         contentAlignment = Alignment.Center
@@ -176,7 +166,7 @@ fun PaymentWalletSelector(
                         WalletBrandGlyph(
                             walletType = wallet.type,
                             tint = brandColor,
-                            size = 18.dp
+                            size = 15.dp
                         )
                     }
 
@@ -185,17 +175,18 @@ fun PaymentWalletSelector(
                     Column {
                         Text(
                             text = wallet.name,
-                            style = MaterialTheme.typography.labelMedium.copy(
-                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium
+                            style = MaterialTheme.typography.labelSmall.copy(
+                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
+                                fontSize = 12.sp
                             ),
-                            color = MaterialTheme.colorScheme.onSurface
+                            color = colors.textPrimary
                         )
                         Text(
                             text = wallet.currentBalance.formatCop(),
-                            style = MaterialTheme.typography.bodySmall.copy(
-                                fontSize = 11.sp
+                            style = MaterialTheme.typography.labelSmall.copy(
+                                fontSize = 10.sp
                             ),
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                            color = colors.textSecondary
                         )
                     }
 
@@ -204,8 +195,8 @@ fun PaymentWalletSelector(
                         Icon(
                             imageVector = Icons.Default.Check,
                             contentDescription = "Seleccionado",
-                            tint = brandColor,
-                            modifier = Modifier.size(16.dp)
+                            tint = colors.accentGold,
+                            modifier = Modifier.size(14.dp)
                         )
                     }
                 }
@@ -222,15 +213,5 @@ private fun getWalletColor(type: WalletType): Color {
         WalletType.EFECTIVO -> WalletBrandColors.Cash
         WalletType.TARJETA_CREDITO -> WalletBrandColors.NuBank
         WalletType.OTRA -> Color(0xFF587550)
-    }
-}
-
-private fun getWalletIcon(type: WalletType): ImageVector {
-    return when (type) {
-        WalletType.NEQUI, WalletType.DAVIPLATA -> Icons.Default.Smartphone
-        WalletType.BANCOLOMBIA -> Icons.Default.AccountBalance
-        WalletType.EFECTIVO -> Icons.Default.Payments
-        WalletType.TARJETA_CREDITO -> Icons.Default.CreditCard
-        WalletType.OTRA -> Icons.Default.Payments
     }
 }

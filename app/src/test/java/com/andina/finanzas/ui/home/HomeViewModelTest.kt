@@ -3,6 +3,7 @@ package com.andina.finanzas.ui.home
 import androidx.lifecycle.SavedStateHandle
 import com.andina.finanzas.domain.model.Category
 import com.andina.finanzas.domain.model.CategoryKind
+import com.andina.finanzas.domain.model.Debt
 import com.andina.finanzas.domain.model.FinancialSummary
 import com.andina.finanzas.domain.model.Money
 import com.andina.finanzas.domain.model.Pocket
@@ -173,6 +174,30 @@ class HomeViewModelTest {
 
         assertEquals("Nivel Frailejón Mayor", viewModel.state.value.paramoHealthLevel)
     }
+
+    @Test
+    fun `accion RefreshData recalcula insight de Muggy, restaura banner descartado y emite snackbar`() = runTest(testDispatcher) {
+        val savedState = SavedStateHandle()
+        val viewModel = HomeViewModel(savedState, fakeRepository, fakeUserProfileRepository)
+        advanceUntilIdle()
+
+        // Descartar el insight primero
+        viewModel.onAction(HomeAction.DismissInsight)
+        advanceUntilIdle()
+        assertTrue(viewModel.state.value.isInsightDismissed)
+
+        // Ejecutar pull to refresh (ola andina)
+        viewModel.onAction(HomeAction.RefreshData)
+        advanceUntilIdle()
+
+        assertFalse(viewModel.state.value.isRefreshing)
+        assertFalse(viewModel.state.value.isInsightDismissed)
+        assertNotNull(viewModel.state.value.andinoInsight)
+        assertTrue(viewModel.state.value.andinoInsight!!.isNotBlank())
+
+        val effect = viewModel.effects.first()
+        assertTrue(effect is HomeEffect.ShowSnackbar)
+    }
 }
 
 /**
@@ -299,4 +324,9 @@ private class FakeFinanceRepository : FinanceRepository {
     override suspend fun updateCategory(category: Category) {}
     override suspend fun deleteCategory(id: Long) {}
     override suspend fun resetDemoData() {}
+
+    override fun observeDebts(): Flow<List<Debt>> = flowOf(emptyList())
+    override suspend fun createDebt(debt: Debt, affectWalletBalance: Boolean): Result<Long> = Result.success(1L)
+    override suspend fun registerDebtPayment(debtId: Long, paymentAmount: Money, walletId: Long, note: String): Result<Unit> = Result.success(Unit)
+    override suspend fun deleteDebt(debtId: Long): Result<Unit> = Result.success(Unit)
 }

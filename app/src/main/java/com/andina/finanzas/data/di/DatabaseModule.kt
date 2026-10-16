@@ -53,4 +53,9 @@ object DatabaseModule {
     fun provideLedgerDao(database: AppDatabase): LedgerDao {
         return database.ledgerDao()
     }
+
+    @Provides
+    fun provideDebtDao(database: AppDatabase): com.andina.finanzas.data.local.dao.DebtDao {
+        return database.debtDao()
+    }
 }

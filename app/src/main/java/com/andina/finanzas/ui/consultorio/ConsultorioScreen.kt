@@ -358,8 +358,9 @@ private fun HeroConsultorioCard(
                         shape = RoundedCornerShape(8.dp),
                         color = AndeanPrimary.copy(alpha = 0.12f)
                     ) {
+                        val runwayText = if (oxygenDays == 1) "1 día" else "$oxygenDays días"
                         Text(
-                            text = "🛡️ $oxygenDays días",
+                            text = "🛡️ $runwayText",
                             fontSize = 11.sp,
                             fontWeight = FontWeight.Bold,
                             color = AndeanPrimary,
@@ -420,12 +421,17 @@ private fun TopCategoriesSection(
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Text(categoryName, fontSize = 13.sp, color = Color(0xFF2C241E))
-                        Text(amount.formatCop(), fontSize = 13.sp, fontWeight = FontWeight.Bold, color = Color(0xFF435C3C))
+                        Text(
+                            text = "-$ ${amount.formatCop(includeSymbol = false)}",
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = com.andina.finanzas.ui.theme.SemanticExpenseCoral
+                        )
                     }
                     Spacer(modifier = Modifier.height(4.dp))
                     LinearProgressIndicator(
                         progress = { progress },
-                        color = Color(0xFF435C3C),
+                        color = com.andina.finanzas.ui.theme.SemanticExpenseCoral,
                         trackColor = Color(0xFFECE7DE),
                         modifier = Modifier
                             .fillMaxWidth()

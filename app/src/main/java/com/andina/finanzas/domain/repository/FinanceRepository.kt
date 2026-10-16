@@ -68,6 +68,12 @@ interface FinanceRepository {
     suspend fun updateCategory(category: Category)
     suspend fun deleteCategory(id: Long)
 
+    // --- Deudas y Préstamos ("Me deben" & "Yo debo") ---
+    fun observeDebts(): Flow<List<com.andina.finanzas.domain.model.Debt>>
+    suspend fun createDebt(debt: com.andina.finanzas.domain.model.Debt, affectWalletBalance: Boolean): Result<Long>
+    suspend fun registerDebtPayment(debtId: Long, paymentAmount: Money, walletId: Long, note: String = ""): Result<Unit>
+    suspend fun deleteDebt(debtId: Long): Result<Unit>
+
     // --- Reinicio y Mantenimiento ---
     suspend fun resetDemoData()
 }

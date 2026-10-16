@@ -101,6 +101,12 @@ data object RecurringRoute : AndinaDestination
 data object CustomizationHubRoute : AndinaDestination
 
 /**
+ * Estudio y Panel de Personalización Completa de Categorías (Iconos, Colores y Tipos).
+ */
+@Serializable
+data object CategoryManagementRoute : AndinaDestination
+
+/**
  * Calendario Financiero Interactivo & Flujo de Caja (Módulo 10).
  */
 @Serializable

@@ -348,4 +348,9 @@ private class FakeFinanceRepository : FinanceRepository {
     override suspend fun updateCategory(category: Category) {}
     override suspend fun deleteCategory(id: Long) {}
     override suspend fun resetDemoData() {}
+
+    override fun observeDebts(): Flow<List<Debt>> = flowOf(emptyList())
+    override suspend fun createDebt(debt: Debt, affectWalletBalance: Boolean): Result<Long> = Result.success(1L)
+    override suspend fun registerDebtPayment(debtId: Long, paymentAmount: Money, walletId: Long, note: String): Result<Unit> = Result.success(Unit)
+    override suspend fun deleteDebt(debtId: Long): Result<Unit> = Result.success(Unit)
 }

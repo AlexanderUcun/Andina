@@ -9,20 +9,20 @@ import androidx.compose.ui.unit.dp
 // 📐 SISTEMA DE FORMAS Y RADIOS (SHAPES & BORDERS)
 // ============================================================================
 
-val CornerSmall = RoundedCornerShape(8.dp)
-val CornerMedium = RoundedCornerShape(12.dp)
+val CornerSmall = RoundedCornerShape(12.dp)
+val CornerMedium = RoundedCornerShape(14.dp)
 val CornerLarge = RoundedCornerShape(18.dp)
 val CornerExtraLarge = RoundedCornerShape(24.dp)
-val CornerSheet = RoundedCornerShape(topStart = 32.dp, topEnd = 32.dp)
+val CornerSheet = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)
 val CornerPill = CircleShape
 
 /**
- * Mapeo oficial de Material 3 Shapes para Andina.
+ * Mapeo oficial de Material 3 Shapes para Andina (Escala estricta de 4 niveles).
  */
 val AndinaShapes = Shapes(
-    extraSmall = RoundedCornerShape(4.dp),
-    small = CornerSmall,        // 8.dp: Avatares, badges, mini-chips
-    medium = CornerMedium,      // 12.dp: Botones secundarios, tarjetas compactas
-    large = CornerLarge,        // 18.dp: Hero cards, FrostedGlassCard
-    extraLarge = CornerExtraLarge // 24.dp: Modales, BottomSheets, CTA
+    extraSmall = RoundedCornerShape(8.dp),
+    small = CornerSmall,        // 12.dp: Chips, badges y etiquetas pequeñas
+    medium = CornerMedium,      // 14.dp: Filas interactivas, campos de entrada y cajas secundarias
+    large = CornerLarge,        // 18.dp: Tarjetas estándar de sección
+    extraLarge = CornerExtraLarge // 24.dp: Tarjetas Hero, BottomSheets, Modales
 )

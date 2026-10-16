@@ -186,18 +186,105 @@ class HomeViewModel @Inject constructor(
         }
     }
 
+    private var insightRotationIndex = 0
+
     private fun refreshData() {
         viewModelScope.launch {
             _state.update { it.copy(isRefreshing = true) }
-            // Simulación táctil de refresco para feedback del rocío
-            delay(800)
+            // Breve delay fluido para que la marea andina complete su ciclo armónico
+            delay(500)
+            val current = _state.value
+            val newInsight = generateMuggyInsight(current)
+            savedStateHandle[KEY_INSIGHT_DISMISSED] = false
             _state.update {
                 it.copy(
                     isRefreshing = false,
+                    isInsightDismissed = false,
+                    andinoInsight = newInsight,
                     greeting = calculateGreeting(LocalTime.now().hour)
                 )
             }
+            sendEffect(HomeEffect.ShowSnackbar("🔒 Bóveda local protegida · 100% Offline"))
         }
+    }
+
+    private fun generateMuggyInsight(state: HomeUiState): String {
+        insightRotationIndex++
+
+        val totalExpense = state.periodExpense.pesos
+        val totalIncome = state.periodIncome.pesos
+        val antExpense = state.antExpensesMonthTotal.pesos
+        val budgetProgress = state.budgetProgress
+        val remainingNet = state.periodNetRemaining.pesos
+
+        val candidates = mutableListOf<String>()
+
+        // 1. Diagnóstico de Gastos Hormiga
+        if (antExpense > 0L && totalExpense > 0L) {
+            val antPercent = ((antExpense.toDouble() / totalExpense.toDouble()) * 100).toInt()
+            if (antPercent >= 10) {
+                candidates.add(
+                    "Muggy detectó ${state.antExpensesMonthTotal.formatCop()} en gastos hormiga ($antPercent% de tus egresos). Controla los pequeños antojos para potenciar tus reservas."
+                )
+            } else {
+                candidates.add(
+                    "¡Gran control! Tus gastos hormiga solo representan el $antPercent% de tus gastos. Tu páramo financiero se mantiene equilibrado."
+                )
+            }
+        } else if (antExpense == 0L && totalExpense > 0L) {
+            candidates.add(
+                "¡Cero gastos hormiga registrados este mes! Tu nivel de disciplina financiera es digno de un Guardián del Frailejón."
+            )
+        }
+
+        // 2. Diagnóstico de Presupuesto Mensual
+        if (state.budgetTotal.pesos > 0L) {
+            if (budgetProgress >= 0.85f) {
+                val pct = (budgetProgress * 100).toInt()
+                val remainingBudget = state.budgetTotal - state.budgetSpent
+                candidates.add(
+                    "Alerta de presupuesto: Has consumido el $pct% de tu límite mensual. Te quedan ${remainingBudget.coerceAtLeast(Money.ZERO).formatCop()} para terminar el ciclo."
+                )
+            } else if (budgetProgress in 0.10f..0.50f) {
+                val pct = (budgetProgress * 100).toInt()
+                candidates.add(
+                    "Excelente ritmo: Vas al $pct% de tu presupuesto mensual. Tienes buen margen para destinar a reservas."
+                )
+            }
+        }
+
+        // 3. Diagnóstico de Flujo Neto y Capacidad de Ahorro
+        if (totalIncome > 0L && remainingNet > 0L) {
+            val savingsRate = ((remainingNet.toDouble() / totalIncome.toDouble()) * 100).toInt()
+            candidates.add(
+                "Tu tasa de ahorro mensual proyectada es del $savingsRate%. Considera pasar una parte a tus bolsillos de reserva."
+            )
+        } else if (totalExpense > totalIncome && totalIncome > 0L) {
+            candidates.add(
+                "Tus salidas superan tus ingresos este mes por ${Money(totalExpense - totalIncome).formatCop()}. Revisa si tienes compras diferidas o gastos no planificados."
+            )
+        }
+
+        // 4. Diagnóstico de Bolsillos y Metas
+        if (state.pockets.isNotEmpty()) {
+            val targetPocket = state.pockets.minByOrNull { it.progress } ?: state.pockets.first()
+            candidates.add(
+                "Tu meta '${targetPocket.name}' va al ${(targetPocket.progress * 100).toInt()}%. Un aporte hoy te acerca más rápido a completarla."
+            )
+        }
+
+        // 5. Consejos Estratégicos Andinos de Sabiduría Financiera
+        val paramoWisdom = listOf(
+            "Regla del Páramo 50/30/20: Destina 50% a necesidades vitales, 30% a estilo de vida y 20% a reservas inquebrantables.",
+            "Antes de una compra imprevista, aplica la regla de las 48 horas. Si la necesidad persiste, evalúa si cabe en tu presupuesto.",
+            "El dinero en reservas es como el agua almacenada en las raíces del frailejón: te da calma en las temporadas de sequía.",
+            "Recuerda que registrar cada movimiento en el momento evita que se te escape el rastro de tus finanzas.",
+            "Paga primero a tu 'yo del futuro': aparta tu cuota de ahorro al inicio del mes, no con lo que sobre al final."
+        )
+        candidates.addAll(paramoWisdom)
+
+        val index = (insightRotationIndex - 1 + candidates.size) % candidates.size
+        return candidates[index]
     }
 
     private fun sendEffect(effect: HomeEffect) {

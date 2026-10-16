@@ -43,6 +43,7 @@ private fun MetricItem(
     icon: ImageVector,
     iconColor: Color,
     iconBgColor: Color,
+    amountColor: Color,
     modifier: Modifier = Modifier
 ) {
     val colors = LocalAndinaColors.current
@@ -99,7 +100,7 @@ private fun MetricItem(
                 fontWeight = FontWeight.Bold,
                 fontFeatureSettings = "tnum"
             ),
-            color = colors.textPrimary,
+            color = amountColor,
             maxLines = 1
         )
     }
@@ -120,8 +121,12 @@ fun PeriodMetricsGrid(
 ) {
     val colors = LocalAndinaColors.current
     val incomeText = if (isPrivacyMode) "••••••" else periodIncome.formatCop()
-    val expenseText = if (isPrivacyMode) "••••••" else periodExpense.formatCop()
+    val expenseText = if (isPrivacyMode) "••••••" else if (periodExpense.pesos > 0L) "-${periodExpense.formatCop()}" else periodExpense.formatCop()
     val netBalanceText = if (isPrivacyMode) "••••••" else periodNetRemaining.formatCop()
+
+    val incomeColor = com.andina.finanzas.ui.theme.SemanticIncomeEmerald
+    val expenseColor = com.andina.finanzas.ui.theme.SemanticExpenseCoral
+    val netColor = if (periodNetRemaining.pesos >= 0L) com.andina.finanzas.ui.theme.SemanticIncomeEmerald else com.andina.finanzas.ui.theme.SemanticExpenseCoral
 
     Row(
         modifier = modifier.fillMaxWidth(),
@@ -132,8 +137,9 @@ fun PeriodMetricsGrid(
             title = "Entró",
             amount = incomeText,
             icon = Icons.Default.ArrowDownward,
-            iconColor = colors.statusSuccess,
-            iconBgColor = colors.statusSuccess.copy(alpha = 0.12f),
+            iconColor = incomeColor,
+            iconBgColor = incomeColor.copy(alpha = 0.12f),
+            amountColor = incomeColor,
             modifier = Modifier.weight(1f)
         )
 
@@ -142,8 +148,9 @@ fun PeriodMetricsGrid(
             title = "Salió",
             amount = expenseText,
             icon = Icons.Default.ArrowUpward,
-            iconColor = colors.statusDanger,
-            iconBgColor = colors.statusDanger.copy(alpha = 0.12f),
+            iconColor = expenseColor,
+            iconBgColor = expenseColor.copy(alpha = 0.12f),
+            amountColor = expenseColor,
             modifier = Modifier.weight(1f)
         )
 
@@ -152,8 +159,9 @@ fun PeriodMetricsGrid(
             title = "Flujo Neto",
             amount = netBalanceText,
             icon = Icons.Default.Wallet,
-            iconColor = if (periodNetRemaining.pesos >= 0L) colors.statusSuccess else colors.statusDanger,
-            iconBgColor = (if (periodNetRemaining.pesos >= 0L) colors.statusSuccess else colors.statusDanger).copy(alpha = 0.12f),
+            iconColor = netColor,
+            iconBgColor = netColor.copy(alpha = 0.12f),
+            amountColor = netColor,
             modifier = Modifier.weight(1f)
         )
     }

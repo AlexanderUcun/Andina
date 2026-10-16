@@ -7,8 +7,8 @@ import androidx.compose.ui.graphics.Color
 // 🎨 PALETA OFICIAL "ANDEAN MIST & MOSS" (MATERIAL 3)
 // ============================================================================
 
-// Tonos Primarios (Verde Musgo Andino)
-val AndeanPrimary = Color(0xFF2C4427)
+// Tonos Primarios (Verde Musgo Andino Profundo)
+val AndeanPrimary = Color(0xFF1E4D3B)
 val AndeanOnPrimary = Color(0xFFFFFFFF)
 val AndeanPrimaryContainer = Color(0xFF435C3C)
 val AndeanOnPrimaryContainer = Color(0xFFB6D3AB)
@@ -37,6 +37,15 @@ val AndeanErrorContainer = Color(0xFFFFDAD6)
 val AndeanOnErrorContainer = Color(0xFF410002)
 
 // ============================================================================
+// 🪙 TOKENS SEMÁNTICOS CONTABLES OBLIGATORIOS (ACCOUNTING SEMANTICS)
+// ============================================================================
+val SemanticIncomeEmerald = Color(0xFF10B981)      // Solo para Ingresos (+$) y crecimiento
+val SemanticExpenseCoral = Color(0xFFEF4444)       // Obligatorio para Gastos (-$) y sobregiros
+val SemanticTransferCyan = Color(0xFF0EA5E9)       // Obligatorio para Transferencias (⇄)
+val SemanticDebtReceivableGold = Color(0xFFE5A93C) // Para "Me deben" (Préstamos por cobrar)
+val SemanticDebtPayableOrange = Color(0xFFF97316)  // Para "Yo debo" (Deudas por pagar)
+
+// ============================================================================
 // 🌙 MODO OSCURO (PÁRAMO NOCTURNO OLED #121411)
 // ============================================================================
 val AndeanDarkSurface = Color(0xFF121411) // Negro carbón con tinte verde musgo profundo
@@ -63,7 +72,7 @@ val AndeanFrostBorderTop = Color(0xF2FFFFFF)     // 95% blanco cenital escarchad
 val AndeanFrostBorderBottom = Color(0x59CAD5C7)  // Bisel inferior fundido con la niebla
 
 // Oro Frailejón Cálido y Esmeralda Andina (Acentos de Valor)
-val FrailejonGold = Color(0xFFDF9E28)            // Oro ámbar cálido para saldos y logros
+val FrailejonGold = Color(0xFFD99B26)            // Oro ámbar cálido para saldos y logros
 val FrailejonGoldDeep = Color(0xFFC8871E)        // Oro ámbar oscuro para bordes y contraste
 val AndeanEmeraldDeep = Color(0xFF15803D)        // Esmeralda pura para ingresos y confirmaciones
 val AndeanEmeraldLight = Color(0xFF10B981)       // Esmeralda luminosa para auras cáusticas

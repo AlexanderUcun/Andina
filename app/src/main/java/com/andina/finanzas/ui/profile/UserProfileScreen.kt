@@ -155,7 +155,7 @@ fun UserProfileScreen(
                     .fillMaxSize()
                     .padding(innerPadding)
                     .verticalScroll(rememberScrollState())
-                    .padding(horizontal = 20.dp, vertical = 16.dp),
+                    .padding(start = 20.dp, end = 20.dp, top = 12.dp, bottom = 120.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 // 1. Tarjeta Avatar Hero con Identidad y Progreso del Páramo
@@ -267,7 +267,11 @@ fun UserProfileScreen(
                             val isSelected = avatar == userProfile.avatarEmoji
                             Surface(
                                 shape = CircleShape,
-                                color = if (isSelected) AndeanPrimary.copy(alpha = 0.25f) else MaterialTheme.colorScheme.surface,
+                                color = if (isSelected) AndeanPrimary.copy(alpha = 0.20f) else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f),
+                                border = androidx.compose.foundation.BorderStroke(
+                                    width = if (isSelected) 2.dp else 1.dp,
+                                    color = if (isSelected) AndeanPrimary else Color.Transparent
+                                ),
                                 modifier = Modifier
                                     .size(44.dp)
                                     .clip(CircleShape)
@@ -277,7 +281,15 @@ fun UserProfileScreen(
                                     }
                             ) {
                                 Box(contentAlignment = Alignment.Center) {
-                                    Text(text = avatar, fontSize = 22.sp)
+                                    if (avatar == "🐻") {
+                                        com.andina.finanzas.ui.components.muggy.MuggyAvatar(
+                                            size = 32.dp,
+                                            pose = com.andina.finanzas.ui.components.muggy.MuggyPose.OBSERVING,
+                                            isInteractive = false
+                                        )
+                                    } else {
+                                        Text(text = avatar, fontSize = 20.sp)
+                                    }
                                 }
                             }
                         }

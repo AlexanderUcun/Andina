@@ -42,8 +42,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -122,10 +124,15 @@ class AndinaAppState(
     }
 
     /**
-     * Abre el modal/pantalla global de Registro Rápido con Muggy.
+     * Estado del Modal BottomSheet Anclado de Registro Rápido.
+     */
+    var isRegisterSheetVisible by mutableStateOf(false)
+
+    /**
+     * Abre el modal anclado de Registro Rápido.
      */
     fun navigateToRegister(initialType: String = "EXPENSE") {
-        navController.navigate(RegisterRoute(initialType = initialType))
+        isRegisterSheetVisible = true
     }
 
     /**
@@ -175,6 +182,13 @@ class AndinaAppState(
      */
     fun navigateToCustomization() {
         navController.navigate(CustomizationHubRoute)
+    }
+
+    /**
+     * Navega al Estudio de Personalización Completa de Categorías.
+     */
+    fun navigateToCategoryManagement() {
+        navController.navigate(CategoryManagementRoute)
     }
 
     /**
@@ -431,6 +445,15 @@ fun AndinaAppShell(
             composable<CustomizationHubRoute> {
                 com.andina.finanzas.ui.customization.CustomizationHubScreen(
                     onNavigateBack = { appState.navigateUp() },
+                    onShowSnackbar = { msg -> appState.showSnackbar(msg) },
+                    onNavigateToCategoryManagement = { appState.navigateToCategoryManagement() }
+                )
+            }
+
+            // Pantalla de Estudio de Personalización de Categorías (Iconos y Colores)
+            composable<CategoryManagementRoute> {
+                com.andina.finanzas.ui.customization.CategoryManagementScreen(
+                    onNavigateBack = { appState.navigateUp() },
                     onShowSnackbar = { msg -> appState.showSnackbar(msg) }
                 )
             }
@@ -451,6 +474,18 @@ fun AndinaAppShell(
                 )
             }
         }
+    }
+
+    // Modal BottomSheet Anclado Multietapa de Registro Rápido (Express Register Sheet)
+    if (appState.isRegisterSheetVisible) {
+        com.andina.finanzas.ui.register.RegisterBottomSheet(
+            onDismiss = { appState.isRegisterSheetVisible = false },
+            onShowSnackbar = { msg -> appState.showSnackbar(msg) },
+            onNavigateToCategoryManagement = {
+                appState.isRegisterSheetVisible = false
+                appState.navigateToCategoryManagement()
+            }
+        )
     }
 }
 

@@ -56,21 +56,12 @@ fun AndeanEditorialBanner(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.Top
         ) {
-            // Icono de Muggy / Cerebro Sabio Andino en Moca / Oro
-            Box(
-                modifier = Modifier
-                    .size(36.dp)
-                    .clip(CircleShape)
-                    .background(colors.accentMocha),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Psychology,
-                    contentDescription = null,
-                    tint = colors.accentGold,
-                    modifier = Modifier.size(22.dp)
-                )
-            }
+            // Muggy Avatar Andino
+            com.andina.finanzas.ui.components.muggy.MuggyAvatar(
+                size = 40.dp,
+                pose = com.andina.finanzas.ui.components.muggy.MuggyPose.OBSERVING,
+                isInteractive = false
+            )
 
             Spacer(modifier = Modifier.width(12.dp))
 

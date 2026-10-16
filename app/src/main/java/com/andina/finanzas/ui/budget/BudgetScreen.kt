@@ -63,6 +63,8 @@ import com.andina.finanzas.ui.components.muggy.MuggySpeechBubble
 import com.andina.finanzas.ui.theme.AndeanAntExpenseAmber
 import com.andina.finanzas.ui.theme.AndeanError
 import com.andina.finanzas.ui.theme.AndeanPrimary
+import com.andina.finanzas.ui.theme.SemanticExpenseCoral
+import androidx.compose.ui.text.style.TextOverflow
 import java.text.NumberFormat
 import java.util.Locale
 
@@ -204,7 +206,7 @@ fun BudgetScreen(
                             Text(
                                 text = formatPesos(state.totalExecutedSpent),
                                 style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
-                                color = MaterialTheme.colorScheme.onSurface
+                                color = SemanticExpenseCoral
                             )
                         }
                         Column(horizontalAlignment = Alignment.End) {
@@ -223,8 +225,56 @@ fun BudgetScreen(
                 }
             }
 
-            // Indicador de Saldo sin asignar a categorías
-            if (state.unallocatedBudget > 0L) {
+            // Alerta de sincronización: Suma de topes por categoría supera tope global
+            if (state.isCategoryLimitsExceedingGlobal) {
+                Spacer(modifier = Modifier.height(12.dp))
+                Surface(
+                    shape = RoundedCornerShape(14.dp),
+                    color = AndeanAntExpenseAmber.copy(alpha = 0.15f),
+                    border = androidx.compose.foundation.BorderStroke(1.dp, AndeanAntExpenseAmber.copy(alpha = 0.5f)),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Row(
+                        modifier = Modifier.padding(14.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Info,
+                            contentDescription = null,
+                            tint = AndeanAntExpenseAmber,
+                            modifier = Modifier.size(22.dp)
+                        )
+                        Spacer(modifier = Modifier.width(10.dp))
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = "Suma de topes excede el tope global",
+                                style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                            Text(
+                                text = "Tus categorías suman ${formatPesos(state.totalCategoryLimits)}, superando tu tope global de ${formatPesos(state.monthlyBudgetLimit)}.",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+                        Spacer(modifier = Modifier.width(8.dp))
+                        androidx.compose.material3.Button(
+                            onClick = {
+                                viewModel.syncGlobalBudgetWithCategoryLimits()
+                                onShowSnackbar("Tope global sincronizado a ${formatPesos(state.totalCategoryLimits)}")
+                            },
+                            colors = androidx.compose.material3.ButtonDefaults.buttonColors(
+                                containerColor = AndeanPrimary
+                            ),
+                            shape = RoundedCornerShape(8.dp),
+                            contentPadding = androidx.compose.foundation.layout.PaddingValues(horizontal = 10.dp, vertical = 4.dp)
+                        ) {
+                            Text("Sincronizar", fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                        }
+                    }
+                }
+            } else if (state.unallocatedBudget > 0L) {
+                // Indicador de Saldo sin asignar a categorías
                 Spacer(modifier = Modifier.height(12.dp))
                 Surface(
                     shape = RoundedCornerShape(12.dp),
@@ -511,13 +561,18 @@ private fun BudgetCategoryRow(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Row(
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(end = 12.dp),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(6.dp)
                 ) {
                     Text(
                         text = name,
                         style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
-                        color = MaterialTheme.colorScheme.onSurface
+                        color = MaterialTheme.colorScheme.onSurface,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
                     )
                     if (isOverLimit) {
                         Surface(
@@ -548,12 +603,13 @@ private fun BudgetCategoryRow(
                 } else {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                        horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         Text(
                             text = "${formatPesos(spent)} · Sin tope",
                             style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            maxLines = 1
                         )
                         Surface(
                             shape = RoundedCornerShape(8.dp),

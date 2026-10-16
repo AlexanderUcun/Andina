@@ -56,9 +56,9 @@ fun RegisterTypeSelector(
                 val tabBackground by animateColorAsState(
                     targetValue = if (isSelected) {
                         when (type) {
-                            TransactionType.GASTO -> AndeanPrimary
-                            TransactionType.INGRESO -> Color(0xFF386A20)
-                            TransactionType.TRANSFERENCIA -> Color(0xFF845400)
+                            TransactionType.GASTO -> com.andina.finanzas.ui.theme.SemanticExpenseCoral
+                            TransactionType.INGRESO -> com.andina.finanzas.ui.theme.SemanticIncomeEmerald
+                            TransactionType.TRANSFERENCIA -> com.andina.finanzas.ui.theme.SemanticTransferCyan
                         }
                     } else Color.Transparent,
                     label = "tabBackground"
@@ -66,7 +66,7 @@ fun RegisterTypeSelector(
 
                 val tabTextColor by animateColorAsState(
                     targetValue = if (isSelected) {
-                        Color.White
+                        com.andina.finanzas.ui.theme.AndeanOnPrimary
                     } else {
                         if (isDark) Color(0xFFB0B5AB) else Color(0xFF4C5047)
                     },

@@ -30,13 +30,14 @@ import net.zetetic.database.sqlcipher.SupportOpenHelperFactory
         CategoryEntity::class,
         TransactionEntity::class,
         PocketEntity::class,
-        PocketMovementEntity::class
+        PocketMovementEntity::class,
+        com.andina.finanzas.data.local.entity.DebtEntity::class
     ],
     views = [
         WalletBalanceView::class,
         PocketBalanceView::class
     ],
-    version = 1,
+    version = 2,
     exportSchema = true
 )
 abstract class AppDatabase : RoomDatabase() {
@@ -46,9 +47,28 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun transactionDao(): TransactionDao
     abstract fun pocketDao(): PocketDao
     abstract fun ledgerDao(): LedgerDao
+    abstract fun debtDao(): com.andina.finanzas.data.local.dao.DebtDao
 
     companion object {
         const val DATABASE_NAME = "andina_ledger.db"
+
+        val MIGRATION_1_2 = object : androidx.room.migration.Migration(1, 2) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    "CREATE TABLE IF NOT EXISTS debts (" +
+                        "id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
+                        "personName TEXT NOT NULL, " +
+                        "type TEXT NOT NULL, " +
+                        "totalAmountPesos INTEGER NOT NULL, " +
+                        "paidAmountPesos INTEGER NOT NULL, " +
+                        "walletId INTEGER NOT NULL, " +
+                        "dueDateMillis INTEGER, " +
+                        "createdAtMillis INTEGER NOT NULL, " +
+                        "note TEXT NOT NULL, " +
+                        "isSettled INTEGER NOT NULL)"
+                )
+            }
+        }
 
         /**
          * Crea una instancia de base de datos persistente con precarga de catálogo colombiano.
@@ -64,6 +84,7 @@ abstract class AppDatabase : RoomDatabase() {
                 AppDatabase::class.java,
                 DATABASE_NAME
             )
+                .addMigrations(MIGRATION_1_2)
                 .addCallback(object : Callback() {
                     override fun onCreate(db: SupportSQLiteDatabase) {
                         super.onCreate(db)

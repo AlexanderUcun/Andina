@@ -37,6 +37,12 @@ data class BudgetUiState(
     val totalAllocatedToCategories: Long
         get() = categories.sumOf { it.limit }
 
+    val totalCategoryLimits: Long
+        get() = totalAllocatedToCategories
+
+    val isCategoryLimitsExceedingGlobal: Boolean
+        get() = totalCategoryLimits > monthlyBudgetLimit
+
     val unallocatedBudget: Long
         get() = (monthlyBudgetLimit - totalAllocatedToCategories).coerceAtLeast(0L)
 
@@ -120,6 +126,13 @@ class BudgetViewModel @Inject constructor(
     fun updateMonthlyBudget(newLimit: Long) {
         viewModelScope.launch {
             userProfileRepository.updateMonthlyBudgetLimit(newLimit)
+        }
+    }
+
+    fun syncGlobalBudgetWithCategoryLimits() {
+        val total = state.value.totalCategoryLimits
+        if (total > state.value.monthlyBudgetLimit) {
+            updateMonthlyBudget(total)
         }
     }
 

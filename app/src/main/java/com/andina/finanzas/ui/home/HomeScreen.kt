@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -111,6 +112,8 @@ fun HomeScreen(
 
     val colors = com.andina.finanzas.ui.theme.LocalAndinaColors.current
 
+    val lazyListState = rememberLazyListState()
+
     Box(
         modifier = modifier
             .fillMaxSize()
@@ -118,11 +121,13 @@ fun HomeScreen(
     ) {
         AndeanDewPullRefresh(
             isRefreshing = state.isRefreshing,
-            onRefresh = { viewModel.onAction(HomeAction.RefreshData) }
+            onRefresh = { viewModel.onAction(HomeAction.RefreshData) },
+            canScrollBackward = { lazyListState.canScrollBackward }
         ) {
             LazyColumn(
+                state = lazyListState,
                 modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(bottom = 110.dp)
+                contentPadding = PaddingValues(top = 12.dp, bottom = 120.dp)
             ) {
                 // Margen superior limpio
                 item {
@@ -149,6 +154,7 @@ fun HomeScreen(
                             totalNetWorth = state.totalNetWorth,
                             isPrivacyMode = state.isPrivacyMode,
                             paramoHealthLevel = state.paramoHealthLevel,
+                            refreshTrigger = Pair(state.isRefreshing, state.andinoInsight),
                             onTogglePrivacy = { viewModel.onAction(HomeAction.TogglePrivacyMode) },
                             onCardClick = { viewModel.onAction(HomeAction.SeeAllWalletsClick) }
                         )
@@ -454,19 +460,12 @@ private fun HomeTopBar(
 
             Spacer(modifier = Modifier.size(12.dp))
 
-            Column {
-                Text(
-                    text = "$greeting, $userName",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = colors.textPrimary
-                )
-                Text(
-                    text = userLevel,
-                    style = MaterialTheme.typography.bodySmall,
-                    color = colors.textSecondary
-                )
-            }
+            Text(
+                text = "$greeting, $userName",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                color = colors.textPrimary
+            )
         }
 
         // Botón de Campana de Notificaciones

@@ -3,7 +3,6 @@ package com.andina.finanzas.ui.register.components
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -21,15 +20,7 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Category
-import androidx.compose.material.icons.filled.DirectionsBus
-import androidx.compose.material.icons.filled.Fastfood
-import androidx.compose.material.icons.filled.LocalAtm
-import androidx.compose.material.icons.filled.LocalHospital
-import androidx.compose.material.icons.filled.MoreHoriz
-import androidx.compose.material.icons.filled.Receipt
-import androidx.compose.material.icons.filled.School
-import androidx.compose.material.icons.filled.ShoppingBag
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -37,8 +28,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.semantics.Role
@@ -46,9 +35,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.andina.finanzas.domain.model.Category
+import com.andina.finanzas.ui.components.CategoryIconHelper
+import com.andina.finanzas.ui.icons.AndinaIcon
+import com.andina.finanzas.ui.icons.AndinaIconKey
+import com.andina.finanzas.ui.theme.LocalAndinaColors
 
 /**
- * Selector horizontal de categorías en chips redondeados con iconos alusivos.
+ * Selector ergonómico de categorías con la paleta de lujo Andina (Oro Frailejón & Neutros Cálidos).
+ * Optimizado para selección rápida con el pulgar.
  */
 @Composable
 fun CategoryChipsSelector(
@@ -56,71 +50,125 @@ fun CategoryChipsSelector(
     selectedCategoryId: Long?,
     onCategorySelected: (Long) -> Unit,
     modifier: Modifier = Modifier,
-    onAddCategoryClick: () -> Unit = {}
+    onAddCategoryClick: () -> Unit = {},
+    onOpenCategoryManager: () -> Unit = {}
 ) {
     val haptic = LocalHapticFeedback.current
-    val isDark = isSystemInDarkTheme()
+    val colors = LocalAndinaColors.current
 
     Column(
         modifier = modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+        verticalArrangement = Arrangement.spacedBy(6.dp)
     ) {
         Row(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 4.dp),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
                 text = "Categoría",
-                style = MaterialTheme.typography.labelLarge.copy(
-                    fontWeight = FontWeight.SemiBold
-                ),
-                color = MaterialTheme.colorScheme.onSurface
-            )
-            Text(
-                text = "➕ Nueva / Editar",
                 style = MaterialTheme.typography.labelSmall.copy(
                     fontWeight = FontWeight.Bold,
-                    color = com.andina.finanzas.ui.theme.AndeanPrimary
+                    fontSize = 11.sp
                 ),
-                modifier = Modifier
-                    .clip(RoundedCornerShape(6.dp))
-                    .clickable { onAddCategoryClick() }
-                    .padding(horizontal = 6.dp, vertical = 2.dp)
+                color = colors.textSecondary
             )
+
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(6.dp)
+            ) {
+                // Enlace directo al panel de personalización completa
+                Row(
+                    modifier = Modifier
+                        .height(30.dp)
+                        .clip(RoundedCornerShape(15.dp))
+                        .background(colors.cardBackground)
+                        .border(0.8.dp, colors.cardBorder, RoundedCornerShape(15.dp))
+                        .clickable {
+                            haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                            onOpenCategoryManager()
+                        }
+                        .padding(horizontal = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    AndinaIcon(
+                        icon = AndinaIconKey.TOOL_PALETTE,
+                        contentDescription = "Personalización completa",
+                        size = 14.dp
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        text = "Personalizar",
+                        style = MaterialTheme.typography.labelSmall.copy(
+                            fontWeight = FontWeight.SemiBold,
+                            fontSize = 11.sp,
+                            color = colors.textSecondary
+                        )
+                    )
+                }
+
+                // Botón + Nueva (Prominente, táctil y fácil de pulsar con una sola mano)
+                Row(
+                    modifier = Modifier
+                        .height(30.dp)
+                        .clip(RoundedCornerShape(15.dp))
+                        .background(colors.accentGold.copy(alpha = 0.16f))
+                        .border(1.dp, colors.accentGold.copy(alpha = 0.55f), RoundedCornerShape(15.dp))
+                        .clickable {
+                            haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                            onAddCategoryClick()
+                        }
+                        .padding(horizontal = 10.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    AndinaIcon(
+                        icon = AndinaIconKey.ACTION_ADD,
+                        contentDescription = "Añadir nueva categoría",
+                        size = 14.dp
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        text = "Nueva",
+                        style = MaterialTheme.typography.labelSmall.copy(
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 12.sp,
+                            color = colors.accentGold
+                        )
+                    )
+                }
+            }
         }
 
         LazyHorizontalGrid(
             rows = GridCells.Fixed(2),
             modifier = Modifier
                 .fillMaxWidth()
-                .height(96.dp),
-            contentPadding = PaddingValues(horizontal = 2.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+                .height(78.dp),
+            contentPadding = PaddingValues(horizontal = 20.dp),
+            horizontalArrangement = Arrangement.spacedBy(6.dp),
+            verticalArrangement = Arrangement.spacedBy(6.dp)
         ) {
             items(categories, key = { it.id }) { category ->
                 val isSelected = category.id == selectedCategoryId
-                val categoryColor = com.andina.finanzas.ui.components.CategoryIconHelper.parseColor(category.colorHex)
-                val icon = com.andina.finanzas.ui.components.CategoryIconHelper.getIcon(category.icon)
+                val icon = CategoryIconHelper.getIcon(category.icon)
 
-                val chipBg = if (isSelected) {
-                    if (isDark) categoryColor.copy(alpha = 0.32f) else categoryColor.copy(alpha = 0.14f)
-                } else {
-                    if (isDark) Color(0xFF1E211D) else Color(0xFFF1EEE8)
-                }
-
-                val borderColor = if (isSelected) categoryColor else Color.Transparent
+                val chipBg = if (isSelected) colors.accentGold.copy(alpha = 0.14f) else colors.canvasBottom
+                val borderColor = if (isSelected) colors.accentGold else colors.cardBorder
+                val iconTint = if (isSelected) colors.accentGold else colors.textSecondary
+                val textColor = if (isSelected) colors.textPrimary else colors.textSecondary
 
                 Row(
                     modifier = Modifier
-                        .height(42.dp)
-                        .clip(RoundedCornerShape(21.dp))
+                        .height(36.dp)
+                        .clip(RoundedCornerShape(18.dp))
                         .background(chipBg)
                         .border(
-                            width = if (isSelected) 2.dp else 0.dp,
+                            width = if (isSelected) 1.5.dp else 0.8.dp,
                             color = borderColor,
-                            shape = RoundedCornerShape(21.dp)
+                            shape = RoundedCornerShape(18.dp)
                         )
                         .clickable(
                             role = Role.RadioButton,
@@ -129,74 +177,36 @@ fun CategoryChipsSelector(
                                 onCategorySelected(category.id)
                             }
                         )
-                        .padding(horizontal = 12.dp),
+                        .padding(horizontal = 10.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Box(
                         modifier = Modifier
-                            .size(24.dp)
+                            .size(20.dp)
                             .clip(CircleShape)
-                            .background(categoryColor.copy(alpha = 0.25f)),
+                            .background(if (isSelected) colors.accentGold.copy(alpha = 0.2f) else colors.cardBorder.copy(alpha = 0.5f)),
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
                             imageVector = icon,
                             contentDescription = null,
-                            tint = categoryColor,
-                            modifier = Modifier.size(14.dp)
+                            tint = iconTint,
+                            modifier = Modifier.size(12.dp)
                         )
                     }
 
-                    Spacer(modifier = Modifier.width(8.dp))
+                    Spacer(modifier = Modifier.width(6.dp))
 
                     Text(
                         text = category.name,
-                        style = MaterialTheme.typography.labelMedium.copy(
+                        style = MaterialTheme.typography.labelSmall.copy(
                             fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
-                            fontSize = 13.sp
+                            fontSize = 12.sp
                         ),
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                }
-            }
-
-            // Chip de acción para crear/editar categorías directamente
-            item(key = "add_new_category_chip") {
-                Row(
-                    modifier = Modifier
-                        .height(42.dp)
-                        .clip(RoundedCornerShape(21.dp))
-                        .background(if (isDark) Color(0xFF242721) else Color(0xFFEBE7DF))
-                        .border(
-                            width = 1.dp,
-                            color = com.andina.finanzas.ui.theme.AndeanPrimary.copy(alpha = 0.4f),
-                            shape = RoundedCornerShape(21.dp)
-                        )
-                        .clickable {
-                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                            onAddCategoryClick()
-                        }
-                        .padding(horizontal = 14.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Category,
-                        contentDescription = "Nueva categoría",
-                        tint = com.andina.finanzas.ui.theme.AndeanPrimary,
-                        modifier = Modifier.size(16.dp)
-                    )
-                    Spacer(modifier = Modifier.width(6.dp))
-                    Text(
-                        text = "+ Nueva",
-                        style = MaterialTheme.typography.labelMedium.copy(
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 13.sp
-                        ),
-                        color = com.andina.finanzas.ui.theme.AndeanPrimary
+                        color = textColor
                     )
                 }
             }
         }
     }
 }
-

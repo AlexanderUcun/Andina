@@ -1,15 +1,7 @@
 package com.andina.finanzas.ui.home.components
 
-import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.SizeTransform
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
-import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -35,14 +27,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.andina.finanzas.domain.model.Money
@@ -55,12 +45,11 @@ import com.andina.finanzas.ui.theme.LocalAndinaColors
 /**
  * Tarjeta Hero de Patrimonio Consolidado y Privacidad Andina.
  *
- * Especificaciones de diseño:
- * 1. Vidrio Esmerilado (Apple Frosted Glass) con borde sutil andino.
- * 2. Saldo maestro en Manrope DisplayLarge (36sp, bold 700) con números tabulares.
- * 3. Animación de odómetro vertical con [AnimatedContent].
- * 4. Botón táctil de privacidad (ojo) accesible (>= 48dp) con respuesta háptica.
- * 5. Píldora de salud del ecosistema ("Nivel Páramo Sagrado" / "Nivel Frailejón").
+ * Características:
+ * 1. Chip interactivo combinado [$ 👁] en Oro Frailejón: signo pesos estilizado y discreto
+ *    fusionado con el botón de ocultar/mostrar saldo.
+ * 2. Odómetro inteligente y suave: únicamente rotan los dígitos que sufren cambios de saldo.
+ * 3. Píldora de ecosistema andino ("Nivel Frailejón") balanceada en la cabecera.
  */
 @Composable
 fun HeroBalanceCard(
@@ -69,52 +58,10 @@ fun HeroBalanceCard(
     paramoHealthLevel: String,
     onTogglePrivacy: () -> Unit,
     onCardClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    refreshTrigger: Any? = null
 ) {
     val haptic = LocalHapticFeedback.current
-
-    // Jerarquía visual tipográfica para dinero de alta gama con Oro Frailejón
-    val annotatedAmount = androidx.compose.ui.text.buildAnnotatedString {
-        if (isPrivacyMode) {
-            append("••••••••")
-        } else {
-            // Símbolo de moneda en Oro Frailejón cálido
-            pushStyle(
-                androidx.compose.ui.text.SpanStyle(
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    color = com.andina.finanzas.ui.theme.FrailejonGold
-                )
-            )
-            append(if (totalNetWorth.pesos < 0) "-$ " else "$ ")
-            pop()
-
-            // Cifra entera principal en gran formato con números tabulares
-            pushStyle(
-                androidx.compose.ui.text.SpanStyle(
-                    fontSize = 40.sp,
-                    fontWeight = FontWeight.ExtraBold,
-                    letterSpacing = (-0.5).sp,
-                    color = MaterialTheme.colorScheme.onSurface
-                )
-            )
-            append(totalNetWorth.formatCop(includeSymbol = false, includeCode = false))
-            pop()
-
-            // Código de divisa sutil
-            pushStyle(
-                androidx.compose.ui.text.SpanStyle(
-                    fontSize = 13.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    letterSpacing = 0.5.sp,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
-                )
-            )
-            append(" COP")
-            pop()
-        }
-    }
-
     val colors = LocalAndinaColors.current
 
     AndeanHyperCard(
@@ -123,96 +70,119 @@ fun HeroBalanceCard(
         onClick = onCardClick,
         contentPadding = 22.dp
     ) {
-        // Fila Superior: Label editorial + Píldora de Ecosistema + Botón Ojo
+        // 1. Fila Superior: Título editorial a la izquierda + Píldora de Ecosistema a la derecha
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Column {
-                Text(
-                    text = "PATRIMONIO CONSOLIDADO",
-                    style = MaterialTheme.typography.labelSmall,
-                    color = colors.textSecondary,
-                    fontWeight = FontWeight.Bold,
-                    letterSpacing = 1.3.sp
-                )
+            Text(
+                text = "PATRIMONIO CONSOLIDADO",
+                style = MaterialTheme.typography.labelSmall,
+                color = colors.textSecondary,
+                fontWeight = FontWeight.Bold,
+                letterSpacing = 1.3.sp
+            )
 
-                Spacer(modifier = Modifier.height(5.dp))
-
-                // Píldora Platino / Oro de Salud Financiera
-                Surface(
-                    shape = RoundedCornerShape(12.dp),
-                    color = colors.cardBackground.copy(alpha = 0.8f),
-                    contentColor = colors.textPrimary,
-                    border = androidx.compose.foundation.BorderStroke(0.8.dp, colors.cardBorder)
+            // Píldora Platino / Oro de Salud Financiera
+            Surface(
+                shape = RoundedCornerShape(12.dp),
+                color = colors.cardBackground.copy(alpha = 0.8f),
+                contentColor = colors.textPrimary,
+                border = androidx.compose.foundation.BorderStroke(0.8.dp, colors.cardBorder)
+            ) {
+                Row(
+                    modifier = Modifier.padding(horizontal = 9.dp, vertical = 3.dp),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Row(
-                        modifier = Modifier.padding(horizontal = 9.dp, vertical = 3.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Eco,
-                            contentDescription = null,
-                            tint = colors.statusSuccess,
-                            modifier = Modifier.size(12.dp)
-                        )
-                        Spacer(modifier = Modifier.width(5.dp))
-                        Text(
-                            text = paramoHealthLevel,
-                            style = MaterialTheme.typography.labelSmall.copy(fontSize = 11.sp),
-                            fontWeight = FontWeight.Bold,
-                            color = colors.textPrimary
-                        )
-                    }
+                    Icon(
+                        imageVector = Icons.Default.Eco,
+                        contentDescription = null,
+                        tint = colors.statusSuccess,
+                        modifier = Modifier.size(12.dp)
+                    )
+                    Spacer(modifier = Modifier.width(5.dp))
+                    Text(
+                        text = paramoHealthLevel,
+                        style = MaterialTheme.typography.labelSmall.copy(fontSize = 11.sp),
+                        fontWeight = FontWeight.Bold,
+                        color = colors.textPrimary
+                    )
                 }
             }
+        }
 
-            // Botón interactivo de privacidad con acabado translúcido
-            IconButton(
+        Spacer(modifier = Modifier.height(18.dp))
+
+        // 2. Fila Central: Saldo Maestro con Chip Dorado Integrado [$ 👁]
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Start
+        ) {
+            // Chip interactivo combinado: Signo pesos dorado + Icono de privacidad
+            Surface(
                 onClick = {
                     haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                     onTogglePrivacy()
                 },
+                shape = RoundedCornerShape(12.dp),
+                color = colors.accentGold.copy(alpha = 0.12f),
+                border = androidx.compose.foundation.BorderStroke(
+                    0.8.dp,
+                    colors.accentGold.copy(alpha = 0.35f)
+                ),
                 modifier = Modifier
-                    .defaultMinSize(minWidth = 44.dp, minHeight = 44.dp)
-                    .clip(CircleShape)
-                    .background(colors.cardBackground.copy(alpha = 0.85f))
+                    .defaultMinSize(minHeight = 36.dp)
                     .semantics { role = Role.Button }
             ) {
-                Icon(
-                    imageVector = if (isPrivacyMode) Icons.Default.VisibilityOff else Icons.Default.Visibility,
-                    contentDescription = if (isPrivacyMode) "Mostrar saldo" else "Ocultar saldo",
-                    tint = if (isPrivacyMode) colors.accentGold else colors.textSecondary,
-                    modifier = Modifier.size(20.dp)
+                Row(
+                    modifier = Modifier.padding(horizontal = 9.dp, vertical = 5.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = if (totalNetWorth.pesos < 0) "-$" else "$",
+                        fontSize = 17.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = colors.accentGold
+                    )
+                    Spacer(modifier = Modifier.width(5.dp))
+                    Icon(
+                        imageVector = if (isPrivacyMode) Icons.Default.VisibilityOff else Icons.Default.Visibility,
+                        contentDescription = if (isPrivacyMode) "Mostrar saldo" else "Ocultar saldo",
+                        tint = colors.accentGold,
+                        modifier = Modifier.size(16.dp)
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.width(10.dp))
+
+            // Saldo numérico principal
+            if (isPrivacyMode) {
+                Text(
+                    text = "••••••••",
+                    style = MaterialTheme.typography.displayLarge.copy(
+                        fontSize = 38.sp,
+                        fontWeight = FontWeight.ExtraBold
+                    ),
+                    color = colors.textMoneyDisplay
+                )
+            } else {
+                MoneyText(
+                    amount = totalNetWorth,
+                    level = MoneyDisplayLevel.DISPLAY,
+                    fontSize = 38.sp,
+                    showSymbol = false, // Símbolo manejado en el chip [$ 👁]
+                    showCode = true,
+                    refreshTrigger = refreshTrigger
                 )
             }
         }
 
-        Spacer(modifier = Modifier.height(20.dp))
-
-        // Fila Central: Saldo Maestro con MoneyText de alta gama
-        if (isPrivacyMode) {
-            Text(
-                text = "••••••••",
-                style = MaterialTheme.typography.displayLarge.copy(
-                    fontSize = 38.sp,
-                    fontWeight = FontWeight.ExtraBold
-                ),
-                color = colors.textMoneyDisplay
-            )
-        } else {
-            MoneyText(
-                amount = totalNetWorth,
-                level = MoneyDisplayLevel.DISPLAY,
-                showSymbol = true,
-                showCode = true
-            )
-        }
-
         Spacer(modifier = Modifier.height(14.dp))
 
-        // Fila Inferior: Enlace sutil para ver desglose de billeteras
+        // 3. Fila Inferior: Enlace sutil para ver desglose de billeteras
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,

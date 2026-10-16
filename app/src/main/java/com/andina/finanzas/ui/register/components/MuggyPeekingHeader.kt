@@ -21,6 +21,7 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.dp
+import com.andina.finanzas.ui.theme.AndeanOnPrimary
 
 /**
  * Header de Muggy Asomado con Eye-Tracking y física elástica.
@@ -98,60 +99,43 @@ private fun MuggyPeekingMascotCanvas(
         val w = size.width
         val h = size.height
 
-        val furColor = Color(0xFF2C241E)       // Pelo marrón oscuro andino
-        val innerEarColor = Color(0xFF5A493D)  // Interior de oreja
-        val muzzleColor = Color(0xFFEAD8BC)    // Manchas anteojeras crema
-        val glassesColor = Color(0xFF151413)   // Marco de anteojos oscuro
-        val glassGleam = Color(0x33FFFFFF)     // Brillo de lentes
-        val flowerGold = Color(0xFFFAB438)     // Flor de frailejón dorada
+        // Gradientes volumétricos 2.5D
+        val outerFurGradient = androidx.compose.ui.graphics.Brush.radialGradient(
+            colors = listOf(Color(0xFF38312B), Color(0xFF241F1C), Color(0xFF14110F)),
+            radius = w * 0.45f
+        )
+        val innerEarGradient = androidx.compose.ui.graphics.Brush.radialGradient(
+            colors = listOf(Color(0xFF5A493D), Color(0xFF3D3028), Color(0xFF281F1A)),
+            radius = w * 0.16f
+        )
+        val headGradient = androidx.compose.ui.graphics.Brush.verticalGradient(
+            colors = listOf(Color(0xFF3A332E), Color(0xFF251F1C), Color(0xFF161210)),
+            startY = h * 0.25f,
+            endY = h * 0.98f
+        )
+        val muzzleGradient = androidx.compose.ui.graphics.Brush.verticalGradient(
+            colors = listOf(Color(0xFFF5E8D2), Color(0xFFE5D1B5), Color(0xFFD4BBA0)),
+            startY = h * 0.44f,
+            endY = h * 0.88f
+        )
+        val goldGlassesBrush = androidx.compose.ui.graphics.Brush.linearGradient(
+            colors = listOf(Color(0xFFFBE4B5), Color(0xFFD99B26), Color(0xFF8F5E10)),
+            start = Offset(w * 0.20f, h * 0.45f),
+            end = Offset(w * 0.80f, h * 0.70f)
+        )
         val pupilColor = Color(0xFF151413)
 
         // 1. Orejas
-        // Oreja Izquierda
-        drawCircle(
-            color = furColor,
-            radius = 18.dp.toPx(),
-            center = Offset(w * 0.22f, h * 0.28f)
-        )
-        drawCircle(
-            color = innerEarColor,
-            radius = 11.dp.toPx(),
-            center = Offset(w * 0.22f, h * 0.28f)
-        )
+        val earRadius = 18.dp.toPx()
+        val leftEarCenter = Offset(w * 0.22f, h * 0.28f)
+        drawCircle(brush = outerFurGradient, radius = earRadius, center = leftEarCenter)
+        drawCircle(brush = innerEarGradient, radius = 11.dp.toPx(), center = leftEarCenter)
 
-        // Oreja Derecha
-        drawCircle(
-            color = furColor,
-            radius = 18.dp.toPx(),
-            center = Offset(w * 0.78f, h * 0.28f)
-        )
-        drawCircle(
-            color = innerEarColor,
-            radius = 11.dp.toPx(),
-            center = Offset(w * 0.78f, h * 0.28f)
-        )
+        val rightEarCenter = Offset(w * 0.78f, h * 0.28f)
+        drawCircle(brush = outerFurGradient, radius = earRadius, center = rightEarCenter)
+        drawCircle(brush = innerEarGradient, radius = 11.dp.toPx(), center = rightEarCenter)
 
-        // 2. Flor de Frailejón en la oreja izquierda
-        val flowerCenter = Offset(w * 0.28f, h * 0.22f)
-        val petalRadius = 6.dp.toPx()
-        for (i in 0 until 6) {
-            val angle = (i * 60.0) * Math.PI / 180.0
-            val px = flowerCenter.x + (petalRadius * 1.3f * Math.cos(angle)).toFloat()
-            val py = flowerCenter.y + (petalRadius * 1.3f * Math.sin(angle)).toFloat()
-            drawCircle(
-                color = flowerGold,
-                radius = petalRadius,
-                center = Offset(px, py)
-            )
-        }
-        // Centro de la flor
-        drawCircle(
-            color = Color(0xFF7A4800),
-            radius = 4.5.dp.toPx(),
-            center = flowerCenter
-        )
-
-        // 3. Cabeza Principal (Forma redondeada)
+        // 2. Cabeza Principal
         val headPath = Path().apply {
             moveTo(w * 0.15f, h * 0.95f)
             cubicTo(
@@ -161,87 +145,118 @@ private fun MuggyPeekingMascotCanvas(
             )
             close()
         }
-        drawPath(headPath, furColor)
+        drawPath(headPath, brush = headGradient)
 
-        // 4. Manchas anteojeras crema en los ojos
-        drawRoundRect(
-            color = muzzleColor,
-            topLeft = Offset(w * 0.22f, h * 0.45f),
-            size = Size(w * 0.25f, h * 0.32f),
-            cornerRadius = CornerRadius(14.dp.toPx(), 14.dp.toPx())
-        )
-        drawRoundRect(
-            color = muzzleColor,
-            topLeft = Offset(w * 0.53f, h * 0.45f),
-            size = Size(w * 0.25f, h * 0.32f),
-            cornerRadius = CornerRadius(14.dp.toPx(), 14.dp.toPx())
+        // 3. Manchas anteojeras crema en los ojos
+        val cornerRadius = CornerRadius(14.dp.toPx(), 14.dp.toPx())
+        val leftSpectacle = Path().apply {
+            addRoundRect(
+                androidx.compose.ui.geometry.RoundRect(
+                    rect = androidx.compose.ui.geometry.Rect(w * 0.22f, h * 0.45f, w * 0.47f, h * 0.77f),
+                    cornerRadius = cornerRadius
+                )
+            )
+        }
+        drawPath(leftSpectacle, brush = muzzleGradient)
+
+        val rightSpectacle = Path().apply {
+            addRoundRect(
+                androidx.compose.ui.geometry.RoundRect(
+                    rect = androidx.compose.ui.geometry.Rect(w * 0.53f, h * 0.45f, w * 0.78f, h * 0.77f),
+                    cornerRadius = cornerRadius
+                )
+            )
+        }
+        drawPath(rightSpectacle, brush = muzzleGradient)
+
+        // 4. Hocico / Nariz
+        val snoutPath = Path().apply {
+            addRoundRect(
+                androidx.compose.ui.geometry.RoundRect(
+                    rect = androidx.compose.ui.geometry.Rect(w * 0.38f, h * 0.62f, w * 0.62f, h * 0.88f),
+                    cornerRadius = CornerRadius(10.dp.toPx(), 10.dp.toPx())
+                )
+            )
+        }
+        drawPath(snoutPath, brush = muzzleGradient)
+
+        // Nariz carbón con specular highlight
+        val noseCenter = Offset(w * 0.50f, h * 0.70f)
+        val nosePath = Path().apply {
+            moveTo(noseCenter.x - w * 0.055f, noseCenter.y - h * 0.02f)
+            lineTo(noseCenter.x + w * 0.055f, noseCenter.y - h * 0.02f)
+            quadraticTo(
+                noseCenter.x, noseCenter.y + h * 0.045f,
+                noseCenter.x - w * 0.055f, noseCenter.y - h * 0.02f
+            )
+            close()
+        }
+        drawPath(nosePath, color = Color(0xFF1C1917))
+        drawCircle(
+            color = AndeanOnPrimary.copy(alpha = 0.75f),
+            radius = 1.5.dp.toPx(),
+            center = Offset(noseCenter.x - 2.dp.toPx(), noseCenter.y - 1.dp.toPx())
         )
 
-        // 5. Hocico / Nariz
-        drawRoundRect(
-            color = muzzleColor,
-            topLeft = Offset(w * 0.38f, h * 0.62f),
-            size = Size(w * 0.24f, h * 0.26f),
-            cornerRadius = CornerRadius(10.dp.toPx(), 10.dp.toPx())
-        )
-        // Nariz carbón
-        drawRoundRect(
-            color = Color(0xFF1C1917),
-            topLeft = Offset(w * 0.44f, h * 0.65f),
-            size = Size(w * 0.12f, h * 0.09f),
-            cornerRadius = CornerRadius(5.dp.toPx(), 5.dp.toPx())
-        )
-
-        // 6. Ojos y Pupilas con Eye-Tracking
-        val leftEyeCenter = Offset(w * 0.34f + eyeOffsetX.dp.toPx(), h * 0.56f)
-        val rightEyeCenter = Offset(w * 0.66f + eyeOffsetX.dp.toPx(), h * 0.56f)
+        // 5. Ojos y Pupilas con Eye-Tracking
+        val leftEyeCenter = Offset(w * 0.345f + eyeOffsetX.dp.toPx(), h * 0.56f)
+        val rightEyeCenter = Offset(w * 0.655f + eyeOffsetX.dp.toPx(), h * 0.56f)
 
         val eyeRadius = if (isSurprised) 6.dp.toPx() else 4.5.dp.toPx()
-
         drawCircle(color = pupilColor, radius = eyeRadius, center = leftEyeCenter)
         drawCircle(color = pupilColor, radius = eyeRadius, center = rightEyeCenter)
 
         // Brillo blanco en las pupilas
         drawCircle(
-            color = Color.White,
+            color = AndeanOnPrimary,
             radius = 1.5.dp.toPx(),
             center = Offset(leftEyeCenter.x - 1.5.dp.toPx(), leftEyeCenter.y - 1.5.dp.toPx())
         )
         drawCircle(
-            color = Color.White,
+            color = AndeanOnPrimary,
             radius = 1.5.dp.toPx(),
             center = Offset(rightEyeCenter.x - 1.5.dp.toPx(), rightEyeCenter.y - 1.5.dp.toPx())
         )
 
-        // 7. Anteojos redondos icónicos
+        // 6. Anteojos redondos de oro Frailejón cepillado
         val glassesRadius = 14.dp.toPx()
         val leftGlassCenter = Offset(w * 0.345f, h * 0.56f)
         val rightGlassCenter = Offset(w * 0.655f, h * 0.56f)
 
         // Lunas con reflejo tenue
-        drawCircle(color = glassGleam, radius = glassesRadius, center = leftGlassCenter)
-        drawCircle(color = glassGleam, radius = glassesRadius, center = rightGlassCenter)
+        drawCircle(color = AndeanOnPrimary.copy(alpha = 0.12f), radius = glassesRadius * 0.92f, center = leftGlassCenter)
+        drawCircle(color = AndeanOnPrimary.copy(alpha = 0.12f), radius = glassesRadius * 0.92f, center = rightGlassCenter)
+
+        // Línea diagonal especular
+        drawLine(
+            color = AndeanOnPrimary.copy(alpha = 0.35f),
+            start = Offset(leftGlassCenter.x - glassesRadius * 0.5f, leftGlassCenter.y - glassesRadius * 0.5f),
+            end = Offset(leftGlassCenter.x - glassesRadius * 0.1f, leftGlassCenter.y - glassesRadius * 0.1f),
+            strokeWidth = 1.5.dp.toPx(),
+            cap = androidx.compose.ui.graphics.StrokeCap.Round
+        )
 
         // Aros de montura
         drawCircle(
-            color = glassesColor,
+            brush = goldGlassesBrush,
             radius = glassesRadius,
             center = leftGlassCenter,
-            style = Stroke(width = 2.dp.toPx())
+            style = Stroke(width = 2.5.dp.toPx())
         )
         drawCircle(
-            color = glassesColor,
+            brush = goldGlassesBrush,
             radius = glassesRadius,
             center = rightGlassCenter,
-            style = Stroke(width = 2.dp.toPx())
+            style = Stroke(width = 2.5.dp.toPx())
         )
 
         // Puente central de los anteojos
         drawLine(
-            color = glassesColor,
+            brush = goldGlassesBrush,
             start = Offset(w * 0.44f, h * 0.56f),
             end = Offset(w * 0.56f, h * 0.56f),
-            strokeWidth = 2.dp.toPx()
+            strokeWidth = 2.5.dp.toPx(),
+            cap = androidx.compose.ui.graphics.StrokeCap.Round
         )
     }
 }
@@ -257,17 +272,18 @@ private fun MuggyPawsOverlayCanvas(
         val w = size.width
         val h = size.height
 
-        val furColor = Color(0xFF2C241E)
-        val padColor = Color(0xFF1E1814)
+        val furGradient = androidx.compose.ui.graphics.Brush.verticalGradient(
+            listOf(Color(0xFF38312B), Color(0xFF201B18))
+        )
+        val padColor = Color(0xFF14110F)
 
         // Pata Izquierda
         drawRoundRect(
-            color = furColor,
+            brush = furGradient,
             topLeft = Offset(w * 0.12f, 0f),
             size = Size(w * 0.28f, h * 0.85f),
             cornerRadius = CornerRadius(10.dp.toPx(), 10.dp.toPx())
         )
-        // Almohadilla izquierda
         drawCircle(
             color = padColor,
             radius = 3.5.dp.toPx(),
@@ -276,12 +292,11 @@ private fun MuggyPawsOverlayCanvas(
 
         // Pata Derecha
         drawRoundRect(
-            color = furColor,
+            brush = furGradient,
             topLeft = Offset(w * 0.60f, 0f),
             size = Size(w * 0.28f, h * 0.85f),
             cornerRadius = CornerRadius(10.dp.toPx(), 10.dp.toPx())
         )
-        // Almohadilla derecha
         drawCircle(
             color = padColor,
             radius = 3.5.dp.toPx(),

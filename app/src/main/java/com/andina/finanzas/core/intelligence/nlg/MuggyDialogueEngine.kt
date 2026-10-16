@@ -45,12 +45,14 @@ class MuggyDialogueEngine {
         }
 
         // 2. Diagnóstico empático y sugerencia de acción según nivel de triaje
+        val runwayDays = if (oxygenDays == 1) "1 día" else "$oxygenDays días"
+
         return when (score.triageLevel) {
             TriageLevel.TRIAGE_HOLGADO -> {
                 MuggyInsight(
                     title = "Salud Financiera en Plenitud 🌿",
                     greeting = greeting,
-                    diagnosis = "Tus finanzas marchan con vigor andino. Tu tasa de gasto está bajo control y cuentas con $oxygenDays días de oxígeno disponibles.",
+                    diagnosis = "Tus finanzas marchan con vigor andino. Tu tasa de gasto está bajo control y cuentas con $runwayDays de oxígeno disponibles.",
                     keyMetricSummary = "Tienes ${liquidBalance.formatCop()} disponibles y reservas sólidas.",
                     actionSuggestion = "¿Pasamos parte del saldo sobrante a florecer una meta de ahorro?",
                     actionButtonText = "🌱 Aportar a Bolsillo",
@@ -62,7 +64,7 @@ class MuggyDialogueEngine {
                     title = "Equilibrio Estable con Mirada Atenta 🧐",
                     greeting = greeting,
                     diagnosis = "El sendero está despejado, aunque los antojos y compras pequeñas sumaron ${antExpensesTotal.formatCop()} este periodo.",
-                    keyMetricSummary = "Tu colchón actual te brinda $oxygenDays días de oxígeno cubiertos.",
+                    keyMetricSummary = "Tu colchón actual te brinda $runwayDays de oxígeno cubiertos.",
                     actionSuggestion = "Revisemos el impacto de esos gastos hormiga para proteger tu cosecha.",
                     actionButtonText = "🐜 Ver Espejo Anual",
                     actionType = DialogueActionType.OPEN_ANT_MIRROR
@@ -73,7 +75,7 @@ class MuggyDialogueEngine {
                     title = "Ajustemos el Paso en el Camino 🧭",
                     greeting = greeting,
                     diagnosis = "El terreno se puso un poco empinado este mes. Tus gastos se están acelerando antes de terminar la quincena.",
-                    keyMetricSummary = "Dispones de ${liquidBalance.formatCop()} para los próximos $oxygenDays días.",
+                    keyMetricSummary = "Dispones de ${liquidBalance.formatCop()} para los próximos $runwayDays.",
                     actionSuggestion = "Fijemos un presupuesto mensual en tus categorías principales para cuidar el caudal.",
                     actionButtonText = "📊 Fijar Presupuesto",
                     actionType = DialogueActionType.CREATE_BUDGET
@@ -83,7 +85,7 @@ class MuggyDialogueEngine {
                 MuggyInsight(
                     title = "Refugio y Protección de Recursos 🛡️",
                     greeting = greeting,
-                    diagnosis = "Hay neblina espesa en la liquidez inmediata ($oxygenDays días de oxígeno). Tranquilo, todo río encuentra su cauce con orden.",
+                    diagnosis = "Hay neblina espesa en la liquidez inmediata ($runwayDays de oxígeno). Tranquilo, todo río encuentra su cauce con orden.",
                     keyMetricSummary = "Saldo disponible actual: ${liquidBalance.formatCop()}.",
                     actionSuggestion = "Prioriza solo los gastos indispensables y pausa salidas hasta el próximo pago.",
                     actionButtonText = "💡 Diagnóstico SOS",

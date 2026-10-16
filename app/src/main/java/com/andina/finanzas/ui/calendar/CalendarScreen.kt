@@ -249,6 +249,7 @@ fun CalendarContent(
             Spacer(modifier = Modifier.height(14.dp))
 
             // 4. Detalle de movimientos del día seleccionado
+            // 4. Detalle de movimientos del día seleccionado
             val monthName = currentYearMonth.month.getDisplayName(TextStyle.FULL, Locale("es", "CO")).replaceFirstChar { it.uppercase() }
             Text(
                 text = "Movimientos del ${state.selectedDay} de $monthName de ${currentYearMonth.year}",
@@ -299,9 +300,9 @@ fun CalendarContent(
                             TransactionType.TRANSFERENCIA -> "payments"
                         }
                         val colorHex = category?.colorHex ?: when (tx.type) {
-                            TransactionType.GASTO -> "#D97706"
-                            TransactionType.INGRESO -> "#2E7D32"
-                            TransactionType.TRANSFERENCIA -> "#1565C0"
+                            TransactionType.GASTO -> "#EF4444"
+                            TransactionType.INGRESO -> "#10B981"
+                            TransactionType.TRANSFERENCIA -> "#0EA5E9"
                         }
 
                         val categoryColor = CategoryIconHelper.parseColor(colorHex)
@@ -316,14 +317,14 @@ fun CalendarContent(
                         val subtitle = "$categoryLabel · $timeStr · $walletName"
 
                         val amountPrefix = when (tx.type) {
-                            TransactionType.GASTO -> "- "
-                            TransactionType.INGRESO -> "+ "
-                            TransactionType.TRANSFERENCIA -> ""
+                            TransactionType.GASTO -> "-$ "
+                            TransactionType.INGRESO -> "+$ "
+                            TransactionType.TRANSFERENCIA -> "⇄ $ "
                         }
                         val amountColor = when (tx.type) {
-                            TransactionType.GASTO -> MaterialTheme.colorScheme.onSurface
-                            TransactionType.INGRESO -> Color(0xFF2E6316)
-                            TransactionType.TRANSFERENCIA -> Color(0xFF1565C0)
+                            TransactionType.GASTO -> com.andina.finanzas.ui.theme.SemanticExpenseCoral
+                            TransactionType.INGRESO -> com.andina.finanzas.ui.theme.SemanticIncomeEmerald
+                            TransactionType.TRANSFERENCIA -> com.andina.finanzas.ui.theme.SemanticTransferCyan
                         }
 
                         Surface(

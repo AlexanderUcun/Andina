@@ -39,7 +39,8 @@ class FinanceRepositoryImpl @Inject constructor(
     private val categoryDao: CategoryDao,
     private val transactionDao: TransactionDao,
     private val pocketDao: PocketDao,
-    private val ledgerDao: LedgerDao
+    private val ledgerDao: LedgerDao,
+    private val debtDao: com.andina.finanzas.data.local.dao.DebtDao
 ) : FinanceRepository {
 
     override fun observeWallets(): Flow<List<Wallet>> {
@@ -311,5 +312,154 @@ class FinanceRepositoryImpl @Inject constructor(
             walletDao.updateWallet(entity.copy(initialBalance = 0L))
         }
     }
+
+    // --- Deudas y Préstamos ("Me deben" & "Yo debo") ---
+    override fun observeDebts(): Flow<List<com.andina.finanzas.domain.model.Debt>> {
+        return debtDao.observeAllDebts().map { list ->
+            list.map { it.toDomain() }
+        }
+    }
+
+    override suspend fun createDebt(
+        debt: com.andina.finanzas.domain.model.Debt,
+        affectWalletBalance: Boolean
+    ): Result<Long> {
+        return try {
+            val debtEntity = debt.toEntity()
+            val debtId = debtDao.insertDebt(debtEntity)
+
+            if (affectWalletBalance && debt.totalAmount.pesos > 0) {
+                val now = System.currentTimeMillis()
+                val tx = when (debt.type) {
+                    com.andina.finanzas.domain.model.DebtType.RECEIVABLE -> {
+                        // Presté dinero -> Sale dinero de la billetera (GASTO sin categoría)
+                        com.andina.finanzas.data.local.entity.TransactionEntity(
+                            type = com.andina.finanzas.data.local.entity.TransactionEntity.TYPE_GASTO,
+                            amount = debt.totalAmount.pesos,
+                            walletId = debt.walletId,
+                            categoryId = null,
+                            note = if (debt.note.isNotBlank()) "🤝 Préstamo a ${debt.personName} · ${debt.note}" else "🤝 Préstamo a ${debt.personName}",
+                            occurredAt = now,
+                            isAntExpense = false
+                        )
+                    }
+                    com.andina.finanzas.domain.model.DebtType.PAYABLE -> {
+                        // Me prestaron -> Entra dinero a la billetera (INGRESO sin categoría)
+                        com.andina.finanzas.data.local.entity.TransactionEntity(
+                            type = com.andina.finanzas.data.local.entity.TransactionEntity.TYPE_INGRESO,
+                            amount = debt.totalAmount.pesos,
+                            walletId = debt.walletId,
+                            categoryId = null,
+                            note = if (debt.note.isNotBlank()) "🤝 Préstamo recibido de ${debt.personName} · ${debt.note}" else "🤝 Préstamo recibido de ${debt.personName}",
+                            occurredAt = now,
+                            isAntExpense = false
+                        )
+                    }
+                }
+                ledgerDao.insertTransaction(tx)
+            }
+
+            Result.success(debtId)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun registerDebtPayment(
+        debtId: Long,
+        paymentAmount: Money,
+        walletId: Long,
+        note: String
+    ): Result<Unit> {
+        return try {
+            val existing = debtDao.getDebtById(debtId)
+                ?: return Result.failure(IllegalArgumentException("Deuda no encontrada"))
+
+            val newPaidAmount = (existing.paidAmountPesos + paymentAmount.pesos).coerceAtMost(existing.totalAmountPesos)
+            val isNowSettled = newPaidAmount >= existing.totalAmountPesos
+
+            val updatedDebt = existing.copy(
+                paidAmountPesos = newPaidAmount,
+                isSettled = isNowSettled
+            )
+            debtDao.updateDebt(updatedDebt)
+
+            if (paymentAmount.pesos > 0) {
+                val now = System.currentTimeMillis()
+                val isReceivable = existing.type == com.andina.finanzas.domain.model.DebtType.RECEIVABLE.name
+                val tx = if (isReceivable) {
+                    // Me pagaron parte de lo que me debían -> Entra dinero (INGRESO)
+                    com.andina.finanzas.data.local.entity.TransactionEntity(
+                        type = com.andina.finanzas.data.local.entity.TransactionEntity.TYPE_INGRESO,
+                        amount = paymentAmount.pesos,
+                        walletId = walletId,
+                        categoryId = null,
+                        note = if (note.isNotBlank()) "🤝 Abono de ${existing.personName} · $note" else "🤝 Abono de ${existing.personName}",
+                        occurredAt = now,
+                        isAntExpense = false
+                    )
+                } else {
+                    // Aboné a mi deuda -> Sale dinero (GASTO)
+                    com.andina.finanzas.data.local.entity.TransactionEntity(
+                        type = com.andina.finanzas.data.local.entity.TransactionEntity.TYPE_GASTO,
+                        amount = paymentAmount.pesos,
+                        walletId = walletId,
+                        categoryId = null,
+                        note = if (note.isNotBlank()) "🤝 Pago de deuda a ${existing.personName} · $note" else "🤝 Pago de deuda a ${existing.personName}",
+                        occurredAt = now,
+                        isAntExpense = false
+                    )
+                }
+                ledgerDao.insertTransaction(tx)
+            }
+
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun deleteDebt(debtId: Long): Result<Unit> {
+        return try {
+            debtDao.deleteDebt(debtId)
+            Result.success(Unit)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+}
+
+private fun com.andina.finanzas.data.local.entity.DebtEntity.toDomain(): com.andina.finanzas.domain.model.Debt {
+    return com.andina.finanzas.domain.model.Debt(
+        id = id,
+        personName = personName,
+        type = if (type == com.andina.finanzas.domain.model.DebtType.PAYABLE.name) {
+            com.andina.finanzas.domain.model.DebtType.PAYABLE
+        } else {
+            com.andina.finanzas.domain.model.DebtType.RECEIVABLE
+        },
+        totalAmount = Money(totalAmountPesos),
+        paidAmount = Money(paidAmountPesos),
+        walletId = walletId,
+        dueDateMillis = dueDateMillis,
+        createdAtMillis = createdAtMillis,
+        note = note,
+        isSettled = isSettled
+    )
+}
+
+private fun com.andina.finanzas.domain.model.Debt.toEntity(): com.andina.finanzas.data.local.entity.DebtEntity {
+    return com.andina.finanzas.data.local.entity.DebtEntity(
+        id = id,
+        personName = personName,
+        type = type.name,
+        totalAmountPesos = totalAmount.pesos,
+        paidAmountPesos = paidAmount.pesos,
+        walletId = walletId,
+        dueDateMillis = dueDateMillis,
+        createdAtMillis = createdAtMillis,
+        note = note,
+        isSettled = isSettled
+    )
 }
 

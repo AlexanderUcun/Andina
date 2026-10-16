@@ -80,7 +80,7 @@ fun TransactionItem(
 
     val colors = com.andina.finanzas.ui.theme.LocalAndinaColors.current
 
-    // Color y vector del icono circular izquierdo
+    // Color y vector del icono circular izquierdo con semántica contable estricta
     val (iconBackground, iconTint, iconVector) = when {
         isIncome -> {
             val iconVec = if (!transaction.categoryIcon.isNullOrBlank()) {
@@ -89,31 +89,32 @@ fun TransactionItem(
                 Icons.Default.ArrowDownward
             }
             Triple(
-                colors.statusSuccess.copy(alpha = 0.12f),
-                colors.statusSuccess,
+                Color(0x1A10B981), // Soft emerald badge
+                com.andina.finanzas.ui.theme.SemanticIncomeEmerald,
                 iconVec
             )
         }
         isTransfer -> Triple(
-            colors.textLink.copy(alpha = 0.12f),
-            colors.textLink,
+            Color(0x1A0EA5E9), // Soft cyan badge
+            com.andina.finanzas.ui.theme.SemanticTransferCyan,
             Icons.AutoMirrored.Filled.CompareArrows
         )
         else -> {
-            val baseColor = if (transaction.isAntExpense) colors.statusWarning else colors.statusDanger
+            val baseColor = if (transaction.isAntExpense) colors.statusWarning else com.andina.finanzas.ui.theme.SemanticExpenseCoral
+            val badgeBg = if (transaction.isAntExpense) colors.statusWarning.copy(alpha = 0.16f) else Color(0x1AEF4444)
             Triple(
-                baseColor.copy(alpha = 0.12f),
+                badgeBg,
                 baseColor,
                 CategoryIconHelper.getIcon(transaction.categoryIcon)
             )
         }
     }
 
-    // Texto del signo monetario y color de la cifra
+    // Texto del signo monetario y color de la cifra según semántica contable
     val (amountPrefix, amountColor) = when {
-        isIncome -> "+ " to colors.statusSuccess
-        isTransfer -> "" to colors.textPrimary
-        else -> "- " to colors.textPrimary
+        isIncome -> "+$ " to com.andina.finanzas.ui.theme.SemanticIncomeEmerald
+        isTransfer -> "⇄ $ " to com.andina.finanzas.ui.theme.SemanticTransferCyan
+        else -> "-$ " to com.andina.finanzas.ui.theme.SemanticExpenseCoral
     }
 
     Surface(
@@ -206,13 +207,16 @@ fun TransactionItem(
                 val dateString = formatDate(transaction.occurredAt)
                 val categoryPart = if (hasCustomNote && !transaction.categoryName.isNullOrBlank()) transaction.categoryName else null
                 val walletContext = buildString {
-                    if (categoryPart != null) {
-                        append("$categoryPart · ")
-                    }
-                    append(dateString)
-                    transaction.walletName?.let { append(" · $it") }
-                    if (isTransfer && transaction.toWalletName != null) {
-                        append(" ➔ ${transaction.toWalletName}")
+                    if (isTransfer) {
+                        val from = transaction.walletName ?: "Origen"
+                        val to = transaction.toWalletName ?: "Destino"
+                        append("$from → $to · $dateString")
+                    } else {
+                        if (categoryPart != null) {
+                            append("$categoryPart · ")
+                        }
+                        append(dateString)
+                        transaction.walletName?.let { append(" · $it") }
                     }
                 }
 

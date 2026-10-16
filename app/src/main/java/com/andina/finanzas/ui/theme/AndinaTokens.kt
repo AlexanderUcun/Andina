@@ -27,7 +27,7 @@ data class AndinaColors(
     val textSecondary: Color = Color(0xFF4B525A),
     val textMoney: Color = Color(0xFF6E5220), // Oro bronce para texto corriente
     val textMoneyDisplay: Color = Color(0xFF8A6A2F), // Oro luminoso para cifras display >= 24sp
-    val textLink: Color = Color(0xFF2563EB),
+    val textLink: Color = AndeanPrimary, // Enlaces de acción con la identidad de marca andina (reemplaza azul eléctrico)
 
     // 3.3 Acentos y Estados
     val accentGold: Color = Color(0xFFC5A059),
@@ -38,11 +38,18 @@ data class AndinaColors(
     val statusDanger: Color = Color(0xFF991B1B),
     val statusDangerFill: Color = Color(0xFFDC2626),
 
+    // Tokens Semánticos Contables Obligatorios
+    val semanticIncome: Color = SemanticIncomeEmerald,
+    val semanticExpense: Color = SemanticExpenseCoral,
+    val semanticTransfer: Color = SemanticTransferCyan,
+    val semanticDebtReceivable: Color = SemanticDebtReceivableGold,
+    val semanticDebtPayable: Color = SemanticDebtPayableOrange,
+
     // 3.4 Navegación de Lujo (Vivid Jewel Tones con alto contraste)
     val navHome: Color = Color(0xFFD4AF37),        // Oro Solar Champagne
     val navTransactions: Color = Color(0xFF2563EB), // Azul Zafiro Glaciar
     val navWallets: Color = Color(0xFF10B981),      // Esmeralda Viva
-    val navConsultorio: Color = Color(0xFF8B5CF6),  // Amatista Cuarzo IA
+    val navConsultorio: Color = AndeanPrimary,      // Verde Musgo Andino (sin tinte púrpura neón)
     val navInactive: Color = Color(0xFF64748B)      // Platino Pizarra
 ) {
     val canvasGradient: Brush
@@ -117,4 +124,35 @@ object LegacyColorMapper {
         val luminance = 0.299 * background.red + 0.587 * background.green + 0.114 * background.blue
         return if (luminance > 0.5) Color(0xFF1E2022) else Color(0xFFFFFFFF)
     }
+}
+
+/**
+ * Opción de color para personalización de categorías con nombres andinos.
+ */
+data class CategoryColorOption(
+    val hex: String,
+    val name: String,
+    val color: Color
+)
+
+/**
+ * Paleta de colores completa curada para personalización de categorías.
+ */
+object AndinaCategoryPalette {
+    val options = listOf(
+        CategoryColorOption("#C5A059", "Oro Frailejón", Color(0xFFC5A059)),
+        CategoryColorOption("#435C3C", "Verde Páramo", Color(0xFF435C3C)),
+        CategoryColorOption("#15803D", "Esmeralda", Color(0xFF15803D)),
+        CategoryColorOption("#2563EB", "Azul Glaciar", Color(0xFF2563EB)),
+        CategoryColorOption("#8B5CF6", "Amatista", Color(0xFF8B5CF6)),
+        CategoryColorOption("#D97706", "Ámbar Miel", Color(0xFFD97706)),
+        CategoryColorOption("#EA580C", "Terracota", Color(0xFFEA580C)),
+        CategoryColorOption("#DC2626", "Rojo Volcán", Color(0xFFDC2626)),
+        CategoryColorOption("#DB2777", "Rosa Orquídea", Color(0xFFDB2777)),
+        CategoryColorOption("#0D9488", "Turquesa Laguna", Color(0xFF0D9488)),
+        CategoryColorOption("#4A3E3D", "Moca Café", Color(0xFF4A3E3D)),
+        CategoryColorOption("#64748B", "Platino Pizarra", Color(0xFF64748B)),
+        CategoryColorOption("#4F46E5", "Índigo Andino", Color(0xFF4F46E5)),
+        CategoryColorOption("#059669", "Jade Montaña", Color(0xFF059669))
+    )
 }

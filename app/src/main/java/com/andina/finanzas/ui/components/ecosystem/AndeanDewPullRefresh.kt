@@ -48,24 +48,24 @@ import com.andina.finanzas.ui.theme.AndeanSplashColors
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import kotlin.math.PI
-import kotlin.math.cos
 import kotlin.math.sin
 
 /**
- * Contenedor Pull-to-Refresh con Splash de Agua Andina Fluido de lado a lado (AndeanDewPullRefresh).
+ * Contenedor Pull-to-Refresh con Marea y Ola de Agua Andina continua de izquierda a derecha (AndeanDewPullRefresh).
  *
  * Características:
- * 1. Renderizado inmediato desde el primer píxel de arrastre (sobre-desplazamiento en tiempo real).
- * 2. Cascada orgánica de agua de ancho completo ("de lado a lado") con gotas colgantes y un chorro central protagonista.
- * 3. Ondulación líquida continua de fluidos durante el estado de recarga activa.
- * 4. Gotas perladas suspendidas y menisco de espuma cristalina reflectante.
- * 5. Retracción elástica suave al completar la recarga.
+ * 1. Detección inmediata en pre-scroll: responde y es visible desde el primer píxel de arrastre sin esperar a soltar.
+ * 2. Geometría de ola líquida armónica completamente suave (cero puntas o estalactitas).
+ * 3. Movimiento continuo de onda viajera de izquierda a derecha.
+ * 4. Capas multicapa de agua: resplandor ambiental, onda de fondo y ola principal con cresta espumosa.
+ * 5. Perlas de espuma marina y destellos que cabalgan las crestas de la ola.
  */
 @Composable
 fun AndeanDewPullRefresh(
     isRefreshing: Boolean,
     onRefresh: () -> Unit,
     modifier: Modifier = Modifier,
+    canScrollBackward: () -> Boolean = { false },
     refreshThreshold: Dp = 72.dp,
     content: @Composable BoxScope.() -> Unit
 ) {
@@ -75,22 +75,22 @@ fun AndeanDewPullRefresh(
 
     val thresholdPx = with(density) { refreshThreshold.toPx() }
     val fullRefreshHoldPx = with(density) { 68.dp.toPx() }
-    val maxDragPx = thresholdPx * 1.70f
+    val maxDragPx = thresholdPx * 1.65f
 
     var pullOffset by remember { mutableFloatStateOf(0f) }
     var hasTriggeredHaptic by remember { mutableStateOf(false) }
     var animationJob by remember { mutableStateOf<Job?>(null) }
 
-    // Fase continua de ondulación líquida
-    val liquidPhase = remember { Animatable(0f) }
+    // Fase continua de la ola viajera (fluye suavemente de izquierda a derecha)
+    val wavePhase = remember { Animatable(0f) }
     // Opacidad de salida suave
     val exitAlpha = remember { Animatable(1f) }
 
     LaunchedEffect(Unit) {
-        liquidPhase.animateTo(
+        wavePhase.animateTo(
             targetValue = (2 * PI).toFloat(),
             animationSpec = infiniteRepeatable(
-                animation = tween(durationMillis = 2200, easing = LinearEasing),
+                animation = tween(durationMillis = 2400, easing = LinearEasing),
                 repeatMode = RepeatMode.Restart
             )
         )
@@ -117,7 +117,7 @@ fun AndeanDewPullRefresh(
                 launch {
                     exitAlpha.animateTo(
                         targetValue = 0f,
-                        animationSpec = tween(durationMillis = 350, easing = FastOutSlowInEasing)
+                        animationSpec = tween(durationMillis = 320, easing = FastOutSlowInEasing)
                     )
                 }
                 launch {
@@ -138,17 +138,34 @@ fun AndeanDewPullRefresh(
         }
     }
 
-    val nestedScrollConnection = remember {
+    val nestedScrollConnection = remember(canScrollBackward, isRefreshing) {
         object : NestedScrollConnection {
             override fun onPreScroll(available: Offset, source: NestedScrollSource): Offset {
                 if (isRefreshing) return Offset.Zero
 
-                // Al deslizar hacia arriba mientras hay sobre-desplazamiento activo, consumir primero
-                if (available.y < 0 && pullOffset > 0f) {
-                    val consumed = available.y
-                    pullOffset = (pullOffset + consumed).coerceAtLeast(0f)
-                    return Offset(0f, consumed)
+                // 1. Al arrastrar hacia abajo (available.y > 0) y el scroll está en el tope superior
+                if (available.y > 0 && !canScrollBackward()) {
+                    val resistance = 0.52f
+                    val delta = available.y * resistance
+                    pullOffset = (pullOffset + delta).coerceAtMost(maxDragPx)
+
+                    if (pullOffset >= thresholdPx && !hasTriggeredHaptic) {
+                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                        hasTriggeredHaptic = true
+                    }
+                    return Offset(0f, available.y)
                 }
+
+                // 2. Al arrastrar hacia arriba (available.y < 0) mientras la ola está desplegada
+                if (available.y < 0 && pullOffset > 0f) {
+                    val consumedY = available.y.coerceAtLeast(-pullOffset)
+                    pullOffset = (pullOffset + consumedY).coerceAtLeast(0f)
+                    if (pullOffset < thresholdPx) {
+                        hasTriggeredHaptic = false
+                    }
+                    return Offset(0f, consumedY)
+                }
+
                 return Offset.Zero
             }
 
@@ -159,18 +176,14 @@ fun AndeanDewPullRefresh(
             ): Offset {
                 if (isRefreshing) return Offset.Zero
 
+                // Respaldo secundario si la lista no consumió desplazamiento hacia abajo
                 if (available.y > 0) {
                     val resistance = 0.52f
-                    val newOffset = (pullOffset + available.y * resistance).coerceAtMost(maxDragPx)
-                    pullOffset = newOffset
-
-                    if (newOffset >= thresholdPx) {
-                        if (!hasTriggeredHaptic) {
-                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                            hasTriggeredHaptic = true
-                        }
-                    } else {
-                        hasTriggeredHaptic = false
+                    val delta = available.y * resistance
+                    pullOffset = (pullOffset + delta).coerceAtMost(maxDragPx)
+                    if (pullOffset >= thresholdPx && !hasTriggeredHaptic) {
+                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                        hasTriggeredHaptic = true
                     }
                     return Offset(0f, available.y)
                 }
@@ -180,6 +193,19 @@ fun AndeanDewPullRefresh(
             override suspend fun onPreFling(available: androidx.compose.ui.unit.Velocity): androidx.compose.ui.unit.Velocity {
                 if (pullOffset >= thresholdPx && !isRefreshing) {
                     onRefresh()
+                    animationJob?.cancel()
+                    animationJob = coroutineScope.launch {
+                        animate(
+                            initialValue = pullOffset,
+                            targetValue = fullRefreshHoldPx,
+                            animationSpec = spring(
+                                dampingRatio = Spring.DampingRatioMediumBouncy,
+                                stiffness = Spring.StiffnessLow
+                            )
+                        ) { value, _ ->
+                            pullOffset = value
+                        }
+                    }
                 } else if (!isRefreshing && pullOffset > 0f) {
                     animationJob?.cancel()
                     animationJob = coroutineScope.launch {
@@ -234,7 +260,7 @@ fun AndeanDewPullRefresh(
             val currentOffset = pullOffset
             val isVisible = (currentOffset > 0.5f || isRefreshing) && exitAlpha.value > 0.01f
 
-            // 1. Contenido principal desplazado hacia abajo en GPU conforme baja el agua
+            // 1. Contenido principal desplazado hacia abajo en GPU
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -245,9 +271,9 @@ fun AndeanDewPullRefresh(
                 content()
             }
 
-            // 2. Splash de Agua Andina de lado a lado (Renderizado inmediato visible en primer plano)
+            // 2. Ola de Agua Andina Continua (Viaja de izquierda a derecha suavemente)
             if (isVisible) {
-                val canvasHeightDp = with(density) { (maxDragPx * 1.55f).toDp() }
+                val canvasHeightDp = with(density) { (maxDragPx * 1.6f).toDp() }
 
                 Canvas(
                     modifier = Modifier
@@ -256,128 +282,113 @@ fun AndeanDewPullRefresh(
                         .zIndex(10f)
                 ) {
                     val canvasWidth = size.width
-                    val splashDepth = (currentOffset * 0.90f).coerceAtLeast(4f)
-                    val dragRatio = (currentOffset / thresholdPx).coerceIn(0f, 1.5f)
-                    val alpha = exitAlpha.value * (currentOffset / with(density) { 6.dp.toPx() }).coerceIn(0.2f, 1f)
-                    val phase = liquidPhase.value
+                    val waveDepth = (currentOffset * 0.90f).coerceAtLeast(3f)
+                    val alpha = exitAlpha.value * (currentOffset / with(density) { 4.dp.toPx() }).coerceIn(0.2f, 1f)
+                    val phase = wavePhase.value
 
-                    // A) Resplandor de rocío ambiental sobre el fondo
+                    // A) Resplandor ambiental de rocío andino
                     drawRect(
                         brush = Brush.verticalGradient(
                             colors = listOf(
-                                AndeanSplashColors.AmbientGlow.copy(alpha = 0.55f * alpha),
+                                AndeanSplashColors.AmbientGlow.copy(alpha = 0.50f * alpha),
                                 Color.Transparent
                             ),
                             startY = 0f,
-                            endY = splashDepth * 1.6f
+                            endY = waveDepth * 1.5f
                         ),
-                        size = Size(canvasWidth, splashDepth * 1.6f)
+                        size = Size(canvasWidth, waveDepth * 1.5f)
                     )
 
-                    // B) Capa de agua secundaria de fondo (profundidad 3D traslúcida)
-                    val backWavePath = createSecondaryBackWavePath(
+                    // B) Ola de fondo (segunda capa con desfase para volumen y profundidad 3D)
+                    val backWavePath = createRollingWavePath(
                         width = canvasWidth,
-                        depth = splashDepth,
-                        phase = phase
+                        depth = waveDepth * 0.85f,
+                        phase = phase,
+                        wavelengthRatio = 0.75f,
+                        amplitudeRatio = 0.16f,
+                        phaseOffset = 1.4f
                     )
                     drawPath(
                         path = backWavePath,
                         brush = Brush.verticalGradient(
                             colors = listOf(
-                                AndeanSplashColors.MidWater.copy(alpha = 0.35f * alpha),
-                                AndeanSplashColors.LightWater.copy(alpha = 0.50f * alpha)
+                                AndeanSplashColors.MidWater.copy(alpha = 0.38f * alpha),
+                                AndeanSplashColors.LightWater.copy(alpha = 0.55f * alpha)
                             ),
                             startY = 0f,
-                            endY = splashDepth
+                            endY = waveDepth
                         )
                     )
 
-                    // C) Splash de Agua Frontal Principal (Cascada de lado a lado con chorro protagonista)
-                    val frontSplashPath = createWaterSplashPath(
+                    // C) Ola frontal principal (Ondulación armónica de izquierda a derecha)
+                    val frontWavePath = createRollingWavePath(
                         width = canvasWidth,
-                        depth = splashDepth,
-                        phase = phase
+                        depth = waveDepth,
+                        phase = phase,
+                        wavelengthRatio = 0.65f,
+                        amplitudeRatio = 0.20f,
+                        phaseOffset = 0f
                     )
 
                     val waterFillBrush = Brush.verticalGradient(
                         colors = listOf(
-                            AndeanSplashColors.DeepWater.copy(alpha = 0.92f * alpha),
-                            AndeanSplashColors.MidWater.copy(alpha = 0.95f * alpha),
+                            AndeanSplashColors.DeepWater.copy(alpha = 0.90f * alpha),
+                            AndeanSplashColors.MidWater.copy(alpha = 0.94f * alpha),
                             AndeanSplashColors.LightWater.copy(alpha = 0.98f * alpha)
                         ),
                         startY = 0f,
-                        endY = splashDepth * 1.35f
+                        endY = waveDepth * 1.25f
                     )
-                    drawPath(path = frontSplashPath, brush = waterFillBrush)
+                    drawPath(path = frontWavePath, brush = waterFillBrush)
 
-                    // D) Menisco de espuma y destello cristalino blanco en el borde inferior
-                    val meniscusBrush = Brush.verticalGradient(
+                    // D) Cresta de espuma blanca (Borde menisco líquido suave trazado solo sobre la cresta)
+                    val crestStrokePath = createWaveCrestLine(
+                        width = canvasWidth,
+                        depth = waveDepth,
+                        phase = phase,
+                        wavelengthRatio = 0.65f,
+                        amplitudeRatio = 0.20f,
+                        phaseOffset = 0f
+                    )
+                    val foamBrush = Brush.horizontalGradient(
                         colors = listOf(
-                            Color.White.copy(alpha = 0.95f * alpha),
-                            AndeanSplashColors.CausticFoam.copy(alpha = 0.80f * alpha),
-                            AndeanSplashColors.LightWater.copy(alpha = 0.40f * alpha)
+                            Color.White.copy(alpha = 0.70f * alpha),
+                            Color.White.copy(alpha = 0.98f * alpha),
+                            AndeanSplashColors.CausticFoam.copy(alpha = 0.90f * alpha),
+                            Color.White.copy(alpha = 0.70f * alpha)
                         ),
-                        startY = 0f,
-                        endY = splashDepth * 1.35f
+                        startX = 0f,
+                        endX = canvasWidth
                     )
                     drawPath(
-                        path = frontSplashPath,
-                        brush = meniscusBrush,
+                        path = crestStrokePath,
+                        brush = foamBrush,
                         style = Stroke(
-                            width = with(density) { 2.4.dp.toPx() },
+                            width = with(density) { 3.2.dp.toPx() },
                             cap = StrokeCap.Round
                         )
                     )
 
-                    // E) Gotas perladas suspendidas y desprendidas bajo los chorros
-                    // Gota 1: Bajo Chorro Izquierdo (x = 0.20w)
-                    val drop1Center = Offset(
-                        canvasWidth * 0.20f,
-                        splashDepth * (0.98f + 0.06f * sin(phase * 1.2f))
-                    )
-                    val drop1Radius = with(density) { (3.2.dp.toPx() + dragRatio * 0.8.dp.toPx()).coerceAtMost(4.5.dp.toPx()) }
-                    drawDroplet(drop1Center, drop1Radius, alpha)
+                    // E) Perlas de espuma marina y burbujas que cabalgan la cresta de izquierda a derecha
+                    val k1 = (2 * PI / (canvasWidth * 0.65f)).toFloat()
+                    val bubbleCount = 6
+                    for (b in 0 until bubbleCount) {
+                        val normX = (b * 0.17f + (phase / (2 * PI).toFloat()) * 0.40f) % 1.0f
+                        val bx = normX * canvasWidth
+                        val by = waveDepth + sin(k1 * bx - phase) * (waveDepth * 0.20f) - with(density) { 2.dp.toPx() }
+                        val bubbleRadius = with(density) { (2.0.dp.toPx() + (b % 3) * 0.6.dp.toPx()) }
 
-                    // Gota Hero: Bajo Chorro Central Principal (x = 0.48w - Gota más grande y radiante)
-                    val dropHeroCenter = Offset(
-                        canvasWidth * 0.48f,
-                        splashDepth * (1.46f + 0.08f * sin(phase * 1.5f))
-                    )
-                    val dropHeroRadius = with(density) { (4.2.dp.toPx() + dragRatio * 1.6.dp.toPx()).coerceAtMost(6.5.dp.toPx()) }
-                    drawDroplet(dropHeroCenter, dropHeroRadius, alpha, isHero = true)
-
-                    // Gota 3: Bajo Chorro Derecho (x = 0.68w)
-                    val drop3Center = Offset(
-                        canvasWidth * 0.68f,
-                        splashDepth * (1.06f + 0.06f * cos(phase))
-                    )
-                    val drop3Radius = with(density) { (3.0.dp.toPx() + dragRatio * 0.8.dp.toPx()).coerceAtMost(4.2.dp.toPx()) }
-                    drawDroplet(drop3Center, drop3Radius, alpha)
-
-                    // Gota 4: Bajo Chorro Extremo Derecho (x = 0.88w)
-                    val drop4Center = Offset(
-                        canvasWidth * 0.88f,
-                        splashDepth * (0.80f + 0.05f * sin(phase * 1.3f + 1f))
-                    )
-                    val drop4Radius = with(density) { (2.6.dp.toPx() + dragRatio * 0.6.dp.toPx()).coerceAtMost(3.6.dp.toPx()) }
-                    drawDroplet(drop4Center, drop4Radius, alpha)
-
-                    // F) Destellos cáusticos de sol sobre el cuerpo del agua
-                    val glint1X = canvasWidth * (0.44f + 0.06f * sin(phase))
-                    val glint1Y = splashDepth * (0.62f + 0.08f * cos(phase))
-                    drawCircle(
-                        color = Color.White.copy(alpha = 0.92f * alpha),
-                        radius = with(density) { 2.4.dp.toPx() },
-                        center = Offset(glint1X, glint1Y)
-                    )
-
-                    val glint2X = canvasWidth * (0.66f + 0.05f * cos(phase * 1.2f))
-                    val glint2Y = splashDepth * (0.42f + 0.06f * sin(phase * 1.2f))
-                    drawCircle(
-                        color = AndeanSplashColors.DropletGleam.copy(alpha = 0.85f * alpha),
-                        radius = with(density) { 1.8.dp.toPx() },
-                        center = Offset(glint2X, glint2Y)
-                    )
+                        drawCircle(
+                            color = Color.White.copy(alpha = 0.88f * alpha),
+                            radius = bubbleRadius,
+                            center = Offset(bx, by)
+                        )
+                        drawCircle(
+                            color = AndeanSplashColors.DropletGleam.copy(alpha = 0.95f * alpha),
+                            radius = bubbleRadius * 0.45f,
+                            center = Offset(bx - bubbleRadius * 0.25f, by - bubbleRadius * 0.25f)
+                        )
+                    }
                 }
             }
         }
@@ -385,166 +396,75 @@ fun AndeanDewPullRefresh(
 }
 
 /**
- * Traza la cascada frontal orgánica con 5 chorros colgantes de lado a lado.
+ * Traza el polígono cerrado del cuerpo de agua de una ola oceánica sinusoidal continua.
+ * El término (- p) asegura que la onda viaje físicamente de IZQUIERDA a DERECHA.
  */
-private fun createWaterSplashPath(
+private fun createRollingWavePath(
     width: Float,
     depth: Float,
-    phase: Float
+    phase: Float,
+    wavelengthRatio: Float = 0.65f,
+    amplitudeRatio: Float = 0.20f,
+    phaseOffset: Float = 0f
 ): Path {
     val path = Path()
     if (depth <= 0.5f || width <= 0f) return path
 
-    path.moveTo(0f, 0f)
-    path.lineTo(width, 0f)
+    val steps = 50
+    val dx = width / steps
+    val k1 = (2 * PI / (width * wavelengthRatio)).toFloat()
+    val k2 = (2 * PI / (width * wavelengthRatio * 0.50f)).toFloat()
+    val p = phase + phaseOffset
 
-    // Punto extremo derecho
-    val yRight = depth * (0.35f + 0.04f * sin(phase))
-    path.lineTo(width, yRight)
-
-    // 1. Chorro 5 (x = 0.88w): Chorro lateral derecho
-    val x5 = width * 0.88f
-    val y5 = depth * (0.68f + 0.07f * sin(phase * 1.2f + 1f))
-    path.cubicTo(
-        width * 0.94f, yRight + depth * 0.08f,
-        width * 0.91f, y5 - depth * 0.10f,
-        x5, y5
-    )
-
-    // Valle entre Chorro 5 y Chorro 4 (x = 0.78w)
-    val xV4 = width * 0.78f
-    val yV4 = depth * (0.40f + 0.05f * cos(phase + 2f))
-    path.cubicTo(
-        width * 0.85f, y5 - depth * 0.10f,
-        width * 0.81f, yV4,
-        xV4, yV4
-    )
-
-    // 2. Chorro 4 (x = 0.68w): Chorro medio derecho
-    val x4 = width * 0.68f
-    val y4 = depth * (0.92f + 0.09f * sin(phase + 3f))
-    path.cubicTo(
-        width * 0.75f, yV4,
-        width * 0.71f, y4 - depth * 0.14f,
-        x4, y4
-    )
-
-    // Valle entre Chorro 4 y Chorro Central (x = 0.58w)
-    val xV3 = width * 0.58f
-    val yV3 = depth * (0.45f + 0.05f * cos(phase * 1.4f))
-    path.cubicTo(
-        width * 0.65f, y4 - depth * 0.14f,
-        width * 0.61f, yV3,
-        xV3, yV3
-    )
-
-    // 3. CHORRO PROTAGONISTA CENTRAL (x = 0.48w): Gota bulbosa profunda (Screenshot 3)
-    val xHero = width * 0.48f
-    val yHero = depth * (1.28f + 0.12f * sin(phase + 0.6f))
-    path.cubicTo(
-        width * 0.54f, yV3,
-        width * 0.51f, yHero - depth * 0.20f,
-        xHero, yHero
-    )
-
-    // Valle entre Chorro Central y Chorro 2 (x = 0.35w)
-    val xV2 = width * 0.35f
-    val yV2 = depth * (0.48f + 0.06f * sin(phase * 1.1f + 2.5f))
-    path.cubicTo(
-        width * 0.45f, yHero - depth * 0.20f,
-        width * 0.39f, yV2,
-        xV2, yV2
-    )
-
-    // 4. Chorro 2 (x = 0.20w): Chorro medio izquierdo
-    val x2 = width * 0.20f
-    val y2 = depth * (0.84f + 0.08f * cos(phase * 1.3f))
-    path.cubicTo(
-        width * 0.30f, yV2,
-        width * 0.24f, y2 - depth * 0.12f,
-        x2, y2
-    )
-
-    // Punto extremo izquierdo
-    val yLeft = depth * (0.36f + 0.05f * cos(phase))
-    path.cubicTo(
-        width * 0.14f, y2 - depth * 0.12f,
-        width * 0.06f, yLeft,
-        0f, yLeft
-    )
-
-    path.close()
-    return path
-}
-
-/**
- * Traza la onda secundaria de fondo para dar volumen tridimensional al agua.
- */
-private fun createSecondaryBackWavePath(
-    width: Float,
-    depth: Float,
-    phase: Float
-): Path {
-    val path = Path()
-    if (depth <= 0.5f || width <= 0f) return path
-
-    path.moveTo(0f, 0f)
-    path.lineTo(width, 0f)
-    val d = depth * 0.72f
-    val p = phase + 1.4f
-
-    path.lineTo(width, d * (0.32f + 0.04f * cos(p)))
-
-    val steps = 6
-    val stepW = width / steps
-    for (i in steps - 1 downTo 0) {
-        val x = i * stepW
-        val y = d * (0.45f + 0.22f * sin(p + i * 1.2f))
-        val prevX = (i + 1) * stepW
-        val prevY = d * (0.45f + 0.22f * sin(p + (i + 1) * 1.2f))
-        path.cubicTo(prevX - stepW * 0.35f, prevY, x + stepW * 0.35f, y, x, y)
+    fun waveY(x: Float): Float {
+        val primaryHarmonic = sin(k1 * x - p) * (depth * amplitudeRatio)
+        val secondaryHarmonic = sin(k2 * x - p * 1.25f) * (depth * amplitudeRatio * 0.25f)
+        return (depth + primaryHarmonic + secondaryHarmonic).coerceAtLeast(2f)
     }
+
+    path.moveTo(0f, 0f)
+    path.lineTo(0f, waveY(0f))
+
+    for (i in 1..steps) {
+        val x = i * dx
+        path.lineTo(x, waveY(x))
+    }
+
+    path.lineTo(width, 0f)
     path.close()
     return path
 }
 
 /**
- * Dibuja una gota perlada tridimensional con degradado radial y destello cáustico.
+ * Traza únicamente la línea inferior de la cresta (para aplicar el trazo de espuma sin pintar bordes en la pantalla).
  */
-private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawDroplet(
-    center: Offset,
-    radius: Float,
-    alpha: Float,
-    isHero: Boolean = false
-) {
-    if (radius <= 0.5f) return
+private fun createWaveCrestLine(
+    width: Float,
+    depth: Float,
+    phase: Float,
+    wavelengthRatio: Float = 0.65f,
+    amplitudeRatio: Float = 0.20f,
+    phaseOffset: Float = 0f
+): Path {
+    val path = Path()
+    if (depth <= 0.5f || width <= 0f) return path
 
-    drawCircle(
-        brush = Brush.radialGradient(
-            colors = listOf(
-                Color.White.copy(alpha = 0.95f * alpha),
-                AndeanSplashColors.LightWater.copy(alpha = 0.90f * alpha),
-                AndeanSplashColors.MidWater.copy(alpha = 0.95f * alpha)
-            ),
-            center = Offset(center.x - radius * 0.25f, center.y - radius * 0.25f),
-            radius = radius * 1.1f
-        ),
-        radius = radius,
-        center = center
-    )
+    val steps = 50
+    val dx = width / steps
+    val k1 = (2 * PI / (width * wavelengthRatio)).toFloat()
+    val k2 = (2 * PI / (width * wavelengthRatio * 0.50f)).toFloat()
+    val p = phase + phaseOffset
 
-    // Borde fino de refracción
-    drawCircle(
-        color = Color.White.copy(alpha = 0.85f * alpha),
-        radius = radius,
-        center = center,
-        style = Stroke(width = 1f)
-    )
+    fun waveY(x: Float): Float {
+        val primaryHarmonic = sin(k1 * x - p) * (depth * amplitudeRatio)
+        val secondaryHarmonic = sin(k2 * x - p * 1.25f) * (depth * amplitudeRatio * 0.25f)
+        return (depth + primaryHarmonic + secondaryHarmonic).coerceAtLeast(2f)
+    }
 
-    // Destello de luz especular interior
-    drawCircle(
-        color = Color.White.copy(alpha = 0.98f * alpha),
-        radius = if (isHero) radius * 0.32f else radius * 0.25f,
-        center = Offset(center.x - radius * 0.35f, center.y - radius * 0.35f)
-    )
+    path.moveTo(0f, waveY(0f))
+    for (i in 1..steps) {
+        val x = i * dx
+        path.lineTo(x, waveY(x))
+    }
+    return path
 }
